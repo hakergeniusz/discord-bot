@@ -6,7 +6,7 @@ import asyncio
 from ollama import chat, ChatResponse
 import os
 
-owner_id = os.environ['OWNER_ID']
+owner_id = int(os.environ.get('OWNER_ID'))
 def safety_filter(message):
     response_s: ChatResponse = chat(model='llama-guard3:1b', messages=[
         {
