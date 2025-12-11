@@ -17,7 +17,8 @@ NOTE: These commands are for Linux. If you use Windows, please use **Windows Sub
 3. Create a Python Venv with `python3 -m venv .venv`.
 4. Activate Venv with `source .venv/bin/activate`.
 5. Install all required libraries with `pip install -r requirements.txt`.
-6. Fill up `.env` file.
+6. Install my library from `libr.zip`.
+7. Fill up `.env` file.
 
 
 > **Note on `.env` values:**
