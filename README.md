@@ -30,7 +30,7 @@ NOTE: These commands are for Linux. If you use Windows, please use **Windows Sub
 > * `DISCORD_BOT_TOKEN`: Your Discord bot token from Discord Developer Program.
 > * `OWNER_ID`: Your Discord user ID or other account that you want it to have all permissions
 
-## 🟢 Running the bot
+## 🚀 Running the bot
 With your `.venv` active, execute the following command: 
 ```bash
 python3 bot.py
