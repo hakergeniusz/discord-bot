@@ -3,10 +3,9 @@ from discord.ext import commands
 from discord import app_commands
 from dotenv import load_dotenv
 import os
-from libr.webhooks import webhook_deleter
 
 load_dotenv()
-owner_id = int(os.environ.get('owner_id'))
+owner_id = int(os.environ.get('OWNER_ID'))
 
 def admin_check():
     async def predicate(interaction: discord.Interaction) -> bool:
@@ -103,8 +102,8 @@ class ownerCommands(commands.Cog):
     @app_commands.command(name='delete_webhook', description='Deletes a webhook')
     @app_commands.describe(webhook='Webhook link.')
     async def delete_webhook(self, interaction: discord.Interaction, webhook: str):
-        res = webhook_deleter(webhook) # Note that it returns only a response code
-        if res == 404:
+        res = requests.delete(webhook)
+        if res == 404 or res == 401:
             await interaction.response.send_message('This webhook does not exist. You may have already deleted it.')
         elif res == 200 or 204:
             await interaction.response.send_message('Removed webhook successfully')
