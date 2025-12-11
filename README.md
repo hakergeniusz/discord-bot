@@ -1,5 +1,5 @@
 ## Introduction
-This bot has been made to learn Discord.py and it is really not useful on a server. 
+This bot has been made to learn Discord.py and it is not useful on a server. 
 
 ## Prerequisites
 You must have following installed on your computer for this bot to work correctly:
@@ -30,5 +30,7 @@ NOTE: These commands are for Linux. If you use Windows, please use **Windows Sub
 > * `OWNER_ID`: Your Discord user ID or other account that you want it to have all permissions
 
 ## Running the bot
-1. Open the virtual environment (venv) with `source .venv/bin/activate`.
-2. Run the `bot.py` with `python3 bot.py`.
+With `.venv` open, execute the following command: 
+```bash
+python3 bot.py
+```
