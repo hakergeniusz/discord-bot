@@ -105,7 +105,7 @@ class ownerCommands(commands.Cog):
         res = requests.delete(webhook)
         if res == 404 or res == 401:
             await interaction.response.send_message('This webhook does not exist. You may have already deleted it.')
-        elif res == 200 or 204:
+        elif res == 200 or res == 204:
             await interaction.response.send_message('Removed webhook successfully')
         else:
             await interaction.response.send_message(f'Webhook may not have been deleted. Response code is {res}.')
