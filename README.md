@@ -8,4 +8,5 @@ idk what it does, you can do anything with the code you want with it
 Required things: 
 - A Discord bot token
 - Python 3.10+ installed
-- Discord.py and few other dependencies.
+- All libraries from requirements.txt
+- Ollama on your computer with `llama-guard:1b` and `gemma3:270m`. It is not necessary, but it will cause errors when using `/ai`.
