@@ -42,15 +42,18 @@ class Utility(commands.Cog):
     @app_commands.describe(webhook="URL of the webhook", message="Message that you want to send from the webhook", name="The name how webhook will appear", avatar_url="URL of the avatar you want to appear")
     async def webhook(self, interaction: discord.Interaction, webhook: str, message: str, name: str = None, avatar_url: str = None):
         async with aiohttp.ClientSession() as session:
-            async with session.post(webhook) as response:
+            async with session.get(webhook) as response:
                 if response.status == 401:
                     await interaction.response.send_message("Invalid webhook URL.", ephemeral=True)
                     print(f"{interaction.user.name} tried to send a message '{message}' to a webhook '{webhook}' but 401")
-        async with aiohttp.ClientSession() as session:
-            async with session.post(webhook) as response:
-                if response.status == 404:
-                    await interaction.response.send_message("Incorrect avatar URL", ephemeral=True)
-                    print(f"{interaction.user.name} thought that {avatar_url} was a URL ")
+                    return
+        
+        if avatar_url:
+            async with aiohttp.ClientSession() as session:
+                async with session.get(avatar_url) as response:
+                    if response.status == 404:
+                        await interaction.response.send_message("Incorrect avatar URL", ephemeral=True)
+                        print(f"{interaction.user.name} thought that {avatar_url} was a URL ")
                     return
         data = {
             "content": message,
