@@ -54,7 +54,7 @@ async def did_exist(season, roundnumber):
     if event_row.empty:
         return None
     else:
-        return 'Test'
+        return True
 
 class F1Commands(commands.Cog):
     def __init__(self, bot: commands.Bot):
