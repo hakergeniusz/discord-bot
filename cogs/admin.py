@@ -6,7 +6,7 @@ import os
 import aiohttp
 
 load_dotenv()
-owner_id = int(os.environ.get('OWNER_ID'))
+owner_id = int(os.environ['DISCORD_OWNER_ID'])
 
 def admin_check():
     async def predicate(interaction: discord.Interaction) -> bool:
