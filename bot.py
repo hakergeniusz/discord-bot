@@ -5,7 +5,7 @@ from discord.ext import commands
 import asyncio
 
 load_dotenv()
-token = os.environ.get("DISCORD_BOT_TOKEN")
+token = os.environ['DISCORD_BOT_TOKEN']
 
 intents = discord.Intents.default()
 intents.message_content = True
