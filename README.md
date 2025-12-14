@@ -19,6 +19,7 @@ You must have following installed on your computer for this bot to work correctl
 ## 💻 Preparation
 NOTE: These commands are for Linux. If you use Windows, please use **Windows Subsystem for Linux** (WSL).
 1. Download all files from this repository with `git clone https://github.com/hakergeniusz/discord-bot.git`.
+> **Note:** When downloading by this exact command, you download from `main` branch. Main branch can be unstable, so for more stability, please use releases instead.
 2. Open the folder with `cd discord-bot`.
 3. Create a Python venv with `python3 -m venv .venv`.
 4. Activate venv with `source .venv/bin/activate`.
