@@ -35,4 +35,4 @@ async def main():
 try:
     asyncio.run(main())
 except KeyboardInterrupt as e:
-    await bot.close()
+    bot.close()
