@@ -6,6 +6,26 @@ import asyncio
 
 beeping = 0
 
+def create_file(id: int):
+    if not id:
+        return
+    path = 'tmp/howmanytimes/'
+    if os.path.exists(f'{path}{id}.txt'):
+        return
+    with open(f'{path}{id}.txt','w') as f:
+        f.write('0')
+
+
+def change_file(id: int):
+    path = 'tmp/howmanytimes/'
+    if not os.path.exists(f'{path}{id}.txt'):
+        asyncio.gather(create_file(id))
+    with open(f'{path}{id}.txt', 'r') as f:
+        count = int(f.read())
+    with open(f'{path}{id}.txt', 'w') as f:
+        f.write(f'{count + 1}')
+        return count + 1
+
 class Meme(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
@@ -53,20 +73,11 @@ class Meme(commands.Cog):
     @app_commands.command(name="howmanytimes", description="Says how many times was the command typed")
     async def howmanytimes(self, interaction: discord.Interaction):
         if not os.path.exists(f'tmp/howmanytimes/{interaction.user.id}.txt'):
-            with open(f'tmp/howmanytimes/{interaction.user.id}.txt', 'w') as file:
-                file.write('0')
-
-        with open(f'tmp/howmanytimes/{interaction.user.id}.txt', 'r') as file:
-            content = file.read()
-            content = int(content)
-        content += 1
-
-        with open(f'tmp/howmanytimes/{interaction.user.id}.txt', 'w') as file:
-            file.write(str(content))
-        if content == 1:
-            await interaction.response.send_message(f'You have used this command {content} time.', ephemeral=True)
-        else:
-            await interaction.response.send_message(f'You have used this command {content} times.', ephemeral=True)
+            await asyncio.to_thread(create_file, interaction.user.id)
+        count = await asyncio.to_thread(change_file, interaction.user.id)
+        if count == 1:
+            await interaction.response.send_message(f'You have used this command {count} time.')
+        await interaction.response.send_message(f'You have used this command {count} times.')
 
     @app_commands.command(name="complain", description="Compain to the bot owner.")
     async def complain(self, interaction: discord.Interaction):
