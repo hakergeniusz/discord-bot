@@ -77,6 +77,7 @@ class Meme(commands.Cog):
         count = await asyncio.to_thread(change_file, interaction.user.id)
         if count == 1:
             await interaction.response.send_message(f'You have used this command {count} time.')
+            return
         await interaction.response.send_message(f'You have used this command {count} times.')
 
     @app_commands.command(name="complain", description="Compain to the bot owner.")
