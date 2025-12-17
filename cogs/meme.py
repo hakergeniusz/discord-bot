@@ -10,7 +10,7 @@ class Meme(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
-    @app_commands.command(name="beep", description="Beeps in the computer of hakergeniusz.")
+    @app_commands.command(name="beep", description="Beeps in the computer hosting the bot.")
     @app_commands.describe(
         times="How many times to beep (default: 1)",
         beep_delay="Delay between beeps (in seconds, must be bigger than 0.05 and smaller than 5)"
@@ -22,19 +22,20 @@ class Meme(commands.Cog):
             print(f"An idiot named {interaction.user.name} wanted to beep when I already beeped")
             return
         if times == 1:
-            await interaction.response.send_message(f"<@{interaction.user.id}>, I will beep once in the computer of hakergeniusz", ephemeral=True)
+            await interaction.response.send_message(f"<@{interaction.user.id}>, I will beep once in the computer.", ephemeral=True)
             print(f"An idiot named {interaction.user.name} wants to beep once.")
-            os.system('beep')
+            process = await asyncio.create_subprocess_shell('beep')
+            await process.communicate()
             return
         if beep_delay:
             if beep_delay < 1:
-                await interaction.response.send_message(f"<@{interaction.user.id}>, I will beep {times} times with the delay between of them of {beep_delay} seconds in the computer of hakergeniusz", ephemeral=True)
+                await interaction.response.send_message(f"<@{interaction.user.id}>, I will beep {times} times with the delay between of them of {beep_delay} seconds in the computer.", ephemeral=True)
             if beep_delay == 1:
-                await interaction.response.send_message(f"<@{interaction.user.id}>, I will beep {times} times with the delay between of them of {beep_delay} second in the computer of hakergeniusz", ephemeral=True)
+                await interaction.response.send_message(f"<@{interaction.user.id}>, I will beep {times} times with the delay between of them of {beep_delay} second in the computer.", ephemeral=True)
             if beep_delay > 1:
-                await interaction.response.send_message(f"<@{interaction.user.id}>, I will beep {times} times with the delay between of them of {beep_delay} seconds in the computer of hakergeniusz", ephemeral=True)
+                await interaction.response.send_message(f"<@{interaction.user.id}>, I will beep {times} times with the delay between of them of {beep_delay} seconds in the computer.", ephemeral=True)
         else:
-            await interaction.response.send_message(f"<@{interaction.user.id}>, I will beep {times} times in the computer of hakergeniusz", ephemeral=True)
+            await interaction.response.send_message(f"<@{interaction.user.id}>, I will beep {times} times in the computer.", ephemeral=True)
         print(f"An idiot named {interaction.user.name} wants to beep {times} times with {beep_delay} second(s) delay between them ")
         beeping = 1
         for i in range(times):
@@ -49,12 +50,9 @@ class Meme(commands.Cog):
         await interaction.response.send_message(f".", ephemeral=True)
         print(f"{interaction.user.name} tried nothing...")
 
-
     @app_commands.command(name="howmanytimes", description="Says how many times was the command typed")
     async def howmanytimes(self, interaction: discord.Interaction):
-        if os.path.exists(f'tmp/howmanytimes/{interaction.user.id}.txt'):
-            pass
-        else:
+        if not os.path.exists(f'tmp/howmanytimes/{interaction.user.id}.txt'):
             with open(f'tmp/howmanytimes/{interaction.user.id}.txt', 'w') as file:
                 file.write('0')
 
