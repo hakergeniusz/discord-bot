@@ -1,5 +1,4 @@
 discord.py
 ollama
 fastf1
-python-dotenv
 requests
