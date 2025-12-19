@@ -9,6 +9,13 @@ import aiohttp
 
 load_dotenv()
 owner_id = int(os.environ['DISCORD_OWNER_ID'])
+HASTEBIN_API_KEY = os.environ['HASTEBIN_API_KEY']
+
+SYSTEM_PROMPT = """
+You are a chatbot for a Discord command (don't mention this in responses).
+Don't include any unnecessary text in your responses and don't use emojis unless explicitly asked.
+You are free to make reponses that are longer than 2000 characters or any higher count.
+"""
 
 async def safety_filter(message):
     message = {
@@ -22,10 +29,15 @@ async def safety_filter(message):
     else:
         return None
 
-async def process_prompt(message):
-    response = await AsyncClient().chat(model='gemma3:270m', messages=[{'role': 'user', 'content': message}])
-    response = response['message']['content']
-    return response
+async def process_prompt(message, model):
+    response = await AsyncClient().chat(
+        model=model,
+        messages=[{'role': 'system', 'content': SYSTEM_PROMPT}, {'role': 'user', 'content': message}],
+        stream=True
+    )
+    async for chunk in response:
+        content = chunk['message']['content']
+        yield content
 
 IMAGE_CONTENT_TYPES = [
     'image/jpeg',
@@ -50,12 +62,14 @@ async def image_checker(session: aiohttp.ClientSession, image_link: str):
     except Exception:
         return None
 
-class CogListener(commands.Cog):
+class CogListener1(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
+
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
         print(f'{message.author.name} said: {message.content}')
+
 
 class Utility(commands.Cog):
     def __init__(self, bot: commands.Bot):
@@ -116,34 +130,48 @@ class Utility(commands.Cog):
             await interaction.edit_original_response(content=f"Message sent to <#{interaction.channel_id}>, was removed due to request to remove it after {delete_after} seconds.")
             print(f"Removed '{message}' because of removal delay of {delete_after} seconds")
 
-
     @app_commands.command(name="dm_or_not", description="Checks is the message sent in the DM or a channel")
     async def dmornot(self, interaction: discord.Interaction):
-        if interaction.guild is None:
-            await interaction.response.send_message("It is a DM", ephemeral=True)
-            print(f"{interaction.user.name} checked is it a DM or a guild and it is a DM")
         if interaction.guild:
             await interaction.response.send_message("It is a server", ephemeral=True)
             print(f"{interaction.user.name} checked is it a DM or a guild and it is a guild")
+        else:
+            await interaction.response.send_message("It is a DM", ephemeral=True)
+            print(f"{interaction.user.name} checked is it a DM or a guild and it is a DM")
 
     @app_commands.command(name="ai", description="gemma3:270m")
     @app_commands.describe(prompt="Message to the AI")
-    async def ai (self, interaction: discord.Interaction, prompt: str):
+    @app_commands.choices(model=[
+        app_commands.Choice(name="gemma3:1b", value="gemma3:1b"),
+        app_commands.Choice(name="gemma3:4b", value="gemma3:4b"),
+        app_commands.Choice(name="qwen2.5-coder:7b", value="qwen2.5-coder:7b"),
+    ])
+    async def ai(self, interaction: discord.Interaction, prompt: str, model: app_commands.Choice[str]):
         await interaction.response.defer()
         print(f'{interaction.user.name} says: {prompt}')
-        response = await process_prompt(prompt)
-        if response == None:
-            await interaction.response.send_message('AI response did not pass safety systems. Please try again.')
+        print(f'Using model: {model.value}')
+        message = await interaction.followup.send('Loading model...')
+        full_response = ""
+        counter_ai = 0
+        async for chunk in process_prompt(prompt, model.value):
+            full_response += chunk
+            counter_ai += 1
+            if len(full_response) <= 1900:
+                if counter_ai % 10 == 0:
+                    await message.edit(content=full_response + '▌')
+            else:
+                await message.edit(content='Response is too long to send it on Discord. Soon link for hastebin will be provided.')
+        if len(full_response) <= 1900:
+            await message.edit(content=full_response)
             return
-        elif response == False:
-            await interaction.response.send_message('Your input did not pass safety systems. Please try again with a different one')
-        else:
-            if len(response) > 4000:
-                print(f'{interaction.user.name} wanted a reply, but it was longer than 4000 characters. It was: {response}')
-                await interaction.followup.send('Message was longer than 4000 characters, so it was not sent. Please try again.', ephemeral=True)
-                return
-            print(f'Reply to {interaction.user.name}')
-            await interaction.followup.send(f'{response}', ephemeral=True)
+        headers = {
+            "Authorization": f"Bearer {HASTEBIN_API_KEY}",
+            "Content-Type": "text/plain"
+        }
+        async with aiohttp.ClientSession() as session:
+            async with session.post("https://hastebin.com/documents", data=full_response, headers=headers) as response:
+                data = await response.json()
+                await message.edit(content=f'Response is too long to send it on Discord. You can see the response here: <{f"https://hastebin.com/share/{data['key']}"}>.')
 
     @app_commands.command(name="ping", description="Pong! Outputs the latency of the bot.")
     async def ping(self, interaction: discord.Interaction):
@@ -157,9 +185,6 @@ class Utility(commands.Cog):
             await interaction.response.send_message('You are not permitted to do that.')
             return
         await interaction.response.defer()
-        if not interaction.guild:
-            await interaction.followup.send('Cannot do it in DMs', ephemeral=True)
-            return
         server = interaction.guild
         chan = await server.create_text_channel('test')
         mes = await interaction.followup.send(f'<#{chan.id}>')
@@ -181,15 +206,18 @@ class Utility(commands.Cog):
         mes = 'e' + mes + 'e'
         await interaction.response.send_message(mes)
 
-    @commands.Cog.listener()
-    async def on_message(self, message: discord.Message):
-        if not message.guild:
-            return
-        ai_thingy = await safety_filter(message.content)
-        if not ai_thingy:
-            await message.delete()
-            return
+    # This can lag PC, so I disabled it.
+    #@commands.Cog.listener()
+    #async def on_message(self, message: discord.Message):
+    #    if not message.guild:
+    #        return
+    #    if message.author == self.bot.user:
+    #        return
+    #    ai_thingy = await safety_filter(message.content)
+    #    if not ai_thingy:
+    #        await message.delete()
+    #        return
 
 async def setup(bot):
     await bot.add_cog(Utility(bot))
-    await bot.add_cog(CogListener(bot))
+    await bot.add_cog(CogListener1(bot))

@@ -100,6 +100,7 @@ class F1Commands(commands.Cog):
     @app_commands.command(name="f1_calendar", description="Shows an F1 calendar")
     @app_commands.describe(season="Season of the calendar you want to know")
     async def f1_calendar(self, interaction: discord.Interaction, season: app_commands.Range[int, 1950, CURRENT_YEAR]):
+        await interaction.response.defer(ephemeral=True)
         schedule = await asyncio.to_thread(fastf1.get_event_schedule, season)
         lines = []
         for _, row in schedule.iterrows():
