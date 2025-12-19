@@ -130,8 +130,8 @@ class Utility(commands.Cog):
     @app_commands.describe(prompt="Message to the AI")
     @app_commands.choices(model=[
         app_commands.Choice(name="gemma3:1b", value="gemma3:1b"),
-        app_commands.Choice(name="gemma3:4b", value="gemma3:4b"),
-        app_commands.Choice(name="qwen2.5-coder:7b", value="qwen2.5-coder:7b"),
+        app_commands.Choice(name="gemma3:4b", value="gemma3:4b"), # this line
+        app_commands.Choice(name="qwen2.5-coder:7b", value="qwen2.5-coder:7b"), # and this line
     ])
     async def ai(self, interaction: discord.Interaction, prompt: str, model: app_commands.Choice[str]):
         await interaction.response.defer()
