@@ -1,6 +1,7 @@
 # 🤖 Discord Bot
-![Won't support Risugami's Modloader](https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/unsupported/risugamis-modloader_vector.svg)
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg?style=for-the-badge)](https://www.gnu.org/licenses/gpl-3.0)
+<img src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/unsupported/risugamis-modloader_vector.svg" height="60">
+
+<img src="https://img.shields.io/badge/License-GPLv3-blue.svg?style=for-the-badge" height="60">
 
 ## 👋 Introduction
 This bot has been made by me with goal to learning Discord.py, it may not be useful on your Discord server.
