@@ -6,7 +6,7 @@
 ---
 
 ## 👋 Introduction
-This bot has been made by me with goal to learning Discord.py, it may not be useful on your Discord server.
+Feature-rich Discord bot made by hakergeniusz with the goal to learning Discord.py. It is licenced with GNU General Public License version 3.
 
 ---
 
@@ -39,7 +39,6 @@ NOTE: These commands are for Linux. If you use Windows, please use **Windows Sub
 > ```
 > DISCORD_BOT_TOKEN=YOUR_BOT_TOKEN
 > DISCORD_OWNER_ID=YOUR_DISCORD_ID
-> HASTEBIN_API_KEY=YOUR_HASTEBIN_TOKEN
 > ```
 > * `DISCORD_BOT_TOKEN`: Your Discord bot token from Discord Developer Program.
 > * `DISCORD_OWNER_ID`: Your Discord user ID or other account that you want it to have all permissions.
@@ -49,7 +48,7 @@ NOTE: These commands are for Linux. If you use Windows, please use **Windows Sub
 ## 🚀 Running the bot
 With your `.venv` active, execute the following command:
 ```bash
-python3 bot.py
+python3 main.py
 ```
 
 ---
