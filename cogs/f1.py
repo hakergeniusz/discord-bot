@@ -116,6 +116,7 @@ class F1Commands(commands.Cog):
     @app_commands.describe(season="Season of the calendar you want to know")
     async def f1_calendar(self, interaction: discord.Interaction, season: app_commands.Range[int, 1950, CURRENT_YEAR]):
         await interaction.response.defer(ephemeral=True)
+        checking_f1_driver = 1
         schedule = await asyncio.to_thread(fastf1.get_event_schedule, season)
         lines = []
         for _, row in schedule.iterrows():
@@ -141,6 +142,41 @@ class F1Commands(commands.Cog):
         )
         await interaction.followup.send(embed=F1Calendar)
 
+    # Many users at once using this may cause this command to malfunction. Fix this later.
+    @app_commands.command(name="f1_driver", description="Shows F1 driver's results in a season.")
+    @app_commands.describe(driver_code="The 3-letter driver code (e.g. VER)", season="Season of the results you want to know.")
+    async def f1_driver(self, interaction: discord.Interaction, driver_code: str, season: app_commands.Range[int, 1950, CURRENT_YEAR]):
+        await interaction.response.defer()
+        driver_code = driver_code.upper()
+        schedule = await asyncio.to_thread(fastf1.get_event_schedule, season)
+        races = schedule[schedule['EventFormat'] != 'testing']
+        results_list = []
+        for _, race in races.iterrows():
+            round_num = race['RoundNumber']
+            race_name = race['EventName']
+            try:
+                session = await asyncio.to_thread(fastf1.get_session, season, round_num, 'R')
+                await asyncio.to_thread(session.load, laps=False, telemetry=False, weather=False, messages=False)
+                driver_result = session.results[session.results['Abbreviation'] == driver_code]
+                if not driver_result.empty:
+                    pos = int(driver_result['Position'].iloc[0])
+                    status = driver_result['Status'].iloc[0]
+                    points = driver_result['Points'].iloc[0]
+                    results_list.append(f"R{round_num}: **P{pos}** at {race_name} ({points} pts)")
+                else:
+                    results_list.append(f"R{round_num}: {race_name} - No Data/DNS")
+            except Exception:
+                continue
+        if not results_list:
+            await interaction.followup.send(f"Could not find any results for driver '{driver_code}' in {season}.")
+            return
+        output = "\n".join(results_list)
+        F1Driver = discord.Embed(
+            title=f"F1 Season Results: {driver_code} ({season})",
+            description=output,
+            color=discord.Color.red()
+        )
+        await interaction.followup.send(embed=F1Driver)
 
 async def setup(bot):
     await bot.add_cog(F1Commands(bot))
