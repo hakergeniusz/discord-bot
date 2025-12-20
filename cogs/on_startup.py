@@ -26,6 +26,7 @@ class SyncCog(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
+        os.system('clear')
         print("-" * 40)
         print(f'Logged on as "{self.bot.user}"')
         print("-" * 40)

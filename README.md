@@ -42,8 +42,7 @@ NOTE: These commands are for Linux. If you use Windows, please use **Windows Sub
 > HASTEBIN_API_KEY=YOUR_HASTEBIN_TOKEN
 > ```
 > * `DISCORD_BOT_TOKEN`: Your Discord bot token from Discord Developer Program.
-> * `DISCORD_OWNER_ID`: Your Discord user ID or other account that you want it to have all permissions
-> * `HASTEBIN_API_KEY`: Your Hastebin API key obtainable on `https://www.toptal.com/developers/hastebin/documentation`.
+> * `DISCORD_OWNER_ID`: Your Discord user ID or other account that you want it to have all permissions.
 
 ---
 

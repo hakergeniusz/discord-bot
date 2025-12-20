@@ -20,9 +20,9 @@ import asyncio
 from ollama import AsyncClient
 import os
 import aiohttp
+import random
 
 OWNER_ID = int(os.environ['DISCORD_OWNER_ID'])
-HASTEBIN_API_KEY = os.environ['HASTEBIN_API_KEY']
 
 SYSTEM_PROMPT = """
 You are a chatbot for a Discord command (don't mention this in responses).
@@ -51,6 +51,10 @@ async def process_prompt(message, model):
     async for chunk in response:
         content = chunk['message']['content']
         yield content
+
+async def create_file(file_name, file_content):
+    with open(f'{file_name}', 'w') as f:
+        f.write(f'{file_content}\n')
 
 IMAGE_CONTENT_TYPES = [
     'image/jpeg',
@@ -162,30 +166,22 @@ class Utility(commands.Cog):
                 if counter_ai % 10 == 0:
                     await message.edit(content=full_response + '▌')
             else:
-                await message.edit(content='Response is too long to send it on Discord. Soon link for hastebin will be provided.')
-                break
+                if len(full_response) <= 1912:
+                    await message.edit(content='Response is too long to send it on Discord. Soon file with full response will be provided.')
         if len(full_response) <= 1900:
             await message.edit(content=full_response)
             return
-        headers = {
-            "Authorization": f"Bearer {HASTEBIN_API_KEY}",
-            "Content-Type": "text/plain"
-        }
-        async with aiohttp.ClientSession() as session:
-            async with session.post("https://hastebin.com/documents", data=full_response, headers=headers) as response:
-                if response.status != 200:
-                    await message.edit(content=f'Failed to upload to Hastebin: Status code: {response.status}.')
-                    return
-                if not 'key' in data:
-                    await message.edit(content='Failed to upload to Hastebin: not recieved the link with response.')
-                    return
-                data = await response.json()
-                await message.edit(content=f'Response is too long to send it on Discord. You can see the response here: <{f"https://hastebin.com/share/{data['key']}"}>.')
-
-    @app_commands.command(name="ping", description="Pong! Outputs the latency of the bot.")
-    async def ping(self, interaction: discord.Interaction):
-        latency = round(self.bot.latency * 1000)
-        await interaction.response.send_message(f'Pong! Latency is {latency}ms')
+        file_name = os.path.join("tmp", f"{random.randint(100000, 999999)}.txt")
+        await create_file(file_name=file_name, file_content=full_response)
+        await asyncio.sleep(0.05)
+        if not os.path.exists(file_name):
+            await message.edit(content='Response is too long to send it on Discord. Error while making a file with full response.')
+            return
+        await message.delete()
+        file = discord.File(f'{file_name}')
+        await interaction.followup.send(content='Here is the file with the full response:',file=file)
+        if os.path.exists(file_name):
+            os.remove(file_name)
 
     @app_commands.command(name="test", description="Reserved for testing purposes.")
     @app_commands.guild_only()
@@ -205,7 +201,7 @@ class Utility(commands.Cog):
         await chan.delete()
         await mes.delete()
 
-    @app_commands.command(name="hide", description="Hides the conversation")
+    @app_commands.command(name="hide_conversation", description="Hides the conversation")
     async def hide(self, interaction: discord.Interaction):
         mes = '''
 
