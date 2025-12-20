@@ -3,8 +3,12 @@
 
 <img src="https://img.shields.io/badge/License-GPLv3-blue.svg?style=for-the-badge" height="60">
 
+---
+
 ## 👋 Introduction
 This bot has been made by me with goal to learning Discord.py, it may not be useful on your Discord server.
+
+---
 
 ## ⚙️ Prerequisites
 You must have following installed on your computer for this bot to work correctly:
@@ -19,6 +23,7 @@ You must have following installed on your computer for this bot to work correctl
 * **FFmpeg** for `/play` command to work correctly.
 * **`example.mp3`** file for the `/play` command to get a file to play. If you don't have one, you can use the default one that is in the repository.
 
+---
 
 ## 💻 Preparation
 NOTE: These commands are for Linux. If you use Windows, please use **Windows Subsystem for Linux** (WSL).
@@ -40,9 +45,17 @@ NOTE: These commands are for Linux. If you use Windows, please use **Windows Sub
 > * `DISCORD_OWNER_ID`: Your Discord user ID or other account that you want it to have all permissions
 > * `HASTEBIN_API_KEY`: Your Hastebin API key obtainable on `https://www.toptal.com/developers/hastebin/documentation`.
 
+---
 
 ## 🚀 Running the bot
 With your `.venv` active, execute the following command:
 ```bash
 python3 bot.py
 ```
+
+---
+
+## 📜 License
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but **WITHOUT ANY WARRANTY**; without even the implied warranty of **MERCHANTABILITY** or **FITNESS FOR A PARTICULAR PURPOSE**. See the [LICENSE](LICENSE) file for more details.
