@@ -22,6 +22,7 @@ import asyncio
 beeping = 0
 
 def create_file(id: int):
+    """Creates a file for change_file()."""
     if not id:
         return
     path = 'tmp/howmanytimes/'
@@ -32,6 +33,7 @@ def create_file(id: int):
 
 
 def change_file(id: int):
+    """Made for /howmanytimes to work. Adds 1 to a file and returns the new number and returns the new count."""
     path = 'tmp/howmanytimes/'
     if not os.path.exists(f'{path}{id}.txt'):
         create_file(id)
@@ -51,6 +53,7 @@ class Meme(commands.Cog):
         beep_delay="Delay between beeps (in seconds, must be bigger than 0.05 and smaller than 5)"
     )
     async def beep(self, interaction: discord.Interaction, times: app_commands.Range[int, 1, 100] = 1, beep_delay: app_commands.Range[float, 0.05, 5.0] = None):
+        """Beeps in the computer hosting the bot. If you don't have a beeper, *beep* will give an error that no speaker found."""
         global beeping
         if beeping == 1:
             await interaction.response.send_message(f"<@{interaction.user.id}>, you cannot beep while I am already beeping. Please try again later.", ephemeral=True)
@@ -82,11 +85,13 @@ class Meme(commands.Cog):
 
     @app_commands.command(name="nothing", description=".")
     async def nothing(self, interaction: discord.Interaction):
+        """Literally nothing."""
         await interaction.response.send_message(f".", ephemeral=True)
         print(f"{interaction.user.name} tried nothing...")
 
     @app_commands.command(name="howmanytimes", description="Says how many times was the command typed")
     async def howmanytimes(self, interaction: discord.Interaction):
+        """Says how many times this user typed this command."""
         if not os.path.exists(f'tmp/howmanytimes/{interaction.user.id}.txt'):
             await asyncio.to_thread(create_file, interaction.user.id)
         count = await asyncio.to_thread(change_file, interaction.user.id)
@@ -97,19 +102,23 @@ class Meme(commands.Cog):
 
     @app_commands.command(name="complain", description="Compain to the bot owner.")
     async def complain(self, interaction: discord.Interaction):
+        """Complaining to yourself why you wanted to complain to the bot owner."""
         await interaction.response.send_message('https://tenor.com/view/rickroll-roll-rick-never-gonna-give-you-up-never-gonna-gif-22954713', ephemeral=True)
         print(f"{interaction.user.name} complained and regretted it.")
 
     @app_commands.command(name="heart", description="Shows a heart.")
     async def heart(self, interaction: discord.Interaction):
+        """Shows a middle finger emoji."""
         await interaction.response.send_message(':middle_finger:', ephemeral=True)
 
     @app_commands.command(name="finger", description="Shows a finger.")
     async def finger(self, interaction: discord.Interaction):
+        """Shows a heart emoji."""
         await interaction.response.send_message(':heart:', ephemeral=True)
 
     @app_commands.command(name="rickroll_me")
     async def rickroll(self, interaction: discord.Interaction):
+        """Rickrolls the user that typed this command."""
         await interaction.response.send_message('Not this time.')
         await asyncio.sleep(3)
         await interaction.followup.send('But maybe?')

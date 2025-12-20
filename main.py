@@ -27,6 +27,7 @@ intents.voice_states = True
 bot = commands.Bot(command_prefix="!", intents=intents)
 
 async def load_cogs():
+    """Loads all extensions (cogs)."""
     await bot.load_extension("cogs.on_startup")
     print("Loading cog 'Startup behaviour'...")
     await bot.load_extension("cogs.admin")

@@ -22,6 +22,7 @@ import aiohttp
 OWNER_ID = int(os.environ['DISCORD_OWNER_ID'])
 
 def admin_check():
+    """Check is the command written by unauthorized user."""
     async def predicate(interaction: discord.Interaction) -> bool:
         if interaction.user.id == OWNER_ID:
             return True
@@ -30,6 +31,7 @@ def admin_check():
     return app_commands.check(predicate)
 
 class StatusButtons(discord.ui.View):
+    """A cog for /change_status to work."""
     def __init__(self, bot):
         super().__init__()
         self.bot = bot
@@ -45,16 +47,19 @@ class StatusButtons(discord.ui.View):
         await self.bot.change_presence(status=discord.Status.dnd)
         await interaction.response.send_message("Status set to Do Not Disturb", ephemeral=True)
         print("Status set to Do Not Disturb")
+
     @discord.ui.button(label="Idle", style=discord.ButtonStyle.secondary)
     async def idle_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         await self.bot.change_presence(status=discord.Status.idle)
         await interaction.response.send_message("Status set to Idle", ephemeral=True)
         print("Status set to Idle")
+
     @discord.ui.button(label="Invisible (offline)", style=discord.ButtonStyle.primary)
     async def invisible_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         await self.bot.change_presence(status=discord.Status.invisible)
         await interaction.response.send_message("Status set to Invisible", ephemeral=True)
         print("Status set to Invisible")
+
 
 class ownerCommands(commands.Cog):
     def __init__(self, bot: commands.Bot):
@@ -63,6 +68,7 @@ class ownerCommands(commands.Cog):
     @admin_check()
     @app_commands.command(name="shutdown", description="[OWNER ONLY] Turns off the bot", )
     async def shutdown(self, interaction: discord.Interaction):
+        """Turns off the bot."""
         await interaction.response.send_message("Shutting down the bot...", ephemeral=True)
         print("Shutting down the bot")
         await self.bot.close()
@@ -75,6 +81,7 @@ class ownerCommands(commands.Cog):
     )
     @app_commands.guild_only()
     async def purge(self, interaction: discord.Interaction, range: app_commands.Range[int, 1, 100]):
+        """Removes messages in a chat."""
         bot_perms = interaction.app_permissions.manage_messages
         if not bot_perms:
             await interaction.response.send_message("I don't have necessary permissions to do that.")
@@ -95,18 +102,21 @@ class ownerCommands(commands.Cog):
     @admin_check()
     @app_commands.command(name="change_status", description="Changes the status of the bot")
     async def change_status(self, interaction: discord.Interaction):
+        """Changes status of the bot."""
         view = StatusButtons(interaction.client)
         await interaction.response.send_message("Select the status:", view=view, ephemeral=True)
 
     @admin_check()
     @app_commands.command(name="pc_turn_off", description="Turns off the PC")
     async def pc_turn_off(self, interaction: discord.Interaction):
+        """Turns off the computer hosting the bot."""
         os.system('poweroff')
 
     @admin_check()
     @app_commands.command(name='create_webhook', description='Creates a webhook.')
     @app_commands.guild_only()
     async def create_webhook(self, interaction: discord.Interaction):
+        """Creates a webhook for the current channel."""
         webhook = await interaction.channel.create_webhook(name="Test webhook")
         await interaction.response.send_message(f'{webhook.url}', ephemeral=True)
 
@@ -114,6 +124,7 @@ class ownerCommands(commands.Cog):
     @app_commands.command(name='delete_webhook', description='Deletes a webhook')
     @app_commands.describe(webhook='Webhook link.')
     async def delete_webhook(self, interaction: discord.Interaction, webhook: str):
+        """Deletes a wehook."""
         async with aiohttp.ClientSession() as session:
             async with session.delete(webhook) as response:
                 if response.status == 404 or response.status == 401:

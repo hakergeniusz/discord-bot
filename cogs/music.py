@@ -25,6 +25,7 @@ class Music(commands.Cog):
     @app_commands.describe(channel="Channel to play music on")
     @app_commands.guild_only()
     async def play(self, interaction: discord.Interaction, channel: discord.VoiceChannel):
+        """Plays the example.mp3 file that is in the root folder of this repository in a VC."""
         if not interaction.user.voice:
             await interaction.response.send_message("You are not in a voice channel.")
             print(f"{interaction.user.name} tried to rupture his eardrums, but he isn't in a VC, so I can't do it.")
@@ -48,6 +49,7 @@ class Music(commands.Cog):
     @app_commands.command(name="join_vc", description="Joins a voice channel")
     @app_commands.guild_only()
     async def join_vc(self, interaction: discord.Interaction):
+        """Joins a voice channel user is connected to."""
         if not interaction.user.voice or not interaction.user.voice.channel:
             await interaction.response.send_message("You are not in a voice channel.", ephemeral=True)
             return
@@ -62,6 +64,7 @@ class Music(commands.Cog):
     @app_commands.command(name="leave_vc", description="Leaves a voice channel.")
     @app_commands.guild_only()
     async def leave(self, interaction: discord.Interaction):
+        """Leaves the current voice channel that bot is connected to."""
         if interaction.guild.voice_client:
             await interaction.guild.voice_client.disconnect()
             await interaction.response.send_message("Left the voice channel.")

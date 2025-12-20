@@ -54,6 +54,7 @@ status_map = {
 }
 
 async def find_circuit(season, roundnumber):
+    """Finds an F1 circuit."""
     schedule = await asyncio.to_thread(fastf1.get_event_schedule, season)
     row = schedule.loc[schedule['RoundNumber'] == roundnumber]
 
@@ -64,6 +65,7 @@ async def find_circuit(season, roundnumber):
         return None
 
 async def did_exist(season, roundnumber):
+    """Checks did an F1 race exist or not."""
     schedule = await asyncio.to_thread(fastf1.get_event_schedule, season)
     event_row = schedule.loc[schedule['RoundNumber'] == roundnumber]
     if event_row.empty:
@@ -78,6 +80,7 @@ class F1Commands(commands.Cog):
     @app_commands.command(name='f1_result', description='Outputs the result of an F1 race')
     @app_commands.describe(season="Season of the race you want the result of", roundnumber="Round number of the race asked. You can get one with /f1_calendar")
     async def f1_result(self, interaction: discord.Interaction, season: app_commands.Range[int, 1950, CURRENT_YEAR], roundnumber: app_commands.Range[int, 1, 24]): # Remember to change if F1 introduces an F1 calendar with more than 24 rounds.
+        """Gives the result of an F1 race asked for."""
         await interaction.response.defer()
         global status_map
         if_existed = await did_exist(season, roundnumber)
@@ -115,8 +118,8 @@ class F1Commands(commands.Cog):
     @app_commands.command(name="f1_calendar", description="Shows an F1 calendar")
     @app_commands.describe(season="Season of the calendar you want to know")
     async def f1_calendar(self, interaction: discord.Interaction, season: app_commands.Range[int, 1950, CURRENT_YEAR]):
+        """Gives the calendar for asked F1 season."""
         await interaction.response.defer(ephemeral=True)
-        checking_f1_driver = 1
         schedule = await asyncio.to_thread(fastf1.get_event_schedule, season)
         lines = []
         for _, row in schedule.iterrows():
@@ -146,6 +149,7 @@ class F1Commands(commands.Cog):
     @app_commands.command(name="f1_driver", description="Shows F1 driver's results in a season.")
     @app_commands.describe(driver_code="The 3-letter driver code (e.g. VER)", season="Season of the results you want to know.")
     async def f1_driver(self, interaction: discord.Interaction, driver_code: str, season: app_commands.Range[int, 1950, CURRENT_YEAR]):
+        """Gives the result of an F1 driver in a season."""
         await interaction.response.defer()
         driver_code = driver_code.upper()
         schedule = await asyncio.to_thread(fastf1.get_event_schedule, season)

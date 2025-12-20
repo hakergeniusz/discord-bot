@@ -26,6 +26,7 @@ class SyncCog(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
+        """Syncs all tree commands."""
         os.system('clear')
         print("-" * 40)
         print(f'Logged on as "{self.bot.user}"')
