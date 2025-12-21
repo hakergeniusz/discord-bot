@@ -3,3 +3,4 @@ ollama
 fastf1
 requests
 discord.py[voice]
+python-dotenv
