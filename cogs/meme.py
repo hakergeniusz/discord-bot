@@ -54,38 +54,36 @@ class Meme(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
-    @app_commands.command(name="beep", description="Beeps in the computer hosting the bot.")
+    @app_commands.command(name="beep", description="Beeps in the computer that is hosting the bot.")
     @app_commands.describe(
-        times="How many times to beep (default: 1)",
+        times="How many times to beep (if not provided, default value is: 1)",
         beep_delay="Delay between beeps (in seconds, must be bigger than 0.05 and smaller than 5)"
     )
-    async def beep(self, interaction: discord.Interaction, times: app_commands.Range[int, 1, 100] = 1, beep_delay: app_commands.Range[float, 0.05, 5.0] = None):
+    async def beep(self, interaction: discord.Interaction, times: app_commands.Range[int, 2, 100] = 1, beep_delay: app_commands.Range[float, 0.05, 5.0] = None):
         """Beeps in the computer hosting the bot. If you don't have a beeper, *beep* will give an error that no speaker found."""
         global beeping
         if beeping == 1:
-            await interaction.response.send_message(f"<@{interaction.user.id}>, you cannot beep while I am already beeping. Please try again later.", ephemeral=True)
+            await interaction.response.send_message(f"<@{interaction.user.id}>, you cannot beep while I am already beeping. Please try again later.")
             print(f"An idiot named {interaction.user.name} wanted to beep when I already beeped")
             return
 
+        beeping = 1
         if times == 1:
-            await interaction.response.send_message(f"<@{interaction.user.id}>, I will beep once in the computer.", ephemeral=True)
+            await interaction.response.send_message(f"<@{interaction.user.id}>, I will beep {times} time in the computer.")
             print(f"An idiot named {interaction.user.name} wants to beep once.")
             process = await asyncio.create_subprocess_shell('beep')
             await process.communicate()
+            beeping = 0
             return
 
         if beep_delay:
-            if beep_delay < 1:
-                await interaction.response.send_message(f"<@{interaction.user.id}>, I will beep {times} times with the delay between of them of {beep_delay} seconds in the computer.", ephemeral=True)
-            if beep_delay == 1:
-                await interaction.response.send_message(f"<@{interaction.user.id}>, I will beep {times} times with the delay between of them of {beep_delay} second in the computer.", ephemeral=True)
-            if beep_delay > 1:
-                await interaction.response.send_message(f"<@{interaction.user.id}>, I will beep {times} times with the delay between of them of {beep_delay} seconds in the computer.", ephemeral=True)
+            if beep_delay < 1 or beep_delay > 1:
+                await interaction.response.send_message(f"<@{interaction.user.id}>, I will beep {times} times with the delay between of them of {beep_delay} seconds in the computer.")
+            else:
+                await interaction.response.send_message(f"<@{interaction.user.id}>, I will beep {times} times with the delay between of them of {beep_delay} second in the computer.")
         else:
-            await interaction.response.send_message(f"<@{interaction.user.id}>, I will beep {times} times in the computer.", ephemeral=True)
-        print(f"An idiot named {interaction.user.name} wants to beep {times} times with {beep_delay} second(s) delay between them ")
-
-        beeping = 1
+            await interaction.response.send_message(f"<@{interaction.user.id}>, I will beep {times} times in the computer.")
+        print(f"An idiot named {interaction.user.name} wants to beep {times} times with {beep_delay} second of delay between them.")
 
         for i in range(times):
             process = await asyncio.create_subprocess_shell('beep')

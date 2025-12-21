@@ -88,17 +88,23 @@ class Utility(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
-    @app_commands.command(name="webhook", description="Sends a message to a webhook")
+    @app_commands.command(name="webhook", description="Sends a message to a Discord webhook")
     @app_commands.describe(webhook="URL of the webhook", message="Message that you want to send from the webhook", name="The name how webhook will appear", avatar_url="The avatar URL for the webhook")
     async def webhook(self, interaction: discord.Interaction, webhook: str, message: str, name: str = None, avatar_url: str = None):
         """Sends a message through the webhook and avatar/webhook name optionally."""
         await interaction.response.defer()
-
+        if not webhook.startswith(('https://discord.com/api/webhooks/', 'http://discord.com/api/webhooks/', 'discord.com/api/webhooks/')):
+            await interaction.followup.send('Invalid webhook URL.', ephemeral=True)
+            return
+        if webhook.startswith('http://'):
+            webhook = webhook.replace("http://", "https://", 1)
+        elif webhook.startswith('discord.com'):
+            webhook = webhook.replace("discord.com", "https://discord.com", 1)
         async with aiohttp.ClientSession() as session:
             async with session.get(webhook) as response:
                 if response.status == 401:
                     await interaction.followup.send("Invalid webhook URL.", ephemeral=True)
-                    print(f"{interaction.user.name} tried to send a message '{message}' to a webhook '{webhook}' but 401")
+                    print(f"{interaction.user.name} tried to send a message '{message}' to a webhook '{webhook}' but received status code 401.")
                     return
 
             if avatar_url:
