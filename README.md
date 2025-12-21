@@ -54,6 +54,14 @@ python3 main.py
 
 ---
 
+## 🎵 Credits
+The `example.mp3` used for the music features is provided by **NoCopyrightSounds**:
+* **Song:** Cartoon, Jéja - On & On (feat. Daniel Levi) [NCS Release]
+* **Video:** https://www.youtube.com/watch?v=K4DyBUG242c
+* **Free Download / Stream:** https://ncs.io/OnandOn
+
+---
+
 ## 📜 License
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
