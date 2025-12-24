@@ -32,18 +32,6 @@ Don't include any unnecessary text in your responses and don't use emojis unless
 You are free to make reponses that are longer than 2000 characters or any higher count.
 """
 
-async def safety_filter(message):
-    message = {
-        'role': 'user',
-        'content': message
-    }
-    response_safety = await AsyncClient().chat(model='llama-guard3:1b', messages=[message])
-    response_safety = response_safety['message']['content']
-    if response_safety == 'safe':
-        return True
-    else:
-        return None
-
 async def process_prompt(message, model):
     """Sends the prompt to an asked model in Ollama and streams the response."""
     response = await AsyncClient().chat(
@@ -83,6 +71,7 @@ async def image_checker(session: aiohttp.ClientSession, image_link: str):
             return None
     except Exception:
         return None
+
 
 class Utility(commands.Cog):
     def __init__(self, bot: commands.Bot):
