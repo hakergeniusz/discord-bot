@@ -21,7 +21,7 @@ import asyncio
 
 beeping = 0
 
-def create_file(id: int):
+def create_file_howmanytimes(id: int):
     """Creates a file for change_file()."""
     if not id:
         return
@@ -35,12 +35,12 @@ def create_file(id: int):
         f.write('0')
 
 
-def change_file(id: int):
+def change_file_howmanytimes(id: int):
     """Made for /howmanytimes to work. Adds 1 to a file and returns the new number and returns the new count."""
     path = 'tmp/howmanytimes/'
 
     if not os.path.exists(f'{path}{id}.txt'):
-        create_file(id)
+        create_file_howmanytimes(id)
 
     with open(f'{path}{id}.txt', 'r') as f:
         count = int(f.read())
@@ -101,10 +101,7 @@ class Meme(commands.Cog):
     @app_commands.command(name="howmanytimes", description="Says how many times was the command typed")
     async def howmanytimes(self, interaction: discord.Interaction):
         """Says how many times this user typed this command."""
-        if not os.path.exists(f'tmp/howmanytimes/{interaction.user.id}.txt'):
-            await asyncio.to_thread(create_file, interaction.user.id)
-
-        count = await asyncio.to_thread(change_file, interaction.user.id)
+        count = await asyncio.to_thread(change_file_howmanytimes, interaction.user.id)
 
         if count == 1:
             await interaction.response.send_message(f'You have used this command {count} time.')
