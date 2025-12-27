@@ -21,12 +21,10 @@ import asyncio
 
 beeping = 0
 
-def create_file_howmanytimes(id: int):
+def create_file(path, id: int):
     """Creates a file for change_file()."""
     if not id:
         return
-
-    path = 'tmp/howmanytimes/'
 
     if os.path.exists(f'{path}{id}.txt'):
         return
@@ -35,12 +33,10 @@ def create_file_howmanytimes(id: int):
         f.write('0')
 
 
-def change_file_howmanytimes(id: int):
+def change_file(path, id: int):
     """Made for /howmanytimes to work. Adds 1 to a file and returns the new number and returns the new count."""
-    path = 'tmp/howmanytimes/'
-
     if not os.path.exists(f'{path}{id}.txt'):
-        create_file_howmanytimes(id)
+        create_file(path, id)
 
     with open(f'{path}{id}.txt', 'r') as f:
         count = int(f.read())
@@ -48,6 +44,21 @@ def change_file_howmanytimes(id: int):
     with open(f'{path}{id}.txt', 'w') as f:
         f.write(f'{count + 1}')
         return count + 1
+
+class howmanybuttonButtons(discord.ui.View):
+    """A cog for ```/howmanybutton``` to work."""
+    def __init__(self, bot):
+        super().__init__()
+        self.bot = bot
+
+    @discord.ui.button(label="Click me!", style=discord.ButtonStyle.success)
+    async def howmanybutton_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        count = await asyncio.to_thread(change_file, 'tmp/howmanybutton/', interaction.user.id)
+        if count == 1:
+            content = f'<@{interaction.user.id}> clicked the button {count} time!'
+        else:
+            content = f'<@{interaction.user.id}> clicked the button {count} times!'
+        await interaction.response.edit_message(content=content)
 
 
 class Meme(commands.Cog):
@@ -101,7 +112,7 @@ class Meme(commands.Cog):
     @app_commands.command(name="howmanytimes", description="Says how many times was the command typed")
     async def howmanytimes(self, interaction: discord.Interaction):
         """Says how many times this user typed this command."""
-        count = await asyncio.to_thread(change_file_howmanytimes, interaction.user.id)
+        count = await asyncio.to_thread(change_file, 'tmp/howmanytimes/', interaction.user.id)
 
         if count == 1:
             await interaction.response.send_message(f'You have used this command {count} time.')
@@ -135,6 +146,10 @@ class Meme(commands.Cog):
 
         await interaction.followup.send('https://tenor.com/view/rickroll-roll-rick-never-gonna-give-you-up-never-gonna-gif-22954713')
 
+    @app_commands.command(name="howmanybutton", description="How many times did you press the button?")
+    async def howmanybutton(self, interaction: discord.Interaction):
+        view = howmanybuttonButtons(interaction.client)
+        await interaction.response.send_message('Click this button!', view=view)
 
 async def setup(bot):
     await bot.add_cog(Meme(bot))
