@@ -45,6 +45,7 @@ def change_file(path, id: int):
         f.write(f'{count + 1}')
         return count + 1
 
+
 class howmanybuttonButtons(discord.ui.View):
     """A cog for ```/howmanybutton``` to work."""
     def __init__(self, bot):
@@ -148,6 +149,7 @@ class Meme(commands.Cog):
 
     @app_commands.command(name="howmanybutton", description="How many times did you press the button?")
     async def howmanybutton(self, interaction: discord.Interaction):
+        """Displays a message and says how many times the user clicked the button globally."""
         view = howmanybuttonButtons(interaction.client)
         await interaction.response.send_message('Click this button!', view=view)
 
