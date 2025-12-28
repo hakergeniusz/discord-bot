@@ -22,6 +22,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 OWNER_ID = int(os.environ.get('DISCORD_OWNER_ID'))
+PC_POWEROFF = os.environ.get('POWEROFF_COMMAND')
+if PC_POWEROFF != 'True':
+    PC_POWEROFF = None
 
 def admin_check():
     """Check is the command written by unauthorized user."""
@@ -111,9 +114,12 @@ class ownerCommands(commands.Cog):
         await interaction.response.send_message("Select the status:", view=view, ephemeral=True)
 
     @admin_check()
-    @app_commands.command(name="pc_turn_off", description="Turns off the PC")
+    @app_commands.command(name="turn_off_pc", description="Turns off the PC")
     async def pc_turn_off(self, interaction: discord.Interaction):
         """Turns off the computer hosting the bot."""
+        if not PC_POWEROFF:
+            await interaction.response.send_message("PC cannot be turned off, because I have not been permitted from doing so.")
+            return
         os.system('poweroff')
 
     @admin_check()
