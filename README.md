@@ -1,5 +1,4 @@
 # 🤖 Discord Bot
-<img src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/unsupported/risugamis-modloader_vector.svg" height="60">
 
 <img src="https://img.shields.io/badge/License-GPLv3-blue.svg?style=for-the-badge" height="60">
 
