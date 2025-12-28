@@ -136,12 +136,7 @@ class Meme(commands.Cog):
 
     @app_commands.command(name="rickroll_me")
     async def rickroll(self, interaction: discord.Interaction):
-        await interaction.response.send_message('Not this time.')
-        await asyncio.sleep(3)
-
-        await interaction.followup.send('But maybe?')
-        await asyncio.sleep(3)
-
+        await interaction.response.send_message("Ok, if you want to be rickrolled, you will be.")
         await interaction.followup.send('https://tenor.com/view/rickroll-roll-rick-never-gonna-give-you-up-never-gonna-gif-22954713')
 
     @app_commands.command(name="howmanybutton", description="How many times did you press the button?")
