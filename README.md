@@ -61,6 +61,8 @@ The `example.mp3` used for the music features is provided by **NoCopyrightSounds
 * **Video:** https://www.youtube.com/watch?v=K4DyBUG242c
 * **Free Download / Stream:** https://ncs.io/OnandOn
 
+All credits for Python libraries are in [CREDITS](CREDITS) file.
+
 ---
 
 ## 📜 License

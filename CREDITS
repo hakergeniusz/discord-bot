@@ -1,0 +1,27 @@
+This project is licensed under the GNU GPLv3.
+The following third-party libraries are used in this project:
+
+1. discord.py
+   License: MIT
+   Copyright (c) 2015-present Rapptz
+   https://github.com/Rapptz/discord.py
+
+2. FastF1
+   License: MIT
+   Copyright (c) 2021-2025 Philipp Schäfer
+   https://github.com/theOehrly/Fast-F1
+
+3. python-dotenv
+   License: BSD 3-Clause
+   Copyright (c) 2014, Saurabh Kumar
+   https://github.com/theskumar/python-dotenv
+
+4. ollama-python
+   License: MIT
+   Copyright (c) 2023-present Ollama
+   https://github.com/ollama/ollama-python
+
+5. aiohttp
+   License: Apache 2.0
+   Copyright (c) 2013-present aiohttp contributors
+   https://github.com/aio-libs/aiohttp
