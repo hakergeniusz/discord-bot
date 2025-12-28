@@ -39,9 +39,11 @@ NOTE: These commands are for Linux. If you use Windows, please use **Windows Sub
 > ```
 > DISCORD_BOT_TOKEN=YOUR_BOT_TOKEN
 > DISCORD_OWNER_ID=YOUR_DISCORD_ID
+> POWEROFF_COMMAND=True/False
 > ```
 > * `DISCORD_BOT_TOKEN`: Your Discord bot token from Discord Developer Program.
 > * `DISCORD_OWNER_ID`: Your Discord user ID or other account that you want it to have all permissions.
+> * `POWEROFF_COMMAND`: `True` if you want `/turn_off_pc` to work, anything else if you don't want it to work. If value is not provided, it is default set to `False`.
 
 ---
 
