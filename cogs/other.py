@@ -24,20 +24,17 @@ class other(commands.Cog):
 
     @app_commands.command(name="ping", description="Pong! Outputs the latency of the bot.")
     async def ping(self, interaction: discord.Interaction):
-        """Tells the ping of the bot."""
         latency = round(self.bot.latency * 1000)
         await interaction.response.send_message(f'Pong! Latency is {latency}ms')
 
     @app_commands.command(name='source', description='Source of the bot.')
     async def source(self, interaction: discord.Interaction):
-        """Gives a button to the source of the bot."""
         view = discord.ui.View()
         view.add_item(discord.ui.Button(label="View Source Code", url="https://github.com/hakergeniusz/discord-bot"))
         await interaction.response.send_message('This bot is open-source! You can find the source by clicking the following button:', view=view)
 
     @app_commands.command(name='licence', description="Bot's license information.")
     async def licence(self, interaction: discord.Interaction):
-        """Gives licence info to the user."""
         embed = discord.Embed(
             title="📜 Legal Information & License",
             color=discord.Color.blue(),

@@ -34,7 +34,7 @@ def create_file(path, id: int):
 
 
 def change_file(path, id: int):
-    """Made for /howmanytimes to work. Adds 1 to a file and returns the new number and returns the new count."""
+    """Made for /howmany commands to work. Adds 1 to the number in a file and returns the new number and returns the new count."""
     if not os.path.exists(f'{path}{id}.txt'):
         create_file(path, id)
 
@@ -72,7 +72,7 @@ class Meme(commands.Cog):
         beep_delay="Delay between beeps (in seconds, must be bigger than 0.05 and smaller than 5)"
     )
     async def beep(self, interaction: discord.Interaction, times: app_commands.Range[int, 2, 100] = 1, beep_delay: app_commands.Range[float, 0.05, 5.0] = None):
-        """Beeps in the computer hosting the bot. If you don't have a beeper, *beep* will give an error that no speaker found."""
+        """Beeps in the computer hosting the bot. If PC doesn't have a beeper, *beep* will give an error that no speaker found."""
         global beeping
         if beeping == 1:
             await interaction.response.send_message(f"<@{interaction.user.id}>, you cannot beep while I am already beeping. Please try again later.")
@@ -128,17 +128,14 @@ class Meme(commands.Cog):
 
     @app_commands.command(name="heart", description="Shows a heart.")
     async def heart(self, interaction: discord.Interaction):
-        """Shows a middle finger emoji."""
         await interaction.response.send_message(':middle_finger:', ephemeral=True)
 
     @app_commands.command(name="finger", description="Shows a finger.")
     async def finger(self, interaction: discord.Interaction):
-        """Shows a heart emoji."""
         await interaction.response.send_message(':heart:', ephemeral=True)
 
     @app_commands.command(name="rickroll_me")
     async def rickroll(self, interaction: discord.Interaction):
-        """Rickrolls the user that typed this command."""
         await interaction.response.send_message('Not this time.')
         await asyncio.sleep(3)
 
@@ -149,7 +146,7 @@ class Meme(commands.Cog):
 
     @app_commands.command(name="howmanybutton", description="How many times did you press the button?")
     async def howmanybutton(self, interaction: discord.Interaction):
-        """Displays a message and says how many times the user clicked the button globally."""
+        """Sends a message and says how many times the user clicked the button globally."""
         view = howmanybuttonButtons(interaction.client)
         await interaction.response.send_message('Click this button!', view=view)
 

@@ -80,7 +80,6 @@ class Utility(commands.Cog):
     @app_commands.command(name="webhook", description="Sends a message to a Discord webhook")
     @app_commands.describe(webhook="URL of the webhook", message="Message that you want to send from the webhook", name="The name how webhook will appear", avatar_url="The avatar URL for the webhook")
     async def webhook(self, interaction: discord.Interaction, webhook: str, message: str, name: str = None, avatar_url: str = None):
-        """Sends a message through the webhook and avatar/webhook name optionally."""
         await interaction.response.defer()
         if not webhook.startswith(('https://discord.com/api/webhooks/', 'http://discord.com/api/webhooks/', 'discord.com/api/webhooks/')):
             await interaction.followup.send('Invalid webhook URL.', ephemeral=True)
@@ -126,7 +125,6 @@ class Utility(commands.Cog):
     )
     @app_commands.guild_only()
     async def say(self, interaction: discord.Interaction, message: str, reason: str = None, delete_after: int = None):
-        """Says something on a channel."""
         channel = await self.bot.fetch_channel(interaction.channel_id)
         wiadomosc = await channel.send(message)
 
@@ -148,7 +146,6 @@ class Utility(commands.Cog):
 
     @app_commands.command(name="dm_or_not", description="Checks is the message sent in the DM or a server")
     async def dmornot(self, interaction: discord.Interaction):
-        """Tells is this command sent on a DM or on a guild."""
         if interaction.guild:
             await interaction.response.send_message("It is a server", ephemeral=True)
             print(f"{interaction.user.name} checked is it a DM or a guild and it is a guild")
@@ -229,7 +226,7 @@ class Utility(commands.Cog):
 
     @app_commands.command(name="hide_conversation", description="Hides the conversation")
     async def hide(self, interaction: discord.Interaction):
-        """Hides the conversation by sending many empty lines."""
+        """Tries to hide the conversation by sending many empty lines."""
         mes = '''
 
         '''

@@ -24,7 +24,7 @@ class ExampleCog(commands.Cog):
 
     @app_commands.command(name='test', description='Lorem ipsum dolor sit amet.')
     async def test(interaction: discord.Interaction):
-        """Example command."""
+        """Example comment."""
         await interaction.response.send_message('Lorem ipsum dolor sit amet.')
 
 

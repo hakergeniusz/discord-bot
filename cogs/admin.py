@@ -85,7 +85,6 @@ class ownerCommands(commands.Cog):
     @app_commands.describe(range="How many messages you want to delete (max: 100)")
     @app_commands.guild_only()
     async def purge(self, interaction: discord.Interaction, range: app_commands.Range[int, 1, 100]):
-        """Removes messages in a chat."""
         bot_perms = interaction.app_permissions.manage_messages
         if not bot_perms:
             await interaction.response.send_message("I don't have necessary permissions to do that.")
@@ -109,7 +108,6 @@ class ownerCommands(commands.Cog):
     @admin_check()
     @app_commands.command(name="change_status", description="Changes the status of the bot")
     async def change_status(self, interaction: discord.Interaction):
-        """Changes status of the bot."""
         view = StatusButtons(interaction.client)
         await interaction.response.send_message("Select the status:", view=view, ephemeral=True)
 
@@ -134,7 +132,6 @@ class ownerCommands(commands.Cog):
     @app_commands.command(name='delete_webhook', description='Deletes a webhook')
     @app_commands.describe(webhook='Webhook link.')
     async def delete_webhook(self, interaction: discord.Interaction, webhook: str):
-        """Deletes a wehook."""
         async with aiohttp.ClientSession() as session:
             async with session.delete(webhook) as response:
                 if response.status == 404 or response.status == 401:

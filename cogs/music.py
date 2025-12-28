@@ -71,7 +71,6 @@ class Music(commands.Cog):
     @app_commands.command(name="leave_vc", description="Leaves a voice channel.")
     @app_commands.guild_only()
     async def leave(self, interaction: discord.Interaction):
-        """Leaves the current voice channel that bot is connected to."""
         if interaction.guild.voice_client:
             await interaction.guild.voice_client.disconnect()
             await interaction.response.send_message("Left the voice channel.")
