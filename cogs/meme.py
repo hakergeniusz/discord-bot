@@ -145,5 +145,25 @@ class Meme(commands.Cog):
         view = howmanybuttonButtons(interaction.client)
         await interaction.response.send_message('Click this button!', view=view)
 
+    @app_commands.command(name="cowsay", description="I'm a cow!")
+    @app_commands.describe(text="What you want me to say?")
+    async def cowsay(self, interaction: discord.Interaction, text: str):
+        length = len(text)
+        top_bottom =  " " + "_" * (length + 2)
+        bubble_text = f"< {text} >"
+        cow = f"""
+```
+{top_bottom}
+{bubble_text}
+ {('-' * (length + 2))}
+        \   ^__^
+         \  (oo)\_______
+            (__)\       )\\/\\
+                ||----w |
+                ||     ||
+```
+"""
+        await interaction.response.send_message(cow)
+
 async def setup(bot):
     await bot.add_cog(Meme(bot))
