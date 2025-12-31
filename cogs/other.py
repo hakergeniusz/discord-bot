@@ -1,4 +1,4 @@
-#  Copyright (C) 2025 hakergeniusz
+#  Copyright (C) 2026 hakergeniusz
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -39,7 +39,7 @@ class other(commands.Cog):
             title="📜 Legal Information & License",
             color=discord.Color.blue(),
             description=(
-                "**Copyright (C) 2025 hakergeniusz**\n\n"
+                "**Copyright (C) 2026 hakergeniusz**\n\n"
                 "This program is free software: you can redistribute it and/or modify "
                 "it under the terms of the **GNU General Public License v3.0** as "
                 "published by the Free Software Foundation.\n\n"

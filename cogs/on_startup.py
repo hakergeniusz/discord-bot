@@ -1,4 +1,4 @@
-#  Copyright (C) 2025 hakergeniusz
+#  Copyright (C) 2026 hakergeniusz
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@ class SyncCog(commands.Cog):
         print("-" * 40)
         print(f'Logged on as "{self.bot.user}"')
         print("-" * 40)
-        print("Copyright (C) 2025 hakergeniusz")
+        print("Copyright (C) 2026 hakergeniusz")
         print("This program comes with ABSOLUTELY NO WARRANTY.")
         print("This is free software under the GNU GPLv3.")
         print("-" * 40)
