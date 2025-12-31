@@ -22,6 +22,7 @@ import datetime
 import asyncio
 
 CURRENT_YEAR = datetime.date.today().year
+F1_DRIVER_is_used = 0
 
 fastf1.Cache.enable_cache('tmp/fastf1')
 
@@ -158,18 +159,30 @@ class F1Commands(commands.Cog):
         )
         await interaction.followup.send(embed=F1Calendar)
 
-    # Many users at once using this may cause this command to malfunction. Fix this later.
     @app_commands.command(name="f1_driver", description="Shows F1 driver's results in a season.")
     @app_commands.describe(driver_code="The 3-letter driver code (e.g. VER)", season="Season of the results you want to know.")
-    async def f1_driver(self, interaction: discord.Interaction, driver_code: str, season: app_commands.Range[int, 1950, CURRENT_YEAR]):
+    async def f1_driver(self, interaction: discord.Interaction, driver_code: app_commands.Range[str, 3, 3], season: app_commands.Range[int, 1950, CURRENT_YEAR]):
         """Gives the result of an F1 driver in a season."""
+        global F1_DRIVER_is_used
         await interaction.response.defer()
+
+        if driver_code.isalpha() != True:
+            await interaction.followup.send('Invalid driver code.')
+            return
+
+        if F1_DRIVER_is_used != 0:
+            warning_message = await interaction.followup.send(f'''Someone else is already using this command. Please wait until this message is replaced.
+                                                    > Q: Why do I need to wait?
+                                                    > A: This command when used by many people at once does not function correctly.''')
+            while F1_DRIVER_is_used != 0:
+                await asyncio.sleep(0.5)
+            await warning_message.edit(content="It's your turn. Please wait a moment until I process the command.")
+        F1_DRIVER_is_used = 1
         driver_code = driver_code.upper()
         schedule = await asyncio.to_thread(fastf1.get_event_schedule, season)
         races = schedule[schedule['EventFormat'] != 'testing']
-
         results_list = []
-
+        did_driver_race = 0
         for _, race in races.iterrows():
             round_num = race['RoundNumber']
             race_name = race['EventName']
@@ -180,16 +193,17 @@ class F1Commands(commands.Cog):
                 driver_result = session.results[session.results['Abbreviation'] == driver_code]
                 if not driver_result.empty:
                     pos = int(driver_result['Position'].iloc[0])
-                    status = driver_result['Status'].iloc[0]
                     points = driver_result['Points'].iloc[0]
                     results_list.append(f"R{round_num}: **P{pos}** at {race_name} ({points} pts)")
+                    did_driver_race += 1
                 else:
                     results_list.append(f"R{round_num}: {race_name} - No Data/DNS")
             except Exception:
                 continue
 
-        if not results_list:
-            await interaction.followup.send(f"Could not find any results for driver '{driver_code}' in {season}.")
+        if did_driver_race == 0:
+            await interaction.followup.send(f"Could not find any results for driver {driver_code.upper()} in {season} season.")
+            F1_DRIVER_is_used = 0
             return
 
         output = "\n".join(results_list)
@@ -200,7 +214,9 @@ class F1Commands(commands.Cog):
             color=discord.Color.red()
         )
         await interaction.followup.send(embed=F1Driver)
-
+        F1_DRIVER_is_used = 0
+        if warning_message:
+            await warning_message.delete()
 
 async def setup(bot):
     await bot.add_cog(F1Commands(bot))
