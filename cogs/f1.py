@@ -55,7 +55,7 @@ status_map = {
 }
 
 async def find_circuit(season, roundnumber):
-    """Finds an F1 circuit."""
+    """Finds an F1 circuit name."""
     schedule = await asyncio.to_thread(fastf1.get_event_schedule, season)
     row = schedule.loc[schedule['RoundNumber'] == roundnumber]
 
@@ -66,7 +66,7 @@ async def find_circuit(season, roundnumber):
         return None
 
 
-async def did_exist(season, roundnumber):
+async def does_exist(season, roundnumber):
     """Checks did an F1 race exist or not."""
     schedule = await asyncio.to_thread(fastf1.get_event_schedule, season)
     event_row = schedule.loc[schedule['RoundNumber'] == roundnumber]
@@ -87,10 +87,10 @@ class F1Commands(commands.Cog):
         await interaction.response.defer()
 
         global status_map
-        if_existed = await did_exist(season, roundnumber)
+        if_existed = await does_exist(season, roundnumber)
 
         if not if_existed:
-            await interaction.followup.send(f"There wasn't {roundnumber} round in {season}.")
+            await interaction.followup.send(f"There wasn't R{roundnumber} in {season}.")
             return
 
         session = await asyncio.to_thread(fastf1.get_session, season, roundnumber, 'R')
@@ -99,6 +99,7 @@ class F1Commands(commands.Cog):
         results = session.results
         results1 = results.head(1000)
 
+        is_there_data = 0
         result = []
 
         for _, row in results1.iterrows():
@@ -116,6 +117,11 @@ class F1Commands(commands.Cog):
                 else:
                     result.append(f"{pos}. {driver} ({team})")
 
+            is_there_data = 1
+
+        if is_there_data == 0:
+            await interaction.followup.send(f'''There wasn't R{roundnumber} in {season} yet. Please check it after the race.''')
+            return
         circuit = await find_circuit(season, roundnumber)
         output = "\n".join(result)
 
@@ -129,7 +135,7 @@ class F1Commands(commands.Cog):
     @app_commands.command(name="f1_calendar", description="Shows an F1 calendar")
     @app_commands.describe(season="Season of the calendar you want to know")
     async def f1_calendar(self, interaction: discord.Interaction, season: app_commands.Range[int, 1950, CURRENT_YEAR]):
-        await interaction.response.defer(ephemeral=True)
+        await interaction.response.defer()
         schedule = await asyncio.to_thread(fastf1.get_event_schedule, season)
 
         lines = []
@@ -137,15 +143,13 @@ class F1Commands(commands.Cog):
         for _, row in schedule.iterrows():
             location = row['EventName']
             roundnumber = row['RoundNumber']
-            sprint = row['EventFormat']
+            sprint = row['EventFormat'] in ['sprint', 'sprint_shootout', 'sprint_qualifying']
             date = row['EventDate'].date()
-            if sprint == 'sprint':
-                lines.append(f'{roundnumber}. {location} (Sprint) - {date}')
-            elif sprint == 'sprint_shootout':
-                lines.append(f'{roundnumber}. {location} (Sprint) - {date}')
-            elif sprint == 'sprint_qualifying':
+            if sprint:
                 lines.append(f'{roundnumber}. {location} (Sprint) - {date}')
             elif roundnumber == 0:
+                lines.append(f'{location} - {date}')
+            elif location == 'Pre-Season Testing':
                 lines.append(f'{location} - {date}')
             else:
                 lines.append(f'{roundnumber}. {location} - {date}')
@@ -160,8 +164,8 @@ class F1Commands(commands.Cog):
         await interaction.followup.send(embed=F1Calendar)
 
     @app_commands.command(name="f1_driver", description="Shows F1 driver's results in a season.")
-    @app_commands.describe(driver_code="The 3-letter driver code (e.g. VER)", season="Season of the results you want to know.")
-    async def f1_driver(self, interaction: discord.Interaction, driver_code: app_commands.Range[str, 3, 3], season: app_commands.Range[int, 1950, CURRENT_YEAR]):
+    @app_commands.describe(driver_code="The 3-letter driver code (e.g. VER)", season="Season of the results you want to know.", show_not_started="Toggle for showing races with DNS (Default: False).")
+    async def f1_driver(self, interaction: discord.Interaction, driver_code: app_commands.Range[str, 3, 3], season: app_commands.Range[int, 1950, CURRENT_YEAR], show_not_started: bool = False):
         """Gives the result of an F1 driver in a season."""
         global F1_DRIVER_is_used
         await interaction.response.defer()
@@ -176,7 +180,7 @@ class F1Commands(commands.Cog):
                                                     > A: This command when used by many people at once does not function correctly.''')
             while F1_DRIVER_is_used != 0:
                 await asyncio.sleep(0.5)
-            await warning_message.edit(content="It's your turn. Please wait a moment until I process the command.")
+            await warning_message.edit(content="It's your turn. Please wait a moment until I download the required data.")
         F1_DRIVER_is_used = 1
         driver_code = driver_code.upper()
         schedule = await asyncio.to_thread(fastf1.get_event_schedule, season)
@@ -197,7 +201,8 @@ class F1Commands(commands.Cog):
                     results_list.append(f"R{round_num}: **P{pos}** at {race_name} ({points} pts)")
                     did_driver_race += 1
                 else:
-                    results_list.append(f"R{round_num}: {race_name} - No Data/DNS")
+                    if show_not_started:
+                        results_list.append(f"R{round_num}: {race_name} - No Data/DNS")
             except Exception:
                 continue
 
