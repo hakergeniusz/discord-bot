@@ -18,23 +18,8 @@ from discord.ext import commands
 from discord import app_commands
 import os
 import aiohttp
-from dotenv import load_dotenv
-
-load_dotenv()
-OWNER_ID = int(os.environ.get('DISCORD_OWNER_ID'))
-PC_POWEROFF = os.environ.get('POWEROFF_COMMAND')
-if PC_POWEROFF != 'True':
-    PC_POWEROFF = None
-
-def admin_check():
-    """Check is the command written by unauthorized user."""
-    async def predicate(interaction: discord.Interaction) -> bool:
-        if interaction.user.id == OWNER_ID:
-            return True
-        await interaction.response.send_message("You don't have required permissions to do that.", ephemeral=True)
-        return False
-    return app_commands.check(predicate)
-
+from core.config import admin_check, PC_POWEROFF
+import asyncio
 
 class StatusButtons(discord.ui.View):
     """A cog for /change_status to work."""
@@ -72,38 +57,41 @@ class ownerCommands(commands.Cog):
         self.bot = bot
 
     @admin_check()
-    @app_commands.command(name="shutdown", description="[OWNER ONLY] Turns off the bot", )
-    async def shutdown(self, interaction: discord.Interaction):
-        """Turns off the bot."""
-        await interaction.response.send_message("Shutting down the bot...", ephemeral=True)
+    @commands.hybrid_command(name="shutdown", description="[OWNER ONLY] Turns off the bot", )
+    async def shutdown(self, ctx: commands.Context):
+        await ctx.send("Shutting down the bot...")
         print("Shutting down the bot")
         await self.bot.close()
 
     @admin_check()
-    @app_commands.command(name="purge", description="Removes messages in a chat.", )
-    @app_commands.default_permissions(manage_messages=True)
+    @commands.hybrid_command(name="purge", description="Removes messages in a chat.", )
+    @commands.has_permissions(manage_messages=True)
     @app_commands.describe(range="How many messages you want to delete (max: 100)")
-    @app_commands.guild_only()
-    async def purge(self, interaction: discord.Interaction, range: app_commands.Range[int, 1, 100]):
-        bot_perms = interaction.app_permissions.manage_messages
+    @commands.guild_only()
+    async def purge(self, ctx: commands.Context, range: commands.Range[int, 1, 100]):
+        bot_perms = ctx.permissions.manage_messages
         if not bot_perms:
-            await interaction.response.send_message("I don't have necessary permissions to do that.")
+            await ctx.send("I don't have necessary permissions to do that.")
             return
 
-        chan = interaction.channel
+        chan = ctx.channel
         if range == 1:
-            await interaction.response.send_message(f"Deleting {range} message...", ephemeral=True)
+            await ctx.send(f"Deleting {range} message...")
         else:
-            await interaction.response.send_message(f"Deleting {range} messages...", ephemeral=True)
+            await ctx.send(f"Deleting {range} messages...")
 
+        await chan.purge(limit=2)
         await chan.purge(limit=range)
 
         if range == 1:
-            await interaction.edit_original_response(content=f'Deleted {range} message successfully.')
-            print(f"Deleted {range} message in {interaction.channel.name}")
+            message = await ctx.send(content=f'Deleted {range} message successfully.')
+            print(f"Deleted {range} message in {ctx.channel.name}")
         else:
-            await interaction.edit_original_response(content=f'Deleted {range} messages successfully.')
-            print(f"Deleted {range} messages in {interaction.channel.name}")
+            message = await ctx.send(content=f'Deleted {range} messages successfully.')
+            print(f"Deleted {range} messages in {ctx.channel.name}")
+        await asyncio.sleep(3)
+        await ctx.message.delete()
+        await message.delete()
 
     @admin_check()
     @app_commands.command(name="change_status", description="Changes the status of the bot")
@@ -134,12 +122,19 @@ class ownerCommands(commands.Cog):
     async def delete_webhook(self, interaction: discord.Interaction, webhook: str):
         async with aiohttp.ClientSession() as session:
             async with session.delete(webhook) as response:
-                if response.status == 404 or response.status == 401:
+                if response.status in (401, 404):
                     await interaction.response.send_message('This webhook does not exist. You may have already deleted it.')
-                elif response.status == 200 or response.status == 204:
+                elif response.status in (200, 204):
                     await interaction.response.send_message('Removed webhook successfully')
                 else:
                     await interaction.response.send_message(f'Webhook may not have been deleted. Response code is {response.status}.')
+
+    @admin_check()
+    @commands.hybrid_command(name='send_messages')
+    @app_commands.describe(count="how many messages")
+    async def send_messages(self, ctx: commands.Context, count: commands.Range[int, 1, 100]):
+        for i in range(count):
+            await ctx.send(f'{i + 1}')
 
 
 async def setup(bot):

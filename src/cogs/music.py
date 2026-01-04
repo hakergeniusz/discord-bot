@@ -16,7 +16,8 @@
 import discord
 from discord.ext import commands
 from discord import app_commands
-
+from core.config import PROJECT_ROOT
+import os
 
 class Music(commands.Cog):
     def __init__(self, bot: commands.Bot):
@@ -45,7 +46,7 @@ class Music(commands.Cog):
             print(f"{interaction.user.name} tried to rupture his eardrums, but I already do it. ")
             return
 
-        music = discord.FFmpegPCMAudio('example.mp3')
+        music = discord.FFmpegPCMAudio(os.path.join(PROJECT_ROOT, 'assets', 'audio', 'example.mp3'))
         vc_chan.play(music)
 
         await interaction.response.send_message(f"Playing audio on <#{channel.id}>")

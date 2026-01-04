@@ -17,60 +17,10 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 import asyncio
-from ollama import AsyncClient
 import os
 import aiohttp
 import random
-from dotenv import load_dotenv
-
-load_dotenv()
-OWNER_ID = int(os.environ.get('DISCORD_OWNER_ID'))
-
-SYSTEM_PROMPT = """
-You are a chatbot for a Discord command (don't mention this in responses).
-Don't include any unnecessary text in your responses and don't use emojis unless explicitly asked.
-You are free to make reponses that are longer than 2000 characters or any higher count.
-"""
-
-async def process_prompt(message, model):
-    """Sends the prompt to an asked model in Ollama and streams the response."""
-    response = await AsyncClient().chat(
-        model=model,
-        messages=[{'role': 'system', 'content': SYSTEM_PROMPT}, {'role': 'user', 'content': message}],
-        stream=True
-    )
-    async for chunk in response:
-        content = chunk['message']['content']
-        yield content
-
-async def create_file(file_name, file_content):
-    """Creates a file for /ai."""
-    with open(f'{file_name}', 'w') as f:
-        f.write(f'{file_content}\n')
-
-IMAGE_CONTENT_TYPES = [
-    'image/jpeg',
-    'image/png',
-    'image/gif',
-    'image/webp',
-    'image/svg+xml'
-]
-
-async def image_checker(session: aiohttp.ClientSession, image_link: str):
-    """Checks does an image exist."""
-    if not image_link:
-        return True
-    try:
-        async with session.head(image_link, timeout=3) as response:
-            if response.status != 200:
-                return None
-            content_type = response.headers.get('Content-Type', '').lower()
-            for image_type in IMAGE_CONTENT_TYPES:
-                if content_type.startswith(image_type):
-                    return True
-            return None
-    except Exception:
-        return None
+from core.config import image_checker, process_prompt, create_file
 
 
 class Utility(commands.Cog):
@@ -120,22 +70,14 @@ class Utility(commands.Cog):
     @app_commands.command(name="say", description="Send a message to a channel")
     @app_commands.describe(
         message="Message to send",
-        reason="Reason why you want to send it",
         delete_after="How many seconds after sending should it be deleted.",
     )
     @app_commands.guild_only()
-    async def say(self, interaction: discord.Interaction, message: str, reason: str = None, delete_after: int = None):
+    async def say(self, interaction: discord.Interaction, message: str, delete_after: int = None):
         channel = await self.bot.fetch_channel(interaction.channel_id)
         wiadomosc = await channel.send(message)
 
-        if interaction.guild:
-            print(f"""On "{channel.name}" sent message: "{message}". User: {interaction.user.name}. """)
-        else:
-            print(f"""On DM sent message: "{message}". User: {interaction.user.name}. """)
-
-        if reason:
-            print(f"""Reason: "{reason}". """)
-
+        print(f"""On "{channel.name}" sent message: "{message}". User: {interaction.user.name}. """)
         await interaction.response.send_message(f"Message sent to <#{interaction.channel_id}>", ephemeral=True)
 
         if delete_after:
@@ -144,33 +86,22 @@ class Utility(commands.Cog):
             await interaction.edit_original_response(content=f"Message sent to <#{interaction.channel_id}>, was removed due to request to remove it after {delete_after} seconds.")
             print(f"Removed '{message}' because of removal delay of {delete_after} seconds")
 
-    @app_commands.command(name="dm_or_not", description="Checks is the message sent in the DM or a server")
-    async def dmornot(self, interaction: discord.Interaction):
-        if interaction.guild:
-            await interaction.response.send_message("It is a server", ephemeral=True)
-            print(f"{interaction.user.name} checked is it a DM or a guild and it is a guild")
-            return
-        await interaction.response.send_message("It is a DM", ephemeral=True)
-        print(f"{interaction.user.name} checked is it a DM or a guild and it is a DM")
+    @commands.hybrid_command(name="dm_or_not", description="Checks is the message sent in the DM or a server")
+    async def dmornot(self, ctx: commands.Context):
+        if ctx.guild:
+            await ctx.send("It is a server")
+        else:
+            await ctx.send("It is a DM")
 
     @app_commands.command(name="ai", description="AI that will (maybe) respond to your questions.")
     @app_commands.describe(prompt="Message to the AI")
-    @app_commands.choices(model=[
-        app_commands.Choice(name="gemma3:1b", value="gemma3:1b"),
-        app_commands.Choice(name="gemma3:4b", value="gemma3:4b"), # this line
-        app_commands.Choice(name="qwen2.5-coder:7b", value="qwen2.5-coder:7b"), # and this line
-    ])
-    async def ai(self, interaction: discord.Interaction, prompt: str, model: app_commands.Choice[str]):
-        """AI chatbot."""
+    async def ai(self, interaction: discord.Interaction, prompt: str):
         await interaction.response.defer()
         print(f'{interaction.user.name} says: {prompt}')
-        print(f'Using model: {model.value}')
-
-        message = await interaction.followup.send('Loading model...')
         full_response = ""
         counter_ai = 0
-
-        async for chunk in process_prompt(prompt, model.value):
+        message = await interaction.followup.send('▌')
+        async for chunk in process_prompt(prompt):
             full_response += chunk
             counter_ai += 1
 
@@ -195,44 +126,21 @@ class Utility(commands.Cog):
 
         await message.delete()
         file = discord.File(f'{file_name}')
-        await interaction.followup.send(content='Here is the file with the full response:',file=file)
+        await interaction.followup.send(content='Here is the file with the full response:', file=file)
 
         if os.path.exists(file_name):
             os.remove(file_name)
 
-    @app_commands.command(name="test", description="Reserved for testing purposes.")
-    @app_commands.guild_only()
-    async def test(self, interaction: discord.Interaction):
-        """A useless command that makes a text channel and pings user in it."""
-        if interaction.user.id != OWNER_ID:
-            await interaction.response.send_message('You are not permitted to do that.')
-            return
-
-        await interaction.response.defer()
-        server = interaction.guild
-        chan = await server.create_text_channel('test')
-        mes = await interaction.followup.send(f'<#{chan.id}>')
-
-        tasks = []
-
-        for _ in range(5):
-            tasks.append(chan.send(f'<@{interaction.user.id}>'))
-
-        await asyncio.gather(*tasks, return_exceptions=True)
-        await asyncio.sleep(3)
-
-        await chan.delete()
-        await mes.delete()
-
-    @app_commands.command(name="hide_conversation", description="Hides the conversation")
-    async def hide(self, interaction: discord.Interaction):
+    @commands.guild_only()
+    @commands.hybrid_command(name="hide_conversation", description="Hides the conversation")
+    async def hide(self, ctx: commands.Context):
         """Tries to hide the conversation by sending many empty lines."""
         mes = '''
 
         '''
         mes = mes * 100
         mes = 'e' + mes + 'e'
-        await interaction.response.send_message(mes)
+        await ctx.send(mes)
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):

@@ -1,0 +1,195 @@
+#  Copyright (C) 2026 hakergeniusz
+#
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+import os
+from ollama import AsyncClient as AsyncClientOllama
+import aiohttp
+import asyncio
+import fastf1
+from discord.ext import commands
+from google import genai
+from dotenv import load_dotenv
+
+load_dotenv()
+
+SYSTEM_PROMPT = """
+You are a chatbot for a Discord command (don't mention this in responses).
+Don't include any unnecessary text in your responses and don't use emojis.
+You are free to make reponses that are longer than 2000 characters, however it does not mean you should explicitly make ones.
+"""
+
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+TMP_BASE = os.path.join(PROJECT_ROOT, "tmp")
+
+OWNER_ID = int(os.environ.get('DISCORD_OWNER_ID'))
+TOKEN = os.environ.get('DISCORD_BOT_TOKEN')
+
+PC_POWEROFF = os.environ.get('POWEROFF_COMMAND')
+if PC_POWEROFF != 'True':
+    PC_POWEROFF = None
+
+IMAGE_CONTENT_TYPES = [
+    'image/jpeg',
+    'image/png',
+    'image/gif',
+    'image/webp',
+    'image/svg+xml'
+]
+
+status_map = {
+    "Lapped": "Lapped",
+    "Retired": "DNF",
+    "Accident": "DNF (Accident)",
+    "Collision": "DNF (Collision)",
+    "Spun off": "DNF (Spin)",
+    "Not classified": "NC",
+    "Gearbox": "DNF (Gearbox)",
+    "Engine": "DNF (Engine)",
+    "Transmission": "DNF (Transmission)",
+    "Electrical": "DNF (Electrical)",
+    "Out of fuel": "DNF (Fuel)",
+    "Oil leak": "DNF (Oil)",
+    "Brakes": "DNF (Brakes)",
+    "Suspension": "DNF (Suspension)",
+    "Tyre": "DNF (Tyre)",
+    "Cooling": "DNF (Cooling)",
+    "Did not start": "DNS",
+    "Withdrew": "DNS",
+    "Injury": "DNS",
+    "Illness": "DNS",
+    "Disqualified": "DSQ",
+    "Oil pressure": "DNF (Oil)",
+    "Clutch": "DNF (Clutch)",
+    "Supercharger": "DNF (Supercharger)",
+    "Hydraulics": "DNF (Hydraulics)"
+}
+
+genai_aclient = genai.Client().aio
+
+async def process_prompt(message: str):
+    """
+    Sends a prompt to the Gemini SDK asynchronously.
+
+    Args:
+        prompt (str): The text message to send to the AI.
+
+    Returns:
+        str: The text response from the AI model.
+    """
+    response = await genai_aclient.models.generate_content_stream(
+        content=message,
+        model="models/gemma-3-27b-it",
+    )
+    async for chunk in response:
+        if chunk.text:
+            yield chunk.text
+
+
+async def create_file(file_name, file_content):
+    """Creates a file for /ai."""
+    with open(f'{file_name}', 'w') as f:
+        f.write(f'{file_content}\n')
+
+
+def change_file(path, id: int):
+    """Made for /howmany commands to work. Adds 1 to the number in a file and returns the new number and returns the new count."""
+    FILE_PATH = os.path.join(path, f'{id}.txt')
+    if not os.path.exists(FILE_PATH):
+        with open(FILE_PATH, 'w') as f:
+            f.write('0')
+
+    with open(FILE_PATH, 'r') as f:
+        count = int(f.read())
+
+    with open(FILE_PATH, 'w') as f:
+        f.write(f'{count + 1}')
+        return count + 1
+
+
+async def image_checker(session: aiohttp.ClientSession, image_link: str):
+    """Checks does an image exist."""
+    if not image_link:
+        return True
+    try:
+        async with session.head(image_link, timeout=3) as response:
+            if response.status != 200:
+                return None
+            content_type = response.headers.get('Content-Type', '').lower()
+            for image_type in IMAGE_CONTENT_TYPES:
+                if content_type.startswith(image_type):
+                    return True
+            return None
+    except Exception:
+        return None
+
+
+async def find_circuit(season, roundnumber):
+    """Finds an F1 circuit name."""
+    schedule = await asyncio.to_thread(fastf1.get_event_schedule, season)
+    row = schedule.loc[schedule['RoundNumber'] == roundnumber]
+
+    if not row.empty:
+        event_name = row.iloc[0]['EventName']
+        return f"{event_name}"
+    else:
+        return None
+
+
+async def does_exist(season, roundnumber):
+    """Checks did an F1 race exist or not."""
+    schedule = await asyncio.to_thread(fastf1.get_event_schedule, season)
+    event_row = schedule.loc[schedule['RoundNumber'] == roundnumber]
+    if event_row.empty:
+        return None
+    else:
+        return True
+
+def cowsay(text):
+    length = len(text)
+    top_bottom =  " " + "_" * (length + 2)
+    bubble_text = f"< {text} >"
+    cow = fr"""
+```
+{top_bottom}
+{bubble_text}
+ {('-' * (length + 2))}
+        \   ^__^
+         \  (oo)\_______
+            (__)\       )\\/\\
+                ||----w |
+                ||     ||
+```
+    """
+    return cow
+
+
+def admin_check():
+    async def predicate(ctx):
+        user = getattr(ctx, 'author', getattr(ctx, 'user', None))
+
+        if user and user.id == OWNER_ID:
+            return True
+
+        msg = "You don't have required permissions to do that."
+        if hasattr(ctx, 'send'):
+            message = await ctx.send(msg)
+            await asyncio.sleep(3)
+            await ctx.message.delete()
+            await message.delete()
+        else:
+            await ctx.response.send_message(msg, ephemeral=True)
+
+        return False
+    return commands.check(predicate)

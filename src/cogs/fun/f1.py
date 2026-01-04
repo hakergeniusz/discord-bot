@@ -20,77 +20,32 @@ from discord.ext import commands
 from discord import app_commands
 import datetime
 import asyncio
+from core.config import TMP_BASE
+import os
+from core.config import status_map
+from core.config import does_exist, find_circuit
 
 CURRENT_YEAR = datetime.date.today().year
 F1_DRIVER_is_used = 0
 
-fastf1.Cache.enable_cache('tmp/fastf1')
-
-status_map = {
-    "Lapped": "Lapped",
-    "Retired": "DNF",
-    "Accident": "DNF (Accident)",
-    "Collision": "DNF (Collision)",
-    "Spun off": "DNF (Spin)",
-    "Not classified": "NC",
-    "Gearbox": "DNF (Gearbox)",
-    "Engine": "DNF (Engine)",
-    "Transmission": "DNF (Transmission)",
-    "Electrical": "DNF (Electrical)",
-    "Out of fuel": "DNF (Fuel)",
-    "Oil leak": "DNF (Oil)",
-    "Brakes": "DNF (Brakes)",
-    "Suspension": "DNF (Suspension)",
-    "Tyre": "DNF (Tyre)",
-    "Cooling": "DNF (Cooling)",
-    "Did not start": "DNS",
-    "Withdrew": "DNS",
-    "Injury": "DNS",
-    "Illness": "DNS",
-    "Disqualified": "DSQ",
-    "Oil pressure": "DNF (Oil)",
-    "Clutch": "DNF (Clutch)",
-    "Supercharger": "DNF (Supercharger)",
-    "Hydraulics": "DNF (Hydraulics)"
-}
-
-async def find_circuit(season, roundnumber):
-    """Finds an F1 circuit name."""
-    schedule = await asyncio.to_thread(fastf1.get_event_schedule, season)
-    row = schedule.loc[schedule['RoundNumber'] == roundnumber]
-
-    if not row.empty:
-        event_name = row.iloc[0]['EventName']
-        return f"{event_name}"
-    else:
-        return None
-
-
-async def does_exist(season, roundnumber):
-    """Checks did an F1 race exist or not."""
-    schedule = await asyncio.to_thread(fastf1.get_event_schedule, season)
-    event_row = schedule.loc[schedule['RoundNumber'] == roundnumber]
-    if event_row.empty:
-        return None
-    else:
-        return True
+fastf1.Cache.enable_cache(os.path.join(TMP_BASE, 'fastf1'))
 
 
 class F1Commands(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
-    @app_commands.command(name='f1_result', description='Outputs the result of an F1 race')
+    @commands.hybrid_command(name='f1_result', description='Outputs the result of an F1 race')
     @app_commands.describe(season="Season of the race you want the result of", roundnumber="Round number of the race asked. You can get one with /f1_calendar")
-    async def f1_result(self, interaction: discord.Interaction, season: app_commands.Range[int, 1950, CURRENT_YEAR], roundnumber: app_commands.Range[int, 1, 24]): # Remember to change if F1 introduces an F1 calendar with more than 24 rounds.
+    async def f1_result(self, ctx: commands.Context, season: commands.Range[int, 1950, CURRENT_YEAR], roundnumber: commands.Range[int, 1, 24]): # Remember to change if F1 introduces an F1 calendar with more than 24 rounds.
         """Gives the result of an F1 race asked for."""
-        await interaction.response.defer()
+        await ctx.defer()
 
         global status_map
         if_existed = await does_exist(season, roundnumber)
 
         if not if_existed:
-            await interaction.followup.send(f"There wasn't R{roundnumber} in {season}.")
+            await ctx.send(f"There wasn't R{roundnumber} in {season}.")
             return
 
         session = await asyncio.to_thread(fastf1.get_session, season, roundnumber, 'R')
@@ -120,22 +75,33 @@ class F1Commands(commands.Cog):
             is_there_data = 1
 
         if is_there_data == 0:
-            await interaction.followup.send(f'''There wasn't R{roundnumber} in {season} yet. Please check it after the race.''')
+            response = await ctx.send(f'''There wasn't R{roundnumber} in {season} yet. Please check it after the race.''')
+            await asyncio.sleep(3)
+            if not ctx.interaction:
+                await ctx.message.delete()
+            await response.delete()
             return
         circuit = await find_circuit(season, roundnumber)
         output = "\n".join(result)
 
+        if not ctx.interaction:
+            message = f"""
+**F1 {season} {circuit}:**
+{output}
+            """
+            await ctx.send(message)
+            return
         responseF1 = discord.Embed(
             title=f"F1 {season} {circuit}",
             description=output,
             color=discord.Color.red()
         )
-        await interaction.followup.send(embed=responseF1)
+        await ctx.send(embed=responseF1)
 
-    @app_commands.command(name="f1_calendar", description="Shows an F1 calendar")
+    @commands.hybrid_command(name="f1_calendar", description="Shows an F1 calendar")
     @app_commands.describe(season="Season of the calendar you want to know")
-    async def f1_calendar(self, interaction: discord.Interaction, season: app_commands.Range[int, 1950, CURRENT_YEAR]):
-        await interaction.response.defer()
+    async def f1_calendar(self, ctx: commands.Context, season: commands.Range[int, 1950, CURRENT_YEAR]):
+        await ctx.defer()
         schedule = await asyncio.to_thread(fastf1.get_event_schedule, season)
 
         lines = []
@@ -155,27 +121,34 @@ class F1Commands(commands.Cog):
                 lines.append(f'{roundnumber}. {location} - {date}')
 
         output = "\n".join(lines)
+        if not ctx.interaction:
+            message = f"""
+**F1 {season} calendar:**
+{output}
+            """
+            await ctx.send(message)
+            return
 
         F1Calendar = discord.Embed(
             title=f"F1 {season} calendar",
             description=output,
             color=discord.Color.red()
         )
-        await interaction.followup.send(embed=F1Calendar)
+        await ctx.send(embed=F1Calendar)
 
-    @app_commands.command(name="f1_driver", description="Shows F1 driver's results in a season.")
+    @commands.hybrid_command(name="f1_driver", description="Shows F1 driver's results in a season.")
     @app_commands.describe(driver_code="The 3-letter driver code (e.g. VER)", season="Season of the results you want to know.", show_not_started="Toggle for showing races with DNS (Default: False).")
-    async def f1_driver(self, interaction: discord.Interaction, driver_code: app_commands.Range[str, 3, 3], season: app_commands.Range[int, 1950, CURRENT_YEAR], show_not_started: bool = False):
+    async def f1_driver(self, ctx: commands.Context, driver_code: commands.Range[str, 3, 3], season: commands.Range[int, 1950, CURRENT_YEAR], show_not_started: bool = False):
         """Gives the result of an F1 driver in a season."""
         global F1_DRIVER_is_used
-        await interaction.response.defer()
+        await ctx.defer()
 
         if driver_code.isalpha() != True:
-            await interaction.followup.send('Invalid driver code.')
+            await ctx.send('Invalid driver code.')
             return
 
         if F1_DRIVER_is_used != 0:
-            warning_message = await interaction.followup.send(f'''Someone else is already using this command. Please wait until this message is replaced.
+            warning_message = await ctx.send(f'''Someone else is already using this command. Please wait until this message is replaced.
                                                     > Q: Why do I need to wait?
                                                     > A: This command when used by many people at once does not function correctly.''')
             while F1_DRIVER_is_used != 0:
@@ -207,18 +180,30 @@ class F1Commands(commands.Cog):
                 continue
 
         if did_driver_race == 0:
-            await interaction.followup.send(f"Could not find any results for driver {driver_code.upper()} in {season} season.")
             F1_DRIVER_is_used = 0
+            response_to_user = await ctx.send(f"Could not find any results for driver {driver_code.upper()} in {season} season.")
+            await asyncio.sleep(3)
+            await ctx.message.delete()
+            await response_to_user.delete()
+            if warning_message:
+                await warning_message.delete()
             return
 
         output = "\n".join(results_list)
-
+        if not ctx.interaction:
+            message = f"""
+**F1 Season Results: {driver_code} ({season}):**
+{output}
+            """
+            await ctx.send(message)
+            F1_DRIVER_is_used = 0
+            return
         F1Driver = discord.Embed(
             title=f"F1 Season Results: {driver_code} ({season})",
             description=output,
             color=discord.Color.red()
         )
-        await interaction.followup.send(embed=F1Driver)
+        await ctx.send(embed=F1Driver)
         F1_DRIVER_is_used = 0
         if warning_message:
             await warning_message.delete()

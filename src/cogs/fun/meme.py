@@ -18,43 +18,19 @@ from discord.ext import commands
 from discord import app_commands
 import os
 import asyncio
+from core.config import TMP_BASE, change_file, cowsay
 
 beeping = 0
 
-def create_file(path, id: int):
-    """Creates a file for change_file()."""
-    if not id:
-        return
-
-    if os.path.exists(f'{path}{id}.txt'):
-        return
-
-    with open(f'{path}{id}.txt','w') as f:
-        f.write('0')
-
-
-def change_file(path, id: int):
-    """Made for /howmany commands to work. Adds 1 to the number in a file and returns the new number and returns the new count."""
-    if not os.path.exists(f'{path}{id}.txt'):
-        create_file(path, id)
-
-    with open(f'{path}{id}.txt', 'r') as f:
-        count = int(f.read())
-
-    with open(f'{path}{id}.txt', 'w') as f:
-        f.write(f'{count + 1}')
-        return count + 1
-
-
 class howmanybuttonButtons(discord.ui.View):
-    """A cog for ```/howmanybutton``` to work."""
+    """A class for ```/howmanybutton``` to work."""
     def __init__(self, bot):
         super().__init__()
         self.bot = bot
 
     @discord.ui.button(label="Click me!", style=discord.ButtonStyle.success)
     async def howmanybutton_button(self, interaction: discord.Interaction, button: discord.ui.Button):
-        count = await asyncio.to_thread(change_file, 'tmp/howmanybutton/', interaction.user.id)
+        count = await asyncio.to_thread(change_file, os.path.join(TMP_BASE, 'howmanybutton'), interaction.user.id)
         if count == 1:
             content = f'<@{interaction.user.id}> clicked the button {count} time!'
         else:
@@ -104,40 +80,40 @@ class Meme(commands.Cog):
                 await asyncio.sleep(beep_delay)
         beeping = 0
 
-    @app_commands.command(name="nothing", description=".")
-    async def nothing(self, interaction: discord.Interaction):
+    @commands.hybrid_command(name="nothing", description=".")
+    async def nothing(self, ctx: commands.Context):
         """Literally nothing."""
-        await interaction.response.send_message(f".", ephemeral=True)
-        print(f"{interaction.user.name} tried nothing...")
+        await ctx.send(f".", ephemeral=True)
+        print(f"{ctx.author.name} tried nothing...")
 
-    @app_commands.command(name="howmanytimes", description="Says how many times was the command typed")
-    async def howmanytimes(self, interaction: discord.Interaction):
+    @commands.hybrid_command(name="howmanytimes", description="Says how many times was the command typed")
+    async def howmanytimes(self, ctx: commands.Context):
         """Says how many times this user typed this command."""
-        count = await asyncio.to_thread(change_file, 'tmp/howmanytimes/', interaction.user.id)
+        count = await asyncio.to_thread(change_file, os.path.join(TMP_BASE, 'howmanytimes'), ctx.author.id)
 
         if count == 1:
-            await interaction.response.send_message(f'You have used this command {count} time.')
+            await ctx.send(f'You have used this command {count} time.')
             return
-        await interaction.response.send_message(f'You have used this command {count} times.')
+        await ctx.send(f'You have used this command {count} times.')
 
-    @app_commands.command(name="complain", description="Compain to the bot owner.")
-    async def complain(self, interaction: discord.Interaction):
+    @commands.hybrid_command(name="complain", description="Compain to the bot owner.")
+    async def complain(self, ctx: commands.Context):
         """Complaining to yourself why you wanted to complain to the bot owner."""
-        await interaction.response.send_message('https://tenor.com/view/rickroll-roll-rick-never-gonna-give-you-up-never-gonna-gif-22954713', ephemeral=True)
-        print(f"{interaction.user.name} complained and regretted it.")
+        await ctx.send('https://tenor.com/view/rickroll-roll-rick-never-gonna-give-you-up-never-gonna-gif-22954713', ephemeral=True)
+        print(f"{ctx.author.name} complained and regretted it.")
 
-    @app_commands.command(name="heart", description="Shows a heart.")
-    async def heart(self, interaction: discord.Interaction):
-        await interaction.response.send_message(':middle_finger:', ephemeral=True)
+    @commands.hybrid_command(name="heart", description="Shows a heart.")
+    async def heart(self, ctx: commands.Context):
+        await ctx.send(':middle_finger:', ephemeral=True)
 
-    @app_commands.command(name="finger", description="Shows a finger.")
-    async def finger(self, interaction: discord.Interaction):
-        await interaction.response.send_message(':heart:', ephemeral=True)
+    @commands.hybrid_command(name="finger", description="Shows a finger.")
+    async def finger(self, ctx: commands.Context):
+        await ctx.send(':heart:', ephemeral=True)
 
-    @app_commands.command(name="rickroll_me")
-    async def rickroll(self, interaction: discord.Interaction):
-        await interaction.response.send_message("Ok, if you want to be rickrolled, you will be.")
-        await interaction.followup.send('https://tenor.com/view/rickroll-roll-rick-never-gonna-give-you-up-never-gonna-gif-22954713')
+    @commands.hybrid_command(name="rickroll_me")
+    async def rickroll(self, ctx: commands.Context):
+        await ctx.send("Ok, if you want to be rickrolled, you will be.")
+        await ctx.send('https://tenor.com/view/rickroll-roll-rick-never-gonna-give-you-up-never-gonna-gif-22954713')
 
     @app_commands.command(name="howmanybutton", description="How many times did you press the button?")
     async def howmanybutton(self, interaction: discord.Interaction):
@@ -145,25 +121,10 @@ class Meme(commands.Cog):
         view = howmanybuttonButtons(interaction.client)
         await interaction.response.send_message('Click this button!', view=view)
 
-    @app_commands.command(name="cowsay", description="I'm a cow!")
+    @commands.hybrid_command(name="cowsay", description="I'm a cow!")
     @app_commands.describe(text="What you want me to say?")
-    async def cowsay(self, interaction: discord.Interaction, text: str):
-        length = len(text)
-        top_bottom =  " " + "_" * (length + 2)
-        bubble_text = f"< {text} >"
-        cow = f"""
-```
-{top_bottom}
-{bubble_text}
- {('-' * (length + 2))}
-        \   ^__^
-         \  (oo)\_______
-            (__)\       )\\/\\
-                ||----w |
-                ||     ||
-```
-"""
-        await interaction.response.send_message(cow)
+    async def cowsay(self, ctx: commands.Context, *, text: str):
+        await ctx.send(cowsay(text))
 
 async def setup(bot):
     await bot.add_cog(Meme(bot))

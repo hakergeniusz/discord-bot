@@ -13,19 +13,17 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import discord
 from discord.ext import commands
-from discord import app_commands
 
 
 class ExampleCog(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
-    @app_commands.command(name='test', description='Lorem ipsum dolor sit amet.')
-    async def test(interaction: discord.Interaction):
+    @commands.hybrid_command(name='test', description='Lorem ipsum dolor sit amet.')
+    async def test(self, ctx: commands.Context):
         """Example comment."""
-        await interaction.response.send_message('Lorem ipsum dolor sit amet.')
+        await ctx.send('Lorem ipsum dolor sit amet.')
 
 
 async def setup(bot):
