@@ -20,7 +20,7 @@ import asyncio
 import os
 import aiohttp
 import random
-from core.config import image_checker, process_prompt, create_file
+from core.config import image_checker, process_prompt, create_file, TMP_BASE
 
 
 class Utility(commands.Cog):
@@ -93,7 +93,7 @@ class Utility(commands.Cog):
         else:
             await ctx.send("It is a DM")
 
-    @app_commands.command(name="ai", description="AI that will (maybe) respond to your questions.")
+    @commands.hybrid_command(name="ai", description="AI that will (maybe) respond to your questions.")
     @app_commands.describe(prompt="Message to the AI")
     async def ai(self, interaction: discord.Interaction, prompt: str):
         await interaction.response.defer()
@@ -116,20 +116,20 @@ class Utility(commands.Cog):
             await message.edit(content=full_response)
             return
 
-        file_name = os.path.join("tmp", f"{random.randint(100000, 999999)}.txt")
-        await create_file(file_name=file_name, file_content=full_response)
+        file_path = os.path.join(TMP_BASE, f"{random.randint(100000, 999999)}.txt")
+        await create_file(file_name=file_path, file_content=full_response)
         await asyncio.sleep(0.05)
 
-        if not os.path.exists(file_name):
+        if not os.path.exists(file_path):
             await message.edit(content='Response is too long to send it on Discord. Error while making a file with full response.')
             return
 
         await message.delete()
-        file = discord.File(f'{file_name}')
+        file = discord.File(f'{file_path}')
         await interaction.followup.send(content='Here is the file with the full response:', file=file)
 
-        if os.path.exists(file_name):
-            os.remove(file_name)
+        if os.path.exists(file_path):
+            os.remove(file_path)
 
     @commands.guild_only()
     @commands.hybrid_command(name="hide_conversation", description="Hides the conversation")
