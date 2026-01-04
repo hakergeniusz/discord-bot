@@ -76,20 +76,19 @@ status_map = {
     "Hydraulics": "DNF (Hydraulics)"
 }
 
-genai_aclient = genai.Client().aio
+gemini_client = genai.Client().aio
 
-async def process_prompt(message: str):
+async def process_prompt(message: str) -> str:
     """
-    Sends a prompt to the Gemini SDK asynchronously.
-
+    Sends a prompt to Gemma 3 27B and yields chunks of text.
+    
     Args:
-        prompt (str): The text message to send to the AI.
-
-    Returns:
-        str: The text response from the AI model.
+        message (str): The prompt from the user.
+    Yields:
+        str: Text chunks as they arrive from Google.
     """
-    response = await genai_aclient.models.generate_content_stream(
-        content=message,
+    response = await gemini_client.models.generate_content_stream(
+        contents=f'{message}',
         model="models/gemma-3-27b-it",
     )
     async for chunk in response:
@@ -97,14 +96,42 @@ async def process_prompt(message: str):
             yield chunk.text
 
 
-async def create_file(file_name, file_content):
-    """Creates a file for /ai."""
-    with open(f'{file_name}', 'w') as f:
-        f.write(f'{file_content}\n')
+async def create_file(file_name: str, file_content: str) -> bool:
+    """
+    Creates a file with requested name in TMP subfolder.
+    
+    Args:
+        file_name (str): The file name to create with the extension.
+        file_content (str): Content of the file to write.
+    
+    Returns:
+        bool: True if file is written successfully, None if it isn't.
+        """
+    PATH = os.path.join(TMP_BASE, f'{file_name}')
+    with open(PATH, 'w') as f:
+        f.write(f'{file_content}')
+    
+    if not os.path.exists(PATH):
+        return None
+
+    with open(PATH, 'r') as f:
+        if f.read() == file_content:
+            return True
+        else:
+            return None
 
 
-def change_file(path, id: int):
-    """Made for /howmany commands to work. Adds 1 to the number in a file and returns the new number and returns the new count."""
+def change_file(path: int, id: int) -> int:
+    """
+    Adds 1 to the number in a file. If there is no file, a new file is created.
+
+    Args:
+        path (str): Folder where the file is in.
+        id (int): Discord user ID of the user that triggered the command.
+    
+    Returns:
+        int: New number that is in the file.
+    """
     FILE_PATH = os.path.join(path, f'{id}.txt')
     if not os.path.exists(FILE_PATH):
         with open(FILE_PATH, 'w') as f:
@@ -135,8 +162,17 @@ async def image_checker(session: aiohttp.ClientSession, image_link: str):
         return None
 
 
-async def find_circuit(season, roundnumber):
-    """Finds an F1 circuit name."""
+async def find_circuit(season: int, roundnumber: int) -> str:
+    """
+    Finds an F1 circuit name.
+    
+    Args:
+        season (int): Season where the race was.
+        roundnumber (int): Round number of the race to return the name.
+    
+    Returns:
+        str: Circuit's name.
+    """
     schedule = await asyncio.to_thread(fastf1.get_event_schedule, season)
     row = schedule.loc[schedule['RoundNumber'] == roundnumber]
 
@@ -156,7 +192,18 @@ async def does_exist(season, roundnumber):
     else:
         return True
 
-def cowsay(text):
+def cowsay(text: str) -> str:
+    """
+    A simple cowsay command.
+
+    Args:
+        text (str): Text for the cow to say.
+    
+    Returns:
+        str: Cow in a Discord embed that says the *text* argument.
+    """
+    if text is None:
+        return
     length = len(text)
     top_bottom =  " " + "_" * (length + 2)
     bubble_text = f"< {text} >"
