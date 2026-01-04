@@ -1,0 +1,53 @@
+#  Copyright (C) 2026 hakergeniusz
+#
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+import discord
+from discord import app_commands
+from discord.ext import commands
+import asyncio
+
+class RemovedCommands(commands.Cog):
+    def __init__(self, bot: commands.Bot):
+        self.bot = bot
+
+    @commands.hybrid_command(name="beep", description="Beeps in the computer that is hosting the bot.")
+    @app_commands.describe(times="How many times to beep (if not provided, default value is: 1)",)
+    async def beep(self, ctx: commands.Context, times: commands.Range[int, 2, 100] = 1):
+        """Beeps in the computer hosting the bot. If PC doesn't have a beeper, *beep* will give an error that no speaker found."""
+        global beeping
+        if beeping == 1:
+            await ctx.send(f"<@{ctx.author.id}>, you cannot beep while I am already beeping. Please try again later.")
+            print(f"An idiot named {ctx.author.name} wanted to beep when I already beeped")
+            return
+
+        beeping = 1
+        if times == 1:
+            await ctx.send(f"<@{ctx.user.id}>, I will beep {times} time in the computer.")
+            print(f"An idiot named {ctx.author.name} wants to beep once.")
+            process = await asyncio.create_subprocess_shell('beep')
+            await process.communicate()
+            beeping = 0
+            return
+
+        await ctx.send(f"<@{ctx.author.id}>, I will beep {times} times in the computer.")
+        print(f"An idiot named {ctx.author.name} wants to beep {times}.")
+
+        process = await asyncio.create_subprocess_shell(f'beep -r {times}')
+        await process.communicate()
+        beeping = 0
+
+
+async def setup(bot):
+    await bot.add_cog(RemovedCommands(bot))

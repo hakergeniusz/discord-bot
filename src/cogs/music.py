@@ -52,32 +52,33 @@ class Music(commands.Cog):
         await interaction.response.send_message(f"Playing audio on <#{channel.id}>")
         print(f"Rupturing the eardrums of {interaction.user.name}")
 
-    @app_commands.command(name="join_vc", description="Joins a voice channel")
+    @commands.hybrid_command(name="join_vc", description="Joins a voice channel")
     @app_commands.guild_only()
-    async def join_vc(self, interaction: discord.Interaction):
+    async def join_vc(self, ctx: commands.Context):
         """Joins a voice channel user is connected to."""
-        if not interaction.user.voice or not interaction.user.voice.channel:
-            await interaction.response.send_message("You are not in a voice channel.", ephemeral=True)
+        if not ctx.author.voice or not ctx.author.voice.channel:
+            await ctx.send("You are not in a voice channel.", ephemeral=True)
             return
 
-        voice_channel = interaction.user.voice.channel
-        if interaction.guild.voice_client:
-            await interaction.guild.voice_client.move_to(voice_channel)
+        voice_channel = ctx.author.voice.channel
+        if ctx.guild.voice_client:
+            await ctx.guild.voice_client.connect(voice_channel)
         else:
             await voice_channel.connect()
 
-        await interaction.response.send_message(f"Joined <#{voice_channel.id}>", ephemeral=True)
-        print(f"Joined {voice_channel.name} with {interaction.user.name}")
+        await ctx.send(f"Joined <#{voice_channel.id}>", ephemeral=True)
+        print(f"Joined {voice_channel.name} with {ctx.author.name}")
 
-    @app_commands.command(name="leave_vc", description="Leaves a voice channel.")
-    @app_commands.guild_only()
-    async def leave(self, interaction: discord.Interaction):
-        if interaction.guild.voice_client:
-            await interaction.guild.voice_client.disconnect()
-            await interaction.response.send_message("Left the voice channel.")
-            print(f"Leaving {interaction.channel.name} due to request of {interaction.user.name}")
-        else:
-            await interaction.response.send_message("I'm not in a voice channel.", ephemeral=True)
+    @commands.hybrid_command(name="leave_vc", description="Leaves a voice channel.")
+    @commands.guild_only()
+    async def leave(self, ctx: commands.Context):
+        if not ctx.guild.voice_client:
+            await ctx.send("I'm not in a voice channel.", ephemeral=True)
+            return
+        await ctx.guild.voice_client.disconnect()
+        await ctx.send("Left the voice channel.")
+        print(f"Leaving {ctx.channel.name} due to request of {ctx.author.name}")
+            
 
 
 async def setup(bot):

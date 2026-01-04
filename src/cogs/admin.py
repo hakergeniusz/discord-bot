@@ -104,7 +104,7 @@ class ownerCommands(commands.Cog):
     async def pc_turn_off(self, ctx: commands.Context):
         """Turns off the computer hosting the bot."""
         if not PC_POWEROFF:
-            await ctx.send("PC cannot be turned off, because I have not been permitted from doing so.")
+            await ctx.send("PC cannot be turned off, because I have not been allowed from doing so.")
             return
         os.system('poweroff')
 
@@ -117,17 +117,17 @@ class ownerCommands(commands.Cog):
         await ctx.send(f'{webhook.url}', ephemeral=True)
 
     @admin_check()
-    @app_commands.command(name='delete_webhook', description='Deletes a webhook')
+    @commands.hybrid_command(name='delete_webhook', description='Deletes a webhook')
     @app_commands.describe(webhook='Webhook link.')
-    async def delete_webhook(self, interaction: discord.Interaction, webhook: str):
+    async def delete_webhook(self, ctx: commands.Context, webhook: str):
         async with aiohttp.ClientSession() as session:
             async with session.delete(webhook) as response:
                 if response.status in (401, 404):
-                    await interaction.response.send_message('This webhook does not exist. You may have already deleted it.')
+                    await ctx.send('This webhook does not exist. You may have already deleted it.')
                 elif response.status in (200, 204):
-                    await interaction.response.send_message('Removed webhook successfully')
+                    await ctx.send('Removed webhook successfully')
                 else:
-                    await interaction.response.send_message(f'Webhook may not have been deleted. Response code is {response.status}.')
+                    await ctx.send(f'Webhook may not have been deleted. Response code is {response.status}.')
 
 
 async def setup(bot):

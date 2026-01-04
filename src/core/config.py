@@ -25,12 +25,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-SYSTEM_PROMPT = """
-You are a chatbot for a Discord command (don't mention this in responses).
-Don't include any unnecessary text in your responses and don't use emojis.
-You are free to make reponses that are longer than 2000 characters, however it does not mean you should explicitly make ones.
-"""
-
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 TMP_BASE = os.path.join(PROJECT_ROOT, "tmp")
 
@@ -83,7 +77,7 @@ gemini_client = genai.Client().aio
 
 async def process_prompt(message: str):
     """
-    Sends a prompt to Gemma 3 27B and yields chunks of text.
+    Sends asynchronously a prompt to Gemma 3 27B and yields chunks of text.
     
     Args:
         message (str): The prompt from the user.
@@ -148,8 +142,17 @@ def change_file(path: int, id: int) -> int:
         return count + 1
 
 
-async def image_checker(session: aiohttp.ClientSession, image_link: str):
-    """Checks does an image exist."""
+async def image_checker(session: aiohttp.ClientSession, image_link: str) -> bool:
+    """Checks does an image exist.
+    
+    Args:
+        session (aiohttp.ClientSession)
+        image_link (str): Image URL to check.
+
+    
+    Returns:
+        bool: True if image exists, None if image does not exist.
+    """
     if not image_link:
         return True
     try:
@@ -174,7 +177,8 @@ async def find_circuit(season: int, roundnumber: int) -> str:
         roundnumber (int): Round number of the race to return the name.
     
     Returns:
-        str: Circuit's name.
+        str: Circuit's name if it existed.
+        bool: None, if circuit not found.
     """
     schedule = await asyncio.to_thread(fastf1.get_event_schedule, season)
     row = schedule.loc[schedule['RoundNumber'] == roundnumber]
@@ -186,8 +190,16 @@ async def find_circuit(season: int, roundnumber: int) -> str:
         return None
 
 
-async def does_exist(season, roundnumber):
-    """Checks did an F1 race exist or not."""
+async def does_exist(season: int, roundnumber: int) -> bool:
+    """Checks did an F1 race historically exist or not.
+    
+    Args:
+        season (int)
+        roundnumber (int): Race number in F1 calendar to check. 
+    
+    Returns:
+        bool: True if existed, None if it did not exist.
+    """
     schedule = await asyncio.to_thread(fastf1.get_event_schedule, season)
     event_row = schedule.loc[schedule['RoundNumber'] == roundnumber]
     if event_row.empty:
@@ -197,13 +209,13 @@ async def does_exist(season, roundnumber):
 
 def cowsay(text: str) -> str:
     """
-    A simple cowsay command.
+    A simple cowsay.
 
     Args:
         text (str): Text for the cow to say.
     
     Returns:
-        str: Cow in a Discord embed that says the *text* argument.
+        str: Cow in a code block that says the *text* argument.
     """
     if text is None:
         return
@@ -225,7 +237,16 @@ def cowsay(text: str) -> str:
     return cow
 
 
-def admin_check():
+def admin_check() -> commands.check:
+    """
+    Checks does the author of the context or interaction have admin permissions. Works both with slash (interaction) and hybrid commands.
+
+    Returns:
+        commands.check: A decorator that can be used to easily protect bot commands.
+    
+    Implementation:
+        Add @admin_check() at start of command's code.
+    """
     async def predicate(ctx):
         user = getattr(ctx, 'author', getattr(ctx, 'user', None))
 
