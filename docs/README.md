@@ -1,5 +1,3 @@
-NOTE: You are on latest branch. This branch is guaranteed to be unstable, it contains new features before they are pushed into main branch. For stability, use main branch or releases.
-
 # 🤖 Discord Bot
 
 <img src="https://img.shields.io/badge/License-GPLv3-blue.svg?style=for-the-badge" height="60">
@@ -24,7 +22,8 @@ You must have following installed on your computer for this bot to work correctl
 
 ## 💻 Preparation
 NOTE: These commands are for Linux. If you use Windows, please use **Windows Subsystem for Linux** (WSL).
-1. Download all files from this repository with `git clone https://github.com/hakergeniusz/discord-bot.git`.
+1. Download all files from this repository with `git clone -b main https://github.com/hakergeniusz/discord-bot.git`.
+> NOTE: If you want `latest` branch with new features (also broken bot), use `git clone -b latest https://github.com/hakergeniusz/discord-bot.git`.
 2. Open the folder with `cd discord-bot`.
 3. Create a Python venv with `python3 -m venv .venv`.
 4. Activate venv with `source .venv/bin/activate`.

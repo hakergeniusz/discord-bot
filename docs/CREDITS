@@ -16,10 +16,10 @@ The following third-party libraries are used in this project:
    Copyright (c) 2014, Saurabh Kumar
    https://github.com/theskumar/python-dotenv
 
-4. ollama-python
-   License: MIT
-   Copyright (c) 2023-present Ollama
-   https://github.com/ollama/ollama-python
+4. google-genai
+   License: Apache License 2.0
+   Copyright (c) 2025 Google LLC
+   https://github.com/googleapis/python-genai
 
 5. aiohttp
    License: Apache 2.0
