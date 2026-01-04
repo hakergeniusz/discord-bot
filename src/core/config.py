@@ -20,6 +20,7 @@ import asyncio
 import fastf1
 from discord.ext import commands
 from google import genai
+import datetime
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -39,6 +40,8 @@ TOKEN = os.environ.get('DISCORD_BOT_TOKEN')
 PC_POWEROFF = os.environ.get('POWEROFF_COMMAND')
 if PC_POWEROFF != 'True':
     PC_POWEROFF = None
+
+CURRENT_YEAR = datetime.date.today().year
 
 IMAGE_CONTENT_TYPES = [
     'image/jpeg',

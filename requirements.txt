@@ -1,5 +1,4 @@
 discord.py
-ollama
 fastf1
 discord.py[voice]
 python-dotenv
