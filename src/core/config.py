@@ -78,7 +78,7 @@ status_map = {
 
 gemini_client = genai.Client().aio
 
-async def process_prompt(message: str) -> str:
+async def process_prompt(message: str):
     """
     Sends a prompt to Gemma 3 27B and yields chunks of text.
     
@@ -89,7 +89,7 @@ async def process_prompt(message: str) -> str:
     """
     response = await gemini_client.models.generate_content_stream(
         contents=f'{message}',
-        model="models/gemma-3-27b-it",
+        model="gemma-3-27b-it",
     )
     async for chunk in response:
         if chunk.text:

@@ -100,21 +100,21 @@ class ownerCommands(commands.Cog):
         await interaction.response.send_message("Select the status:", view=view, ephemeral=True)
 
     @admin_check()
-    @app_commands.command(name="turn_off_pc", description="Turns off the PC")
-    async def pc_turn_off(self, interaction: discord.Interaction):
+    @commands.hybrid_command(name="turn_off_pc", description="Turns off the PC")
+    async def pc_turn_off(self, ctx: commands.Context):
         """Turns off the computer hosting the bot."""
         if not PC_POWEROFF:
-            await interaction.response.send_message("PC cannot be turned off, because I have not been permitted from doing so.")
+            await ctx.send("PC cannot be turned off, because I have not been permitted from doing so.")
             return
         os.system('poweroff')
 
     @admin_check()
-    @app_commands.command(name='create_webhook', description='Creates a webhook.')
-    @app_commands.guild_only()
-    async def create_webhook(self, interaction: discord.Interaction):
+    @commands.hybrid_command(name='create_webhook', description='Creates a webhook.')
+    @commands.guild_only()
+    async def create_webhook(self, ctx: commands.Context):
         """Creates a webhook for the current channel."""
-        webhook = await interaction.channel.create_webhook(name="Test webhook")
-        await interaction.response.send_message(f'{webhook.url}', ephemeral=True)
+        webhook = await ctx.channel.create_webhook(name="Test webhook")
+        await ctx.send(f'{webhook.url}', ephemeral=True)
 
     @admin_check()
     @app_commands.command(name='delete_webhook', description='Deletes a webhook')
@@ -128,13 +128,6 @@ class ownerCommands(commands.Cog):
                     await interaction.response.send_message('Removed webhook successfully')
                 else:
                     await interaction.response.send_message(f'Webhook may not have been deleted. Response code is {response.status}.')
-
-    @admin_check()
-    @commands.hybrid_command(name='send_messages')
-    @app_commands.describe(count="how many messages")
-    async def send_messages(self, ctx: commands.Context, count: commands.Range[int, 1, 100]):
-        for i in range(count):
-            await ctx.send(f'{i + 1}')
 
 
 async def setup(bot):

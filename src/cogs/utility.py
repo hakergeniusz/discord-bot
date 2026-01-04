@@ -95,12 +95,12 @@ class Utility(commands.Cog):
 
     @commands.hybrid_command(name="ai", description="AI that will (maybe) respond to your questions.")
     @app_commands.describe(prompt="Message to the AI")
-    async def ai(self, interaction: discord.Interaction, prompt: str):
-        await interaction.response.defer()
-        print(f'{interaction.user.name} says: {prompt}')
+    async def ai(self, ctx: commands.Context, *, prompt: str):
+        await ctx.defer()
+        print(f'{ctx.author.name} says: {prompt}')
         full_response = ""
         counter_ai = 0
-        message = await interaction.followup.send('▌')
+        message = await ctx.send('▌')
         async for chunk in process_prompt(prompt):
             full_response += chunk
             counter_ai += 1
@@ -126,7 +126,7 @@ class Utility(commands.Cog):
 
         await message.delete()
         file = discord.File(f'{file_path}')
-        await interaction.followup.send(content='Here is the file with the full response:', file=file)
+        await ctx.send(content='Here is the file with the full response:', file=file)
 
         if os.path.exists(file_path):
             os.remove(file_path)
