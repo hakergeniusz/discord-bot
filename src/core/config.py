@@ -14,7 +14,6 @@
 #  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import os
-from ollama import AsyncClient as AsyncClientOllama
 import aiohttp
 import asyncio
 import fastf1
