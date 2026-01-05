@@ -16,7 +16,6 @@ You must have following installed on your computer for this bot to work correctl
 * **Git** for cloning the repository.
 * **FFmpeg** for `/play` command to work correctly.
 * **`example.mp3`** file for the `/play` command to get a file to play. If you don't have one, you can use the default one that is in the repository.
-* **beep** linux package for `/beep`.
 
 ---
 
