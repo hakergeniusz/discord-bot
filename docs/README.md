@@ -44,7 +44,7 @@ NOTE: These commands are for Linux. If you use Windows, please use **Windows Sub
 ## 🚀 Running the bot
 With your `.venv` active, execute the following command:
 ```bash
-python3 main.py
+python3 -m main
 ```
 
 ---
