@@ -24,9 +24,9 @@ class Music(commands.Cog):
         self.bot = bot
 
     @app_commands.command(name="play", description="Plays music on a voice channel")
-    @app_commands.describe(channel="Channel to play music on", youtube_url="Youtube URL of the video you want to play.")
+    @app_commands.describe(youtube_url="Youtube URL of the video you want to play.")
     @app_commands.guild_only()
-    async def play(self, interaction: discord.Interaction, channel: discord.VoiceChannel, youtube_url: str):
+    async def play(self, interaction: discord.Interaction, youtube_url: str):
         await interaction.response.defer()
         if not interaction.user.voice:
             await interaction.followup.send("You are not in a voice channel.")
@@ -41,17 +41,18 @@ class Music(commands.Cog):
         if not path:
             await interaction.followup.send("Incorrect URL/Failed to download video.")
             return
+        user_vc_chan = interaction.user.voice.channel
         if not vc_chan:
-            await channel.connect()
-            print(f'Joined {channel.name} to rupture eardrums of {interaction.user.name}')
+            await user_vc_chan.connect()
+            print(f'Joined {user_vc_chan.name} to rupture eardrums of {interaction.user.name}')
             vc_chan = interaction.guild.voice_client
         else:
-            await vc_chan.move_to(channel)
+            await vc_chan.move_to(user_vc_chan)
 
         music = discord.FFmpegPCMAudio(path)
         vc_chan.play(music)
 
-        await interaction.followup.send(f"Playing audio on <#{channel.id}>")
+        await interaction.followup.send(f"Playing audio on <#{user_vc_chan.id}>")
         print(f"Rupturing the eardrums of {interaction.user.name}")
 
     @commands.hybrid_command(name="join_vc", description="Joins a voice channel")

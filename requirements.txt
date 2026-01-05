@@ -3,3 +3,4 @@ fastf1
 discord.py[voice]
 python-dotenv
 google-genai
+yt-dlp
