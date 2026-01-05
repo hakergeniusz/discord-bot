@@ -16,7 +16,7 @@
 import discord
 from discord.ext import commands
 from discord import app_commands
-from core.config import PROJECT_ROOT
+from core.config import PROJECT_ROOT, download_youtube_video
 import os
 
 class Music(commands.Cog):
@@ -24,16 +24,23 @@ class Music(commands.Cog):
         self.bot = bot
 
     @app_commands.command(name="play", description="Plays music on a voice channel")
-    @app_commands.describe(channel="Channel to play music on")
+    @app_commands.describe(channel="Channel to play music on", youtube_url="Youtube URL of the video you want to play.")
     @app_commands.guild_only()
-    async def play(self, interaction: discord.Interaction, channel: discord.VoiceChannel):
-        """Plays the example.mp3 file that is in the root folder of this repository in a VC."""
+    async def play(self, interaction: discord.Interaction, channel: discord.VoiceChannel, youtube_url: str):
+        await interaction.response.defer()
         if not interaction.user.voice:
-            await interaction.response.send_message("You are not in a voice channel.")
+            await interaction.followup.send("You are not in a voice channel.")
             print(f"{interaction.user.name} tried to rupture his eardrums, but he isn't in a VC, so I can't do it.")
             return
-
         vc_chan = interaction.guild.voice_client
+        if vc_chan.is_playing():
+                await interaction.followup.send("Already playing audio.")
+                print(f"{interaction.user.name} tried to rupture his eardrums, but I already do it. ")
+                return
+        path = download_youtube_video(youtube_url)
+        if not path:
+            await interaction.followup.send("Incorrect URL/Failed to download video.")
+            return
         if not vc_chan:
             await channel.connect()
             print(f'Joined {channel.name} to rupture eardrums of {interaction.user.name}')
@@ -41,15 +48,10 @@ class Music(commands.Cog):
         else:
             await vc_chan.move_to(channel)
 
-        if vc_chan.is_playing():
-            await interaction.response.send_message("Already playing audio.")
-            print(f"{interaction.user.name} tried to rupture his eardrums, but I already do it. ")
-            return
-
-        music = discord.FFmpegPCMAudio(os.path.join(PROJECT_ROOT, 'assets', 'audio', 'example.mp3'))
+        music = discord.FFmpegPCMAudio(path)
         vc_chan.play(music)
 
-        await interaction.response.send_message(f"Playing audio on <#{channel.id}>")
+        await interaction.followup.send(f"Playing audio on <#{channel.id}>")
         print(f"Rupturing the eardrums of {interaction.user.name}")
 
     @commands.hybrid_command(name="join_vc", description="Joins a voice channel")

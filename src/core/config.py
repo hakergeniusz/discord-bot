@@ -20,6 +20,8 @@ import fastf1
 from discord.ext import commands
 from google import genai
 import datetime
+import yt_dlp
+import re
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -72,12 +74,30 @@ status_map = {
     "Hydraulics": "DNF (Hydraulics)"
 }
 
+ydl_opts = {
+    'outtmpl': '/tmp/%(id)s.%(ext)s',
+    'format': 'bestaudio/best',
+    'noplaylist': True,
+    'quiet': True,
+    'postprocessors': [{
+        'key': 'FFmpegExtractAudio',
+        'preferredcodec': 'opus',
+        'preferredquality': '128',
+    }],
+}
+
+youtube_regex = (
+        r'(https?://)?(www\.|m\.)?'
+        r'(youtube\.com/watch\?v=|youtu\.be/|youtube\.com/shorts/)'
+        r'([\w-]{11})'
+    )
+
 gemini_client = genai.Client().aio
 
 async def process_prompt(message: str):
     """
     Sends asynchronously a prompt to Gemma 3 27B and yields chunks of text.
-    
+
     Args:
         message (str): The prompt from the user.
     Yields:
@@ -95,18 +115,18 @@ async def process_prompt(message: str):
 async def create_file(file_name: str, file_content: str) -> bool:
     """
     Creates a file with requested name in TMP subfolder.
-    
+
     Args:
         file_name (str): The file name to create with the extension.
         file_content (str): Content of the file to write.
-    
+
     Returns:
         bool: True if file is written successfully, None if it isn't.
         """
     PATH = os.path.join(TMP_BASE, f'{file_name}')
     with open(PATH, 'w') as f:
         f.write(f'{file_content}')
-    
+
     if not os.path.exists(PATH):
         return None
 
@@ -124,7 +144,7 @@ def change_file(path: int, id: int) -> int:
     Args:
         path (str): Folder where the file is in.
         id (int): Discord user ID of the user that triggered the command.
-    
+
     Returns:
         int: New number that is in the file.
     """
@@ -143,12 +163,12 @@ def change_file(path: int, id: int) -> int:
 
 async def image_checker(session: aiohttp.ClientSession, image_link: str) -> bool:
     """Checks does an image exist.
-    
+
     Args:
         session (aiohttp.ClientSession)
         image_link (str): Image URL to check.
 
-    
+
     Returns:
         bool: True if image exists, None if image does not exist.
     """
@@ -170,11 +190,11 @@ async def image_checker(session: aiohttp.ClientSession, image_link: str) -> bool
 async def find_circuit(season: int, roundnumber: int) -> str:
     """
     Finds an F1 circuit name.
-    
+
     Args:
         season (int): Season where the race was.
         roundnumber (int): Round number of the race to return the name.
-    
+
     Returns:
         str: Circuit's name if it existed.
         bool: None, if circuit not found.
@@ -191,11 +211,11 @@ async def find_circuit(season: int, roundnumber: int) -> str:
 
 async def does_exist(season: int, roundnumber: int) -> bool:
     """Checks did an F1 race historically exist or not.
-    
+
     Args:
         season (int)
-        roundnumber (int): Race number in F1 calendar to check. 
-    
+        roundnumber (int): Race number in F1 calendar to check.
+
     Returns:
         bool: True if existed, None if it did not exist.
     """
@@ -212,7 +232,7 @@ def cowsay(text: str) -> str:
 
     Args:
         text (str): Text for the cow to say.
-    
+
     Returns:
         str: Cow in a code block that says the *text* argument.
     """
@@ -242,7 +262,7 @@ def admin_check() -> commands.check:
 
     Returns:
         commands.check: A decorator that can be used to easily protect bot commands.
-    
+
     Implementation:
         Add @admin_check() at start of command's code.
     """
@@ -263,3 +283,29 @@ def admin_check() -> commands.check:
 
         return False
     return commands.check(predicate)
+
+
+def download_youtube_video(url: str):
+    """
+    Downloads a YouTube video from the given URL and returns the path to the downloaded file.
+
+    Args:
+        url (str): The URL of the YouTube video to be downloaded.
+
+    Returns:
+        str: The path to the downloaded file with the extension changed to .opus.
+        bool: If the video could not be downloaded or video not found.
+    """
+    match = re.match(youtube_regex, url)
+    if not bool(match):
+        return None
+    try:
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(url, download=True)
+            path = ydl.prepare_filename(info).replace(".webm", ".opus").replace(".m4a", ".opus")
+            if os.path.exists(path):
+                return path
+            else:
+                return None
+    except Exception:
+        return None
