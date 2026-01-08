@@ -17,7 +17,9 @@ import os
 import aiohttp
 import asyncio
 import fastf1
+import discord
 from discord.ext import commands
+from discord import app_commands
 from google import genai
 import datetime
 import yt_dlp
@@ -258,7 +260,7 @@ def cowsay(text: str) -> str:
 
 def admin_check() -> commands.check:
     """
-    Checks does the author of the context or interaction have admin permissions. Works both with slash (interaction) and hybrid commands.
+    Checks does the author of the context (ctx) have admin permissions. Works with prefix and hybrid commands. Does not work with slash only commands.
 
     Returns:
         commands.check: A decorator that can be used to easily protect bot commands.
@@ -283,6 +285,25 @@ def admin_check() -> commands.check:
 
         return False
     return commands.check(predicate)
+
+
+def admin_check_slash():
+    """
+    Checks does the author of the interaction have admin permissions. Works only with slash commands.
+
+    Returns:
+        commands.check: A decorator that can be used to easily protect bot commands.
+
+    Implementation:
+        Add @admin_check() at start of command's code.
+    """
+    async def predicate(interaction: discord.Interaction) -> bool:
+        if interaction.user.id == OWNER_ID:
+            return True
+        await interaction.response.send_message("You don't have required permissions to do that.", ephemeral=True)
+        return False
+    return app_commands.check(predicate)
+
 
 
 def download_youtube_video(url: str):

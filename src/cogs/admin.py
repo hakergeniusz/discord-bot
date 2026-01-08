@@ -18,7 +18,7 @@ from discord.ext import commands
 from discord import app_commands
 import os
 import aiohttp
-from core.config import admin_check, PC_POWEROFF
+from core.config import admin_check, PC_POWEROFF, admin_check_slash
 import asyncio
 
 class StatusButtons(discord.ui.View):
@@ -93,7 +93,7 @@ class ownerCommands(commands.Cog):
         await ctx.message.delete()
         await message.delete()
 
-    @admin_check()
+    @admin_check_slash()
     @app_commands.command(name="change_status", description="Changes the status of the bot")
     async def change_status(self, interaction: discord.Interaction):
         view = StatusButtons(interaction.client)
