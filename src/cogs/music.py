@@ -42,7 +42,7 @@ class Music(commands.Cog):
             await interaction.followup.send("Incorrect URL/Failed to download video.")
             return
         user_vc_chan = interaction.user.voice.channel
-        if not vc_chan:
+        if not interaction.guild.voice_client:
             await user_vc_chan.connect()
             print(f'Joined {user_vc_chan.name} to rupture eardrums of {interaction.user.name}')
             vc_chan = interaction.guild.voice_client
@@ -81,7 +81,6 @@ class Music(commands.Cog):
         await ctx.guild.voice_client.disconnect()
         await ctx.send("Left the voice channel.")
         print(f"Leaving {ctx.channel.name} due to request of {ctx.author.name}")
-            
 
 
 async def setup(bot):
