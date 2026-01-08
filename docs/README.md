@@ -1,11 +1,11 @@
 # 🤖 Discord Bot
 
-<img src="https://img.shields.io/badge/License-GPLv3-blue.svg?style=for-the-badge" height="60">
+<img src="https://img.shields.io/badge/License-AGPLv3-orange.svg?style=for-the-badge" height="60">
 
 ---
 
 ## 👋 Introduction
-Feature-rich Discord bot made by hakergeniusz with the goal of learning Discord.py. It is licenced with GNU General Public License version 3.
+Feature-rich Discord bot made by hakergeniusz with the goal of learning Discord.py. It is licenced with GNU Affero General Public License version 3.
 
 ---
 
@@ -61,6 +61,7 @@ All credits for Python libraries are in [CREDITS](CREDITS) file.
 ---
 
 ## 📜 License
-This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
-This program is distributed in the hope that it will be useful, but **WITHOUT ANY WARRANTY**; without even the implied warranty of **MERCHANTABILITY** or **FITNESS FOR A PARTICULAR PURPOSE**. See the [COPYING](COPYING) file for more details.
+This program is free software: you can redistribute it and/or modify it under the terms of the **GNU Affero General Public License** as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but **WITHOUT ANY WARRANTY**; without even the implied warranty of **MERCHANTABILITY** or **FITNESS FOR A PARTICULAR PURPOSE**. See the [LICENSE](LICENSE) file for more details.

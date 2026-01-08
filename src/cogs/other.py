@@ -1,17 +1,17 @@
-#  Copyright (C) 2026 hakergeniusz
+# Copyright (C) 2026 hakergeniusz
 #
-#  This program is free software: you can redistribute it and/or modify
-#  it under the terms of the GNU General Public License as published by
-#  the Free Software Foundation, either version 3 of the License, or
-#  (at your option) any later version.
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
 #
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
 #
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import discord
 from discord.ext import commands
@@ -42,10 +42,10 @@ class other(commands.Cog):
             📜 **Legal Information & License**
 
 **Copyright (C) 2026 hakergeniusz**
-This program is free software: you can redistribute it and/or modify it under the terms of the **GNU General Public License v3.0** as published by the Free Software Foundation.
+This program is free software: you can redistribute it and/or modify it under the terms of the **GNU Affero General Public License v3.0** as published by the Free Software Foundation.
 
 ⚠️ Disclaimer of Warranty
-This program is distributed in the hope that it will be useful, but **WITHOUT ANY WARRANTY**; without even the implied warranty of **MERCHANTABILITY** or **FITNESS FOR A PARTICULAR PURPOSE**. See the [GNU GPLv3](https://www.gnu.org/licenses/gpl-3.0.txt) for more details.
+This program is distributed in the hope that it will be useful, but **WITHOUT ANY WARRANTY**; without even the implied warranty of **MERCHANTABILITY** or **FITNESS FOR A PARTICULAR PURPOSE**. See the [GNU AGPLv3](https://www.gnu.org/licenses/agpl-3.0.txt) for more details.
             """
             await ctx.send(message)
             return
@@ -55,13 +55,13 @@ This program is distributed in the hope that it will be useful, but **WITHOUT AN
             description=(
                 "**Copyright (C) 2026 hakergeniusz**\n\n"
                 "This program is free software: you can redistribute it and/or modify "
-                "it under the terms of the **GNU General Public License v3.0** as "
+                "it under the terms of the **GNU Affero General Public License v3.0** as "
                 "published by the Free Software Foundation.\n\n"
                 "### ⚠️ Disclaimer of Warranty\n"
                 "This program is distributed in the hope that it will be useful, "
                 "but **WITHOUT ANY WARRANTY**; without even the implied warranty of "
                 "**MERCHANTABILITY** or **FITNESS FOR A PARTICULAR PURPOSE**. "
-                "See the [GNU GPLv3](https://www.gnu.org/licenses/gpl-3.0.txt) for more details."
+                "See the [GNU AGPLv3](https://www.gnu.org/licenses/agpl-3.0.txt) for more details."
             )
         )
         view = discord.ui.View()
