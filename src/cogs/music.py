@@ -16,8 +16,7 @@
 import discord
 from discord.ext import commands
 from discord import app_commands
-from core.config import PROJECT_ROOT, download_youtube_video
-import os
+from core.youtube_downloader import download_youtube_video
 
 class Music(commands.Cog):
     def __init__(self, bot: commands.Bot):

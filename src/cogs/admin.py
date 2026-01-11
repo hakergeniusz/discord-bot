@@ -18,7 +18,8 @@ from discord.ext import commands
 from discord import app_commands
 import os
 import aiohttp
-from core.config import admin_check, PC_POWEROFF, admin_check_slash
+from core.config import PC_POWEROFF
+from core.admin_check import admin_check, admin_check_slash
 import asyncio
 
 class StatusButtons(discord.ui.View):

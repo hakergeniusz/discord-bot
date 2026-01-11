@@ -20,7 +20,10 @@ import asyncio
 import os
 import aiohttp
 import random
-from core.config import image_checker, process_prompt, create_file, TMP_BASE
+from core.config import TMP_BASE
+from core.howmany import create_file
+from core.ai import process_prompt
+from core.image_checker import image_checker
 
 
 class Utility(commands.Cog):

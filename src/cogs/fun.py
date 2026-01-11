@@ -19,7 +19,9 @@ from discord.ext import commands
 from discord import app_commands
 import asyncio
 import os
-from core.config import status_map, does_exist, find_circuit, TMP_BASE, change_file, cowsay, CURRENT_YEAR
+from core.config import status_map, TMP_BASE, cowsay, CURRENT_YEAR
+from core.f1 import find_circuit, does_exist
+from core.howmany import change_file
 
 F1_DRIVER_is_used = 0
 
