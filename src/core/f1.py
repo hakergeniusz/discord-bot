@@ -1,42 +1,50 @@
-import asyncio
-import fastf1
+import aiohttp
+from core.config import status_map
 
 
-async def find_circuit(season: int, roundnumber: int) -> str:
-    """
-    Finds an F1 circuit name.
-
-    Args:
-        season (int): Season where the race was.
-        roundnumber (int): Round number of the race to return the name.
-
-    Returns:
-        str: Circuit's name if it existed.
-        bool: None, if circuit not found.
-    """
-    schedule = await asyncio.to_thread(fastf1.get_event_schedule, season)
-    row = schedule.loc[schedule['RoundNumber'] == roundnumber]
-
-    if not row.empty:
-        event_name = row.iloc[0]['EventName']
-        return f"{event_name}"
-    else:
-        return None
-
-
-async def does_exist(season: int, roundnumber: int) -> bool:
-    """Checks did an F1 race historically exist or not.
+async def race_result(season: int, roundnumber: int, emojis: bool = True) -> list:
+    """Gives the result of an F1 race session using Jolpica API.
 
     Args:
         season (int)
         roundnumber (int): Race number in F1 calendar to check.
+        emojis (bool): Default is True, if False, emojis for first three positions will not be given.
 
     Returns:
-        bool: True if existed, None if it did not exist.
+        str: Circuit's name.
+        list: A list with session results.
     """
-    schedule = await asyncio.to_thread(fastf1.get_event_schedule, season)
-    event_row = schedule.loc[schedule['RoundNumber'] == roundnumber]
-    if event_row.empty:
-        return None
-    else:
-        return True
+    async with aiohttp.ClientSession() as session:
+        async with session.get(f'https://api.jolpi.ca/ergast/f1/{season}/{roundnumber}/results/') as response:
+            if response.status in range(400, 499):
+                return None, []
+
+            response = await response.json()
+            response = response['MRData']['RaceTable']['Races']
+            if response == []:
+                return None, []
+            circuit_name = response[0]['raceName']
+            results = []
+            for result in response[0]['Results']:
+                POS = result['position']
+                if emojis:
+                    if POS == '1':
+                        POS = '🥇'
+                    elif POS == '2':
+                        POS = '🥈'
+                    elif POS == '3':
+                        POS = '🥉'
+                    else:
+                        POS = f'{POS}.'
+                else:
+                    POS = f'{POS}.'
+                DriverName = result['Driver']['givenName'] + ' ' + result['Driver']['familyName']
+                TEAM = result['Constructor']['name']
+                status = result['status']
+                status = status_map.get(status, status)
+                if status == 'Finished':
+                    results.append(f'{POS} {DriverName} ({TEAM})')
+                else:
+                    results.append(f'{POS} {DriverName} ({TEAM}) - {status}')
+
+            return circuit_name, results

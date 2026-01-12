@@ -1,6 +1,6 @@
 # Contributing to discord-bot
 
-Thank you for considering contributing! 
+Thank you for considering contributing!
 
 ## Contributor License Agreement (CLA)
 By submitting a Pull Request to this repository, you agree that:

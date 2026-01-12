@@ -6,3 +6,4 @@ tmp/
 .vscode/
 *.pyc
 push_changes.sh
+test.py

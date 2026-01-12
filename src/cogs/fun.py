@@ -19,8 +19,8 @@ from discord.ext import commands
 from discord import app_commands
 import asyncio
 import os
-from core.config import status_map, TMP_BASE, cowsay, CURRENT_YEAR
-from core.f1 import find_circuit, does_exist
+from core.config import TMP_BASE, cowsay, CURRENT_YEAR
+from core.f1 import race_result
 from core.howmany import change_file
 
 F1_DRIVER_is_used = 0
@@ -34,64 +34,22 @@ class F1Commands(commands.Cog):
         self.bot = bot
 
     @commands.hybrid_command(name='f1_result', description='Outputs the result of an F1 race')
-    @app_commands.describe(season="Season of the race you want the result of", roundnumber="Round number of the race asked. You can get one with /f1_calendar")
-    async def f1_result(self, ctx: commands.Context, season: commands.Range[int, 1950, CURRENT_YEAR], roundnumber: commands.Range[int, 1, 24]): # Remember to change if F1 introduces an F1 calendar with more than 24 rounds.
+    @app_commands.describe(
+        season="Season of the race you want the result of",
+        roundnumber="Round number of the race asked. You can get one with /f1_calendar",
+        emojis='Default is True, if False, emojis for podium positions will not be given.'
+    )
+    async def f1_result(self, ctx: commands.Context, season: commands.Range[int, 1950, CURRENT_YEAR], roundnumber: commands.Range[int, 1, 24], emojis: bool = True): # Remember to change if F1 introduces an F1 calendar with more than 24 rounds.
         """Gives the result of an F1 race asked for."""
         await ctx.defer()
-
-        global status_map
-        if_existed = await does_exist(season, roundnumber)
-
-        if not if_existed:
-            await ctx.send(f"There wasn't R{roundnumber} in {season}.")
+        grand_prix_name, results_list = await race_result(season=season, roundnumber=roundnumber, emojis=emojis)
+        if grand_prix_name == None and results_list == []:
+            await ctx.send(f'Could not find R{roundnumber} in {season} F1 season.')
             return
-
-        session = await asyncio.to_thread(fastf1.get_session, season, roundnumber, 'R')
-        await asyncio.to_thread(session.load, telemetry=False, weather=False)
-
-        results = session.results
-        results1 = results.head(1000)
-
-        is_there_data = 0
-        result = []
-
-        for _, row in results1.iterrows():
-            pos = int(row['Position'])
-            driver = row['FullName']
-            team = row['TeamName']
-            status = row['Status']
-            label = status_map.get(status, status)
-
-            if status == "Finished":
-                result.append(f"{pos}. {driver} ({team})")
-            else:
-                if label:
-                    result.append(f"{pos}. {driver} ({team}) - {label}")
-                else:
-                    result.append(f"{pos}. {driver} ({team})")
-
-            is_there_data = 1
-
-        if is_there_data == 0:
-            response = await ctx.send(f'''There wasn't R{roundnumber} in {season} yet. Please check it after the race.''')
-            await asyncio.sleep(3)
-            if not ctx.interaction:
-                await ctx.message.delete()
-            await response.delete()
-            return
-        circuit = await find_circuit(season, roundnumber)
-        output = "\n".join(result)
-
-        if not ctx.interaction:
-            message = f"""
-**F1 {season} {circuit}:**
-{output}
-            """
-            await ctx.send(message)
-            return
+        results = "\n".join(results_list)
         responseF1 = discord.Embed(
-            title=f"F1 {season} {circuit}",
-            description=output,
+            title=f"F1 {grand_prix_name} ({season})",
+            description=results,
             color=discord.Color.red()
         )
         await ctx.send(embed=responseF1)
@@ -148,7 +106,8 @@ class F1Commands(commands.Cog):
         if F1_DRIVER_is_used != 0:
             warning_message = await ctx.send(f'''Someone else is already using this command. Please wait until this message is replaced.
                                                     > Q: Why do I need to wait?
-                                                    > A: This command when used by many people at once does not function correctly.''')
+                                                    > A: This command when used by many people at once does not function correctly.'''
+            )
             while F1_DRIVER_is_used != 0:
                 await asyncio.sleep(0.5)
             await warning_message.edit(content="It's your turn. Please wait a moment until I download the required data.")
