@@ -13,7 +13,6 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import fastf1
 import discord
 from discord.ext import commands
 from discord import app_commands
@@ -22,10 +21,6 @@ import os
 from core.config import TMP_BASE, cowsay, CURRENT_YEAR
 from core.f1 import race_result, f1_season_calendar
 from core.howmany import change_file
-
-F1_DRIVER_is_used = 0
-
-fastf1.Cache.enable_cache(os.path.join(TMP_BASE, 'fastf1'))
 
 beeping = 0
 
@@ -74,79 +69,6 @@ class F1Commands(commands.Cog):
             color=discord.Color.red()
         )
         await ctx.send(embed=F1Calendar)
-
-    @commands.hybrid_command(name="f1_driver", description="Shows F1 driver's results in a season.")
-    @app_commands.describe(driver_code="The 3-letter driver code (e.g. VER)", season="Season of the results you want to know.", show_not_started="Toggle for showing races with DNS (Default: False).")
-    async def f1_driver(self, ctx: commands.Context, driver_code: commands.Range[str, 3, 3], season: commands.Range[int, 1950, CURRENT_YEAR], show_not_started: bool = False):
-        """Gives the result of an F1 driver in a season."""
-        global F1_DRIVER_is_used
-        await ctx.defer()
-
-        if driver_code.isalpha() != True:
-            await ctx.send('Invalid driver code.')
-            return
-
-        if F1_DRIVER_is_used != 0:
-            warning_message = await ctx.send(f'''Someone else is already using this command. Please wait until this message is replaced.
-                                                    > Q: Why do I need to wait?
-                                                    > A: This command when used by many people at once does not function correctly.'''
-            )
-            while F1_DRIVER_is_used != 0:
-                await asyncio.sleep(0.5)
-            await warning_message.edit(content="It's your turn. Please wait a moment until I download the required data.")
-        F1_DRIVER_is_used = 1
-        driver_code = driver_code.upper()
-        schedule = await asyncio.to_thread(fastf1.get_event_schedule, season)
-        races = schedule[schedule['EventFormat'] != 'testing']
-        results_list = []
-        did_driver_race = 0
-        for _, race in races.iterrows():
-            round_num = race['RoundNumber']
-            race_name = race['EventName']
-
-            try:
-                session = await asyncio.to_thread(fastf1.get_session, season, round_num, 'R')
-                await asyncio.to_thread(session.load, laps=False, telemetry=False, weather=False, messages=False)
-                driver_result = session.results[session.results['Abbreviation'] == driver_code]
-                if not driver_result.empty:
-                    pos = int(driver_result['Position'].iloc[0])
-                    points = driver_result['Points'].iloc[0]
-                    results_list.append(f"R{round_num}: **P{pos}** at {race_name} ({points} pts)")
-                    did_driver_race += 1
-                else:
-                    if show_not_started:
-                        results_list.append(f"R{round_num}: {race_name} - No Data/DNS")
-            except Exception:
-                continue
-
-        if did_driver_race == 0:
-            F1_DRIVER_is_used = 0
-            response_to_user = await ctx.send(f"Could not find any results for driver {driver_code.upper()} in {season} season.")
-            await asyncio.sleep(3)
-            await ctx.message.delete()
-            await response_to_user.delete()
-            if warning_message:
-                await warning_message.delete()
-            return
-
-        output = "\n".join(results_list)
-        if not ctx.interaction:
-            message = f"""
-**F1 Season Results: {driver_code} ({season}):**
-{output}
-            """
-            await ctx.send(message)
-            F1_DRIVER_is_used = 0
-            return
-        F1Driver = discord.Embed(
-            title=f"F1 Season Results: {driver_code} ({season})",
-            description=output,
-            color=discord.Color.red()
-        )
-        await ctx.send(embed=F1Driver)
-        F1_DRIVER_is_used = 0
-        if warning_message:
-            await warning_message.delete()
 
 
 class howmanybuttonButtons(discord.ui.View):
