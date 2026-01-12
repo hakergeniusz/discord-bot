@@ -16,7 +16,8 @@
 import discord
 from discord.ext import commands
 from discord import app_commands
-from core.youtube_downloader import download_youtube_video
+from core.youtube import download_youtube_video
+from core.admin_check import admin_check
 
 class Music(commands.Cog):
     def __init__(self, bot: commands.Bot):
@@ -27,7 +28,7 @@ class Music(commands.Cog):
     @app_commands.guild_only()
     async def play(self, interaction: discord.Interaction, youtube_url: str):
         await interaction.response.defer()
-        if not interaction.user.voice:
+        if not interaction.user.voice or not interaction.user.voice.channel:
             await interaction.followup.send("You are not in a voice channel.")
             print(f"{interaction.user.name} tried to rupture his eardrums, but he isn't in a VC, so I can't do it.")
             return
@@ -71,7 +72,8 @@ class Music(commands.Cog):
         await ctx.send(f"Joined <#{voice_channel.id}>", ephemeral=True)
         print(f"Joined {voice_channel.name} with {ctx.author.name}")
 
-    @commands.hybrid_command(name="leave_vc", description="Leaves a voice channel.")
+    @admin_check()
+    @commands.hybrid_command(name="leave_vc", description="Leaves a voice channel. (Admin only)")
     @commands.guild_only()
     async def leave(self, ctx: commands.Context):
         if not ctx.guild.voice_client:
