@@ -20,7 +20,7 @@ from discord import app_commands
 import asyncio
 import os
 from core.config import TMP_BASE, cowsay, CURRENT_YEAR
-from core.f1 import race_result
+from core.f1 import race_result, f1_season_calendar
 from core.howmany import change_file
 
 F1_DRIVER_is_used = 0
@@ -58,36 +58,19 @@ class F1Commands(commands.Cog):
     @app_commands.describe(season="Season of the calendar you want to know")
     async def f1_calendar(self, ctx: commands.Context, season: commands.Range[int, 1950, CURRENT_YEAR]):
         await ctx.defer()
-        schedule = await asyncio.to_thread(fastf1.get_event_schedule, season)
-
-        lines = []
-
-        for _, row in schedule.iterrows():
-            location = row['EventName']
-            roundnumber = row['RoundNumber']
-            sprint = row['EventFormat'] in ['sprint', 'sprint_shootout', 'sprint_qualifying']
-            date = row['EventDate'].date()
-            if sprint:
-                lines.append(f'{roundnumber}. {location} (Sprint) - {date}')
-            elif roundnumber == 0:
-                lines.append(f'{location} - {date}')
-            elif location == 'Pre-Season Testing':
-                lines.append(f'{location} - {date}')
-            else:
-                lines.append(f'{roundnumber}. {location} - {date}')
-
-        output = "\n".join(lines)
+        calendar_list = await f1_season_calendar(season)
+        calendar = "\n".join(calendar_list)
         if not ctx.interaction:
             message = f"""
 **F1 {season} calendar:**
-{output}
+{calendar}
             """
             await ctx.send(message)
             return
 
         F1Calendar = discord.Embed(
             title=f"F1 {season} calendar",
-            description=output,
+            description=calendar,
             color=discord.Color.red()
         )
         await ctx.send(embed=F1Calendar)
