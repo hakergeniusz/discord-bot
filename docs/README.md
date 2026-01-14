@@ -50,13 +50,8 @@ python3 -m main
 
 ---
 
-## 🎵 Credits
-The `example.mp3` used for the music features is provided by **NoCopyrightSounds**:
-* **Song:** Cartoon, Jéja - On & On (feat. Daniel Levi) [NCS Release]
-* **Video:** https://www.youtube.com/watch?v=K4DyBUG242c
-* **Free Download / Stream:** https://ncs.io/OnandOn
-
-All credits for Python libraries are in [CREDITS](CREDITS) file.
+## 🌟 Credits
+All credits for are in [CREDITS](CREDITS) file.
 
 ---
 
