@@ -135,8 +135,6 @@ async def f1_standings_py(season: int = CURRENT_YEAR) -> list:
             standings_list = []
             for driver in standings_json:
                 driver_name = f"{driver['Driver']['givenName']} {driver['Driver']['familyName']}"
-                if driver_name == "Lando Norris":
-                    driver_name = "Race Bottler"
                 position = driver['position']
                 team = driver['Constructors'][0]['name']
                 points = driver['points']
