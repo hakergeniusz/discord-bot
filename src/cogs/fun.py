@@ -19,7 +19,7 @@ from discord import app_commands
 import asyncio
 import os
 from core.config import TMP_BASE, cowsay, CURRENT_YEAR
-from core.f1 import race_result, f1_season_calendar
+from core.f1 import race_result, f1_season_calendar, f1_standings_py
 from core.howmany import change_file
 
 beeping = 0
@@ -28,13 +28,13 @@ class F1Commands(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
-    @commands.hybrid_command(name='f1_result', description='Outputs the result of an F1 race')
+    @commands.hybrid_command(name='f1_race_result', description='Outputs the result of an F1 race')
     @app_commands.describe(
         season="Season of the race you want the result of",
         roundnumber="Round number of the race asked. You can get one with /f1_calendar",
         emojis='Default is True, if False, emojis for podium positions will not be given.'
     )
-    async def f1_result(self, ctx: commands.Context, season: commands.Range[int, 1950, CURRENT_YEAR], roundnumber: commands.Range[int, 1, 24], emojis: bool = True): # Remember to change if F1 introduces an F1 calendar with more than 24 rounds.
+    async def f1_race_result(self, ctx: commands.Context, season: commands.Range[int, 1950, CURRENT_YEAR], roundnumber: commands.Range[int, 1, 24], emojis: bool = True): # Remember to change if F1 introduces an F1 calendar with more than 24 rounds.
         """Gives the result of an F1 race asked for."""
         await ctx.defer()
         grand_prix_name, results_list = await race_result(season=season, roundnumber=roundnumber, emojis=emojis)
@@ -69,6 +69,29 @@ class F1Commands(commands.Cog):
             color=discord.Color.red()
         )
         await ctx.send(embed=F1Calendar)
+    
+    @commands.hybrid_command(name="f1_standings", description="Shows F1 standings for a season.")
+    @app_commands.describe(season="Season you want standings for.")
+    async def f1_standings(self, ctx: commands.Context, season: commands.Range[int, 1950, CURRENT_YEAR]):
+        try:
+            await ctx.defer()
+            standings_list = await f1_standings_py(season)
+            if standings_list == []:
+                await ctx.send(f'No standings found for {CURRENT_YEAR}.')
+            standings = "\n".join(standings_list)
+            if not ctx.interaction:
+                message = f"**F1 {season} standings:**\n{standings}"
+                await ctx.send(message)
+                return
+
+            F1Standings = discord.Embed(
+                title=f"F1 {season} standings",
+                description=standings,
+                color=discord.Color.red()
+            )
+            await ctx.send(embed=F1Standings)
+        except Exception as e:
+            print(e)
 
 
 class howmanybuttonButtons(discord.ui.View):

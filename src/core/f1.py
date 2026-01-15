@@ -14,7 +14,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import aiohttp
-from core.config import status_map
+from core.config import status_map, CURRENT_YEAR
 
 
 async def race_result(season: int, roundnumber: int, emojis: bool = True) -> list:
@@ -107,3 +107,38 @@ async def f1_season_calendar(season: int) -> list:
             if is_empty == 0:
                 return None
             return races
+
+
+async def f1_standings_py(season: int = CURRENT_YEAR) -> list:
+    """
+    Fetches the F1 driver standings for a specific season. If 'season' is empty, the current year is used.
+
+    Args:
+        season (int): The season to fetch standings for. Defaults to the current year.
+
+    Returns:
+        list: A list of strings formatted as 'position. DriverName (Team) - points pts.'.
+              Returns an empty list if the request fails or no data is found.
+    """
+    if season < 1950 or season > CURRENT_YEAR:
+        return []
+    async with aiohttp.ClientSession() as session:
+        async with session.get(f'https://api.jolpi.ca/ergast/f1/{season}/driverstandings/') as response:
+            if response.status in range(400, 499):
+                return []
+            data = await response.json()
+            try:
+                standings_json = data['MRData']['StandingsTable']['StandingsLists'][0]['DriverStandings']
+            except (KeyError, IndexError):
+                return []
+
+            standings_list = []
+            for driver in standings_json:
+                driver_name = f"{driver['Driver']['givenName']} {driver['Driver']['familyName']}"
+                if driver_name == "Lando Norris":
+                    driver_name = "Race Bottler"
+                position = driver['position']
+                team = driver['Constructors'][0]['name']
+                points = driver['points']
+                standings_list.append(f'{position}. {driver_name} ({team}) - {points} pts.')
+            return standings_list
