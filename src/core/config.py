@@ -22,8 +22,8 @@ load_dotenv()
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 TMP_BASE = os.path.join(PROJECT_ROOT, "tmp")
 
-OWNER_ID = int(os.environ.get('DISCORD_OWNER_ID'))
-TOKEN = os.environ.get('DISCORD_BOT_TOKEN')
+OWNER_ID = int(os.environ.get('DISCORD_OWNER_ID', '0'))
+TOKEN = os.environ.get('DISCORD_BOT_TOKEN', '')
 
 PC_POWEROFF = os.environ.get('POWEROFF_COMMAND')
 if PC_POWEROFF != 'True':
