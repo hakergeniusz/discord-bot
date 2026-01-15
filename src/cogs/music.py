@@ -16,6 +16,7 @@
 import discord
 from discord.ext import commands
 from discord import app_commands
+import asyncio
 from core.youtube import download_youtube_video
 from core.admin_check import admin_check
 
@@ -37,7 +38,7 @@ class Music(commands.Cog):
                 await interaction.followup.send("Already playing audio.")
                 print(f"{interaction.user.name} tried to rupture his eardrums, but I already do it. ")
                 return
-        path = download_youtube_video(youtube_url)
+        path = await asyncio.to_thread(download_youtube_video, youtube_url)
         if not path:
             await interaction.followup.send("Incorrect URL/Failed to download video.")
             return
