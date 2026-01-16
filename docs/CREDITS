@@ -6,22 +6,20 @@ The following third-party libraries are used in this project:
    Copyright (c) 2015-present Rapptz
    https://github.com/Rapptz/discord.py
 
-2. FastF1
-   License: MIT
-   Copyright (c) 2021-2025 Philipp Schäfer
-   https://github.com/theOehrly/Fast-F1
-
-3. python-dotenv
+2. python-dotenv
    License: BSD 3-Clause
    Copyright (c) 2014, Saurabh Kumar
    https://github.com/theskumar/python-dotenv
 
-4. google-genai
+3. google-genai
    License: Apache License 2.0
    Copyright (c) 2025 Google LLC
    https://github.com/googleapis/python-genai
 
-5. aiohttp
+4. aiohttp
    License: Apache 2.0
    Copyright (c) 2013-present aiohttp contributors
    https://github.com/aio-libs/aiohttp
+
+
+Huge thanks to Google Gemini for helping with the coding!
