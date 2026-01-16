@@ -105,7 +105,7 @@ async def f1_season_calendar(season: int) -> list:
                     races.append(f'{roundnumber}. {name} - {date} UTC')
                 is_empty += 1
             if is_empty == 0:
-                return None
+                return []
             return races
 
 
