@@ -38,7 +38,7 @@ class Music(commands.Cog):
             await interaction.followup.send("Already playing audio.")
             print(f"{interaction.user.name} tried to rupture his eardrums, but I already do it.")
             return
-        first_response = await interaction.followup.send('Attempting to download the video...')
+        first_response = await interaction.followup.send('Attempting to download the video. This may take a while...')
         path = await asyncio.to_thread(download_youtube_video, youtube_url)
         if not path:
             await first_response.edit(content="Incorrect URL/Failed to download video.")
