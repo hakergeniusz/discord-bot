@@ -34,16 +34,18 @@ class Music(commands.Cog):
             print(f"{interaction.user.name} tried to rupture his eardrums, but he isn't in a VC, so I can't do it.")
             return
         vc_chan = interaction.guild.voice_client
-        if vc_chan.is_playing():
-                await interaction.followup.send("Already playing audio.")
-                print(f"{interaction.user.name} tried to rupture his eardrums, but I already do it. ")
-                return
+        if vc_chan and vc_chan.is_playing():
+            await interaction.followup.send("Already playing audio.")
+            print(f"{interaction.user.name} tried to rupture his eardrums, but I already do it.")
+            return
+        first_response = await interaction.followup.send('Attempting to download the video...')
         path = await asyncio.to_thread(download_youtube_video, youtube_url)
         if not path:
-            await interaction.followup.send("Incorrect URL/Failed to download video.")
+            await first_response.edit(content="Incorrect URL/Failed to download video.")
             return
+
         user_vc_chan = interaction.user.voice.channel
-        if not interaction.guild.voice_client:
+        if not vc_chan:
             await user_vc_chan.connect()
             print(f'Joined {user_vc_chan.name} to rupture eardrums of {interaction.user.name}')
             vc_chan = interaction.guild.voice_client
@@ -53,7 +55,7 @@ class Music(commands.Cog):
         music = discord.FFmpegPCMAudio(path)
         vc_chan.play(music)
 
-        await interaction.followup.send(f"Playing audio on <#{user_vc_chan.id}>")
+        await first_response.edit(content=f"Playing audio on <#{user_vc_chan.id}>")
         print(f"Rupturing the eardrums of {interaction.user.name}")
 
     @commands.hybrid_command(name="join_vc", description="Joins a voice channel")
