@@ -32,18 +32,18 @@ async def image_checker(session: aiohttp.ClientSession, image_link: str) -> bool
 
 
     Returns:
-        bool: True if image exists, None if image does not exist.
+        bool: True if image exists, False if image does not exist.
     """
     if not image_link:
-        return True
+        return False
     try:
         async with session.head(image_link, timeout=3) as response:
             if response.status != 200:
-                return None
+                return False
             content_type = response.headers.get('Content-Type', '').lower()
             for image_type in IMAGE_CONTENT_TYPES:
                 if content_type.startswith(image_type):
                     return True
-            return None
+            return False
     except Exception:
-        return None
+        return False

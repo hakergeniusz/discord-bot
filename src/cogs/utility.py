@@ -50,9 +50,9 @@ class Utility(commands.Cog):
 
             if avatar_url:
                 does_it_exist = await image_checker(session=session, image_link=avatar_url)
-                if not does_it_exist:
+                if does_it_exist is False:
                     await interaction.followup.send("Incorrect avatar URL.", ephemeral=True)
-                    print(f"{interaction.user.name} thought that {avatar_url} was a URL...")
+                    print(f"{interaction.user.name} thought that {avatar_url} was an avatar URL...")
                     return
 
             data = {
@@ -63,7 +63,7 @@ class Utility(commands.Cog):
 
             async with session.post(webhook, json=data) as response:
                 if response.status == 429:
-                    await interaction.followup.send("Rate-limit has been hit. Message hasn't been sent.", ephemeral=True)
+                    await interaction.followup.send("Rate-limit has been hit. ", ephemeral=True)
                     print(f"Failed to send a message to '{webhook}' of contents '{message}' because of rate limits")
 
                 if response.status == 204:
@@ -137,7 +137,6 @@ class Utility(commands.Cog):
     @commands.guild_only()
     @commands.hybrid_command(name="hide_conversation", description="Hides the conversation")
     async def hide(self, ctx: commands.Context):
-        """Tries to hide the conversation by sending many empty lines."""
         mes = '''
 
         '''
@@ -147,7 +146,6 @@ class Utility(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
-        """Sends info when a message has been sent."""
         print(f'{message.author.name} said: {message.content}')
 
 
