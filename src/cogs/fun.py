@@ -52,6 +52,9 @@ class F1Commands(commands.Cog):
     async def f1_calendar(self, ctx: commands.Context, season: commands.Range[int, 1950, CURRENT_YEAR]):
         await ctx.defer()
         calendar_list = await f1_season_calendar(season)
+        if calendar_list == []:
+            await ctx.send(f'No calendar found for {season}.')
+            return
         calendar = "\n".join(calendar_list)
         if not ctx.interaction:
             message = f"""
