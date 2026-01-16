@@ -22,8 +22,6 @@ from core.config import TMP_BASE, cowsay, CURRENT_YEAR
 from core.f1 import race_result, f1_season_calendar, f1_standings_py
 from core.howmany import change_file
 
-beeping = 0
-
 class F1Commands(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
@@ -73,25 +71,23 @@ class F1Commands(commands.Cog):
     @commands.hybrid_command(name="f1_standings", description="Shows F1 standings for a season.")
     @app_commands.describe(season="Season you want standings for.")
     async def f1_standings(self, ctx: commands.Context, season: commands.Range[int, 1950, CURRENT_YEAR]):
-        try:
-            await ctx.defer()
-            standings_list = await f1_standings_py(season)
-            if standings_list == []:
-                await ctx.send(f'No standings found for {CURRENT_YEAR}.')
-            standings = "\n".join(standings_list)
-            if not ctx.interaction:
-                message = f"**F1 {season} standings:**\n{standings}"
-                await ctx.send(message)
-                return
+        await ctx.defer()
+        standings_list = await f1_standings_py(season)
+        if standings_list == []:
+            await ctx.send(f'No standings found for {season}.')
+            return
+        standings = "\n".join(standings_list)
+        if not ctx.interaction:
+            message = f"**F1 {season} standings:**\n{standings}"
+            await ctx.send(message)
+            return
 
-            F1Standings = discord.Embed(
-                title=f"F1 {season} standings",
-                description=standings,
-                color=discord.Color.red()
-            )
-            await ctx.send(embed=F1Standings)
-        except Exception as e:
-            print(e)
+        F1Standings = discord.Embed(
+            title=f"F1 {season} standings",
+            description=standings,
+            color=discord.Color.red()
+        )
+        await ctx.send(embed=F1Standings)
 
 
 class howmanybuttonButtons(discord.ui.View):
