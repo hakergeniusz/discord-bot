@@ -36,7 +36,7 @@ class F1Commands(commands.Cog):
         """Gives the result of an F1 race asked for."""
         await ctx.defer()
         grand_prix_name, results_list = await race_result(season=season, roundnumber=roundnumber, emojis=emojis)
-        if grand_prix_name == None and results_list == []:
+        if grand_prix_name is None or results_list == []:
             await ctx.send(f'Could not find R{roundnumber} in {season} F1 season.')
             return
         results = "\n".join(results_list)
@@ -70,7 +70,7 @@ class F1Commands(commands.Cog):
             color=discord.Color.red()
         )
         await ctx.send(embed=F1Calendar)
-    
+
     @commands.hybrid_command(name="f1_standings", description="Shows F1 standings for a season.")
     @app_commands.describe(season="Season you want standings for.")
     async def f1_standings(self, ctx: commands.Context, season: commands.Range[int, 1950, CURRENT_YEAR]):
