@@ -15,7 +15,6 @@
 
 import pytest
 from unittest.mock import AsyncMock, patch
-import aiohttp
 from src.core.f1 import race_result, f1_season_calendar, f1_standings_py
 from src.core.config import CURRENT_YEAR
 
@@ -47,7 +46,7 @@ async def test_f1_standings_py_success():
         mock_get.return_value.__aenter__.return_value = mock_response
 
         result = await f1_standings_py(2024)
-        
+
         assert len(result) == 1
         assert "1. Max Verstappen (Red Bull) - 25 pts." in result
 
@@ -90,7 +89,7 @@ async def test_f1_race_result_success():
         mock_get.return_value.__aenter__.return_value = mock_response
 
         gp_name, results = await race_result(2024, 12)
-        
+
         assert gp_name == "British Grand Prix"
         assert "🥇 Lewis Hamilton (Mercedes)" in results[0]
 
@@ -124,7 +123,7 @@ async def test_f1_race_result_no_emojis():
         mock_get.return_value.__aenter__.return_value = mock_response
 
         gp_name, results = await race_result(2024, 12, emojis=False)
-        
+
         assert gp_name == "British Grand Prix"
         assert "1. Lewis Hamilton (Mercedes)" in results[0]
 
@@ -153,7 +152,7 @@ async def test_f1_season_calendar_success():
         mock_get.return_value.__aenter__.return_value = mock_response
 
         races = await f1_season_calendar(2025)
-        
+
         assert races[0] == "1. Australian Grand Prix - 2026-03-08 04:00 UTC"
 
 
@@ -180,12 +179,12 @@ async def test_f1_season_calendar_no_hour():
         mock_get.return_value.__aenter__.return_value = mock_response
 
         races = await f1_season_calendar(2025)
-        
+
         assert races[0] == "1. Australian Grand Prix - 2026-03-08 UTC"
 
 
 @pytest.mark.asyncio
-async def test_f1_season_calendar_success():
+async def test_f1_season_calendar_sprint():
     mock_data = {
         "MRData": {
             "RaceTable": {
@@ -209,7 +208,7 @@ async def test_f1_season_calendar_success():
         mock_get.return_value.__aenter__.return_value = mock_response
 
         races = await f1_season_calendar(2025)
-        
+
         assert races[0] == "2. Chinese Grand Prix (Sprint) - 2026-03-15 07:00 UTC"
 
 
@@ -220,4 +219,3 @@ async def test_f1_standings_py_invalid_year():
     next_year = CURRENT_YEAR + 1
     standings2 = await f1_standings_py(next_year)
     assert standings2 == []
-    

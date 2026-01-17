@@ -14,10 +14,8 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import pytest
-import asyncio
 from unittest.mock import AsyncMock, MagicMock, patch
 import discord
-from discord.ext import commands
 from src.core.admin_check import admin_check, admin_check_slash
 
 TEST_OWNER_ID = 123456789
