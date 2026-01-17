@@ -40,8 +40,14 @@ def admin_check() -> commands.check:
         if hasattr(ctx, 'send'):
             message = await ctx.send(msg)
             await asyncio.sleep(3)
-            await ctx.message.delete()
-            await message.delete()
+            try:
+                await ctx.message.delete()
+            except (discord.Forbidden, discord.HTTPException):
+                pass
+            try:
+                await message.delete()
+            except (discord.Forbidden, discord.HTTPException):
+                pass
         else:
             await ctx.response.send_message(msg, ephemeral=True)
 
