@@ -52,8 +52,12 @@ class Music(commands.Cog):
         else:
             await vc_chan.move_to(user_vc_chan)
 
-        music = discord.FFmpegPCMAudio(path)
-        vc_chan.play(music)
+        try:
+            music = discord.FFmpegPCMAudio(path)
+            vc_chan.play(music)
+        except Exception:
+            await first_response.edit(content="Failed to play audio.")
+            return
 
         await first_response.edit(content=f"Playing audio on <#{user_vc_chan.id}>")
         print(f"Rupturing the eardrums of {interaction.user.name}")
@@ -67,10 +71,14 @@ class Music(commands.Cog):
             return
 
         voice_channel = ctx.author.voice.channel
-        if ctx.guild.voice_client:
-            await ctx.guild.voice_client.connect(voice_channel)
-        else:
-            await voice_channel.connect()
+        try:
+            if ctx.guild.voice_client:
+                await ctx.guild.voice_client.connect(voice_channel)
+            else:
+                await voice_channel.connect()
+        except (discord.Forbidden, discord.HTTPException):
+            await ctx.send("Could not join the voice channel.", ephemeral=True)
+            return
 
         await ctx.send(f"Joined <#{voice_channel.id}>", ephemeral=True)
         print(f"Joined {voice_channel.name} with {ctx.author.name}")
@@ -82,7 +90,11 @@ class Music(commands.Cog):
         if not ctx.guild.voice_client:
             await ctx.send("I'm not in a voice channel.", ephemeral=True)
             return
-        await ctx.guild.voice_client.disconnect()
+        try:
+            await ctx.guild.voice_client.disconnect()
+        except (discord.Forbidden, discord.HTTPException):
+            await ctx.send("Failed to leave the voice channel.", ephemeral=True)
+            return
         await ctx.send("Left the voice channel.")
         print(f"Leaving {ctx.channel.name} due to request of {ctx.author.name}")
 
