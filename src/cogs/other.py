@@ -42,7 +42,7 @@ class other(commands.Cog):
             📜 **Legal Information & License**
 
 **Copyright (C) 2026 hakergeniusz**
-This program is free software: you can redistribute it and/or modify it under the terms of the **GNU Affero General Public License v3.0** as published by the Free Software Foundation.
+This program is free software: you can redistribute it and/or modify it under the terms of the **GNU Affero General Public License version 3** as published by the Free Software Foundation.
 
 ⚠️ Disclaimer of Warranty
 This program is distributed in the hope that it will be useful, but **WITHOUT ANY WARRANTY**; without even the implied warranty of **MERCHANTABILITY** or **FITNESS FOR A PARTICULAR PURPOSE**. See the [GNU AGPLv3](https://www.gnu.org/licenses/agpl-3.0.txt) for more details.
@@ -55,7 +55,7 @@ This program is distributed in the hope that it will be useful, but **WITHOUT AN
             description=(
                 "**Copyright (C) 2026 hakergeniusz**\n\n"
                 "This program is free software: you can redistribute it and/or modify "
-                "it under the terms of the **GNU Affero General Public License v3.0** as "
+                "it under the terms of the **GNU Affero General Public License version 3** as "
                 "published by the Free Software Foundation.\n\n"
                 "### ⚠️ Disclaimer of Warranty\n"
                 "This program is distributed in the hope that it will be useful, "
