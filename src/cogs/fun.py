@@ -143,7 +143,7 @@ class Meme(commands.Cog):
     async def finger(self, ctx: commands.Context):
         await ctx.send(':heart:', ephemeral=True)
 
-    @commands.hybrid_command(name="rickroll_me")
+    @commands.hybrid_command(name="rickroll_me", description="Rickrolls the user.")
     async def rickroll(self, ctx: commands.Context):
         await ctx.send("Ok, if you want to be rickrolled, you will be.")
         await ctx.send('https://tenor.com/view/rickroll-roll-rick-never-gonna-give-you-up-never-gonna-gif-22954713')
