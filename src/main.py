@@ -16,46 +16,42 @@
 import os
 import discord
 from discord.ext import commands
-import asyncio
 from core.config import TOKEN
 
-intents = discord.Intents.default()
-intents.message_content = True
-intents.voice_states = True
+class MyBot(commands.Bot):
+    def __init__(self):
+        intents = discord.Intents.default()
+        intents.message_content = True
+        intents.voice_states = True
+        super().__init__(command_prefix="!", intents=intents)
 
-bot = commands.Bot(command_prefix="!", intents=intents)
+    async def setup_hook(self):
+        await self.load_cogs()
 
-async def stop_bot():
-    await bot.close()
+    async def load_cogs(self):
+        cogs_path = os.path.join(os.path.dirname(__file__), "cogs")
+        count = 0
+        for root, _, files in os.walk(cogs_path):
+            for file in files:
+                if file.endswith(".py") and file != "__init__.py":
+                    relative_path = os.path.relpath(os.path.join(root, file), os.path.dirname(__file__))
+                    module_path = relative_path.replace(os.sep, ".")[:-3]
+                    try:
+                        await self.load_extension(module_path)
+                        print(f"Successfully loaded: {module_path}")
+                        count += 1
+                    except Exception as e:
+                        print(f"Failed to load {module_path}: {e}")
 
-async def load_cogs():
-    cogs_path = os.path.join(os.path.dirname(__file__), "cogs")
-    count = 0
-    for root, _, files in os.walk(cogs_path):
-        for file in files:
-            if file.endswith(".py") and file != "__init__.py":
-                relative_path = os.path.relpath(os.path.join(root, file), os.path.dirname(__file__))
-                module_path = relative_path.replace(os.sep, ".")[:-3]
-                try:
-                    await bot.load_extension(module_path)
-                    print(f"Successfully loaded: {module_path}")
-                    count += 1
-                except Exception as e:
-                    print(f"Failed to load {module_path}: {e}")
+        if count == 0:
+            print('Could not load any cogs. ')
+            exit()
+        print(f"--- Finished loading {count} cogs ---")
 
-    if count == 0:
-        print('Could not load any cogs. ')
-        exit()
-    print(f"--- Finished loading {count} cogs ---")
-
-async def main():
-    async with bot:
-        await load_cogs()
-        await bot.start(TOKEN)
+bot = MyBot()
 
 if __name__ == "__main__":
     try:
-        asyncio.run(main())
+        bot.run(TOKEN)
     except KeyboardInterrupt:
-        print('Shutting down the bot...')
-        asyncio.run(stop_bot())
+        print("\nShutting down the bot...")
