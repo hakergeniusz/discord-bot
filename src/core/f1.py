@@ -89,7 +89,7 @@ async def f1_season_calendar(season: int) -> list:
                 try:
                     time = race['time'].replace('Z', '')
                     time = time[:5]
-                except:
+                except Exception:
                     time = None
                 if race.get('Sprint'):
                     sprint = True
