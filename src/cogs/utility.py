@@ -33,7 +33,7 @@ class Utility(commands.Cog):
     @app_commands.command(name="webhook", description="Sends a message to a Discord webhook")
     @app_commands.describe(webhook="URL of the webhook", message="Message that you want to send from the webhook", name="The name how webhook will appear", avatar_url="The avatar URL for the webhook")
     async def webhook(self, interaction: discord.Interaction, webhook: str, message: str, name: str = None, avatar_url: str = None):
-        await interaction.response.defer()
+        await interaction.response.defer(ephemeral=True)
         if not webhook.startswith(('https://discord.com/api/webhooks/', 'http://discord.com/api/webhooks/', 'discord.com/api/webhooks/')):
             await interaction.followup.send('Invalid webhook URL.', ephemeral=True)
             return
