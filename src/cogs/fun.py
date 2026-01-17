@@ -116,7 +116,7 @@ class Meme(commands.Cog):
     @commands.hybrid_command(name="nothing", description=".")
     async def nothing(self, ctx: commands.Context):
         """Literally nothing."""
-        await ctx.send(f".", ephemeral=True)
+        await ctx.send(".", ephemeral=True)
         print(f"{ctx.author.name} tried nothing...")
 
     @commands.hybrid_command(name="howmanytimes", description="Says how many times was the command typed")
@@ -156,7 +156,10 @@ class Meme(commands.Cog):
 
     @commands.hybrid_command(name="cowsay", description="I'm a cow!")
     @app_commands.describe(text="What you want me to say?")
-    async def cowsay(self, ctx: commands.Context, *, text: str):
+    async def cowsay(self, ctx: commands.Context, *, text: str = None):
+        if text and len(text) >= 250:
+            await ctx.send("You can't say that much!")
+            return
         await ctx.send(cowsay(text))
 
 async def setup(bot):
