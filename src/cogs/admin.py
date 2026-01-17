@@ -70,29 +70,32 @@ class ownerCommands(commands.Cog):
     @app_commands.describe(range="How many messages you want to delete (max: 100)")
     @commands.guild_only()
     async def purge(self, ctx: commands.Context, range: commands.Range[int, 1, 100]):
+        if ctx.interaction:
+            await ctx.defer(ephemeral=True)
         bot_perms = ctx.permissions.manage_messages
         if not bot_perms:
             await ctx.send("I don't have necessary permissions to do that.")
             return
 
         chan = ctx.channel
-        if range == 1:
-            await ctx.send(f"Deleting {range} message...")
-        else:
-            await ctx.send(f"Deleting {range} messages...")
-
-        await chan.purge(limit=2)
+        if ctx.message:
+            try:
+                await ctx.message.delete()
+            except (discord.Forbidden, discord.HTTPException):
+                pass
         await chan.purge(limit=range)
 
-        if range == 1:
-            message = await ctx.send(content=f'Deleted {range} message successfully.')
-            print(f"Deleted {range} message in {ctx.channel.name}")
-        else:
-            message = await ctx.send(content=f'Deleted {range} messages successfully.')
-            print(f"Deleted {range} messages in {ctx.channel.name}")
+        text_reply = f'Deleted {range} messages successfully.'
+        if ctx.interaction:
+            message = await ctx.reply(text_reply)
+            return
+        message = await ctx.send(text_reply)
+
         await asyncio.sleep(3)
-        await ctx.message.delete()
-        await message.delete()
+        try:
+            await message.delete()
+        except Exception:
+            pass
 
     @admin_check_slash()
     @app_commands.command(name="change_status", description="Changes the status of the bot")
@@ -105,7 +108,7 @@ class ownerCommands(commands.Cog):
     async def pc_turn_off(self, ctx: commands.Context):
         """Turns off the computer hosting the bot."""
         if not PC_POWEROFF:
-            await ctx.send("PC cannot be turned off, because I have not been allowed from doing so.")
+            await ctx.send("PC cannot be turned off, because I have not been allowed to do so.")
             return
         os.system('poweroff')
 
@@ -114,8 +117,13 @@ class ownerCommands(commands.Cog):
     @commands.guild_only()
     async def create_webhook(self, ctx: commands.Context):
         """Creates a webhook for the current channel."""
-        webhook = await ctx.channel.create_webhook(name="Test webhook")
-        await ctx.send(f'{webhook.url}', ephemeral=True)
+        try:
+            webhook = await ctx.channel.create_webhook(name="Test webhook")
+            await ctx.send(f'{webhook.url}', ephemeral=True)
+        except discord.Forbidden:
+            await ctx.send("I am forbidden to create a webhook in this channel (I don't have permissions).")
+        except Exception:
+            await ctx.send("Failed to create webhook.")
 
     @admin_check()
     @commands.hybrid_command(name='delete_webhook', description='Deletes a webhook')
