@@ -61,7 +61,7 @@ class ownerCommands(commands.Cog):
     @commands.hybrid_command(name="shutdown", description="[OWNER ONLY] Turns off the bot", )
     async def shutdown(self, ctx: commands.Context):
         await ctx.send("Shutting down the bot...")
-        print("Shutting down the bot")
+        print("Shutting down the bot...")
         await self.bot.close()
 
     @admin_check()
