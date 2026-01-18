@@ -48,6 +48,12 @@ class RemovedCommands(commands.Cog):
         await process.communicate()
         beeping = 0
 
+    @admin_check()
+    @commands.hybrid_command(name="turn_off_pc", description="Turns off the PC")
+    async def pc_turn_off(self, ctx: commands.Context):
+        """Turns off the computer hosting the bot."""
+        os.system('poweroff')
+
 
 async def setup(bot):
     await bot.add_cog(RemovedCommands(bot))

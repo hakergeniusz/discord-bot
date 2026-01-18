@@ -33,12 +33,10 @@ You must have following installed on your computer for this bot to work correctl
 > DISCORD_BOT_TOKEN=YOUR_BOT_TOKEN
 > DISCORD_OWNER_ID=YOUR_DISCORD_ID
 > GEMINI_API_KEY=GOOGLE_AI_STUDIO_KEY
-> POWEROFF_COMMAND=True/False
 > ```
 > * `DISCORD_BOT_TOKEN`: Your Discord bot token from Discord Developer Program.
 > * `DISCORD_OWNER_ID`: Your Discord user ID or other account that you want it to have all permissions.
 > * `GEMINI_API_KEY`: Your Google AI Studio API key (obtainable for free on aistudio.google.com).
-> * `POWEROFF_COMMAND`: `True` if you want `/turn_off_pc` to work, anything else if you don't want it to work. If value is not provided, it is default set to `False`.
 
 ---
 

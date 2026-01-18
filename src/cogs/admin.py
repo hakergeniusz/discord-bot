@@ -16,9 +16,7 @@
 import discord
 from discord.ext import commands
 from discord import app_commands
-import os
 import aiohttp
-from core.config import PC_POWEROFF
 from core.admin_check import admin_check, admin_check_slash
 import asyncio
 
@@ -102,15 +100,6 @@ class ownerCommands(commands.Cog):
     async def change_status(self, interaction: discord.Interaction):
         view = StatusButtons(interaction.client)
         await interaction.response.send_message("Select the status:", view=view, ephemeral=True)
-
-    @admin_check()
-    @commands.hybrid_command(name="turn_off_pc", description="Turns off the PC")
-    async def pc_turn_off(self, ctx: commands.Context):
-        """Turns off the computer hosting the bot."""
-        if not PC_POWEROFF:
-            await ctx.send("PC cannot be turned off, because I have not been allowed to do so.")
-            return
-        os.system('poweroff')
 
     @admin_check()
     @commands.hybrid_command(name='create_webhook', description='Creates a webhook.')
