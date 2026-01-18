@@ -18,7 +18,8 @@ from discord.ext import commands
 from discord import app_commands
 import asyncio
 import os
-from core.config import TMP_BASE, cowsay, CURRENT_YEAR
+from core.config import TMP_BASE,CURRENT_YEAR
+from core.cowsay import cowsay
 from core.f1 import race_result, f1_season_calendar, f1_standings_py
 from core.howmany import change_file
 
