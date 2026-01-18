@@ -12,14 +12,14 @@ Feature-rich Discord bot made by hakergeniusz with the goal of learning Discord.
 ## ⚙️ Prerequisites
 You must have following installed on your computer for this bot to work correctly:
 * A **Discord bot token** from Discord Developer Program.
+* A **Linux** operating system. **Code will not work on Windows**
 * **Python 3.12+**
-* **Git** for cloning the repository.
+* **Git** for cloning the repository
 * **FFmpeg** for `/play` command to work correctly.
 
 ---
 
 ## 💻 Preparation
-NOTE: These commands are for Linux. If you use Windows, please use **Windows Subsystem for Linux** (WSL).
 1. Download all files from this repository with `git clone -b main https://github.com/hakergeniusz/discord-bot.git`.
 > NOTE: If you want `latest` branch with new features (also broken bot), use `git clone -b latest https://github.com/hakergeniusz/discord-bot.git`.
 2. Open the folder with `cd discord-bot`.
@@ -47,6 +47,12 @@ With your `.venv` active, execute the following command in `src` folder:
 ```bash
 python3 -m main
 ```
+
+## 🐧 System Compatibility
+Bot is actively developed on Fedora Workstation. Bot should work on most Linux distributions.
+* Fedora Workstation 43,
+* Python 3.13 (Python 3.12 should work too)
+> **Note:** No support or instructions will be provided for Windows or macOS.
 
 ---
 
