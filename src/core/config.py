@@ -25,10 +25,6 @@ TMP_BASE = os.path.join(PROJECT_ROOT, "tmp")
 OWNER_ID = int(os.environ.get('DISCORD_OWNER_ID', '0'))
 TOKEN = os.environ.get('DISCORD_BOT_TOKEN', '')
 
-PC_POWEROFF = os.environ.get('POWEROFF_COMMAND')
-if PC_POWEROFF != 'True':
-    PC_POWEROFF = None
-
 CURRENT_YEAR = datetime.date.today().year
 
 status_map = {
@@ -133,56 +129,3 @@ status_map = {
     "Disqualified": "DSQ (Disqualified)",
     "Excluded": "DSQ (Excluded)"
 }
-
-def cowsay(text: str) -> str:
-    """
-    A simple cowsay.
-
-    Args:
-        text (str): Text for the cow to say. Any ``` will be removed.
-
-    Returns:
-        str: Cow in a code block that says the *text* argument.
-    """
-    if not text or text.isspace():
-        return (
-            "```\n"
-            " __________________ \n"
-            "< What should I say? >\n"
-            " ------------------ \n"
-            r"        \   ^__^" + "\n" +
-            r"         \  (oo)\_______" + "\n" +
-            r"            (__)\       )\\/\\" + "\n" +
-            r"                ||----w |" + "\n" +
-            r"                ||     ||" + "\n"
-            "```"
-        )
-    text = text.replace("```", "` ` `")
-
-    if len(text) > 1800:
-        text = text[:1797] + "..."
-
-    lines = text.splitlines()
-    if not lines:
-        text = "..."
-        lines = [text]
-
-    width = max(len(line) for line in lines)
-
-    top_bottom = " " + "_" * (width + 2)
-    bubble_content = []
-    for line in lines:
-        bubble_content.append(f"< {line.ljust(width)} >")
-
-    bubble = "\n".join(bubble_content)
-    divider = " " + "-" * (width + 2)
-
-    cow_art = fr"""{top_bottom}
-{bubble}
-{divider}
-        \   ^__^
-         \  (oo)\_______
-            (__)\       )\\/\\
-                ||----w |
-                ||     ||"""
-    return f"```\n{cow_art}\n```"
