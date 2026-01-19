@@ -23,13 +23,22 @@ The following third-party libraries are used in this project:
 
 5. pytest
    License: MIT
-   Copyright (c) 2015-present pytest
+   Copyright (c) 2004-present Holger Krekel and others
    https://github.com/pytest-dev/pytest
 
 6. pytest-asyncio
-   License: Apache 2.0
-   Copyright (c) 2015-present pytest-asyncio
+   License: Apache License 2.0
+   Copyright (c) 2015-present Tin Tvrtković and contributors
    https://github.com/pytest-dev/pytest-asyncio
 
+7. yt-dlp
+   License: Unlicense license (Public domain)
+   Copyright (c) 2020-present yt-dlp contributors
+   https://github.com/yt-dlp/yt-dlp
+
+8. ruff
+   License: MIT
+   Copyright (c) 2023-present Astral Software Inc.
+   https://github.com/astral-sh/ruff
 
 Huge thanks to Google Gemini for helping with the coding!
