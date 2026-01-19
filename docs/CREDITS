@@ -17,9 +17,19 @@ The following third-party libraries are used in this project:
    https://github.com/googleapis/python-genai
 
 4. aiohttp
-   License: Apache 2.0
+   License: Apache License 2.0
    Copyright (c) 2013-present aiohttp contributors
    https://github.com/aio-libs/aiohttp
+
+5. pytest
+   License: MIT
+   Copyright (c) 2015-present pytest
+   https://github.com/pytest-dev/pytest
+
+6. pytest-asyncio
+   License: Apache 2.0
+   Copyright (c) 2015-present pytest-asyncio
+   https://github.com/pytest-dev/pytest-asyncio
 
 
 Huge thanks to Google Gemini for helping with the coding!
