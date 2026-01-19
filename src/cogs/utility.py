@@ -31,7 +31,12 @@ class Utility(commands.Cog):
         self.bot = bot
 
     @app_commands.command(name="webhook", description="Sends a message to a Discord webhook")
-    @app_commands.describe(webhook="URL of the webhook", message="Message that you want to send from the webhook", name="The name how webhook will appear", avatar_url="The avatar URL for the webhook")
+    @app_commands.describe(
+        webhook="URL of the webhook",
+        message="Message that you want to send from the webhook",
+        name="The name how webhook will appear",
+        avatar_url="The avatar URL for the webhook"
+    )
     async def webhook(self, interaction: discord.Interaction, webhook: str, message: str, name: str = None, avatar_url: str = None):
         await interaction.response.defer(ephemeral=True)
         if not webhook.startswith(('https://discord.com/api/webhooks/', 'http://discord.com/api/webhooks/', 'discord.com/api/webhooks/')):
@@ -78,15 +83,16 @@ class Utility(commands.Cog):
     @app_commands.guild_only()
     async def say(self, interaction: discord.Interaction, message: str, delete_after: int = None):
         channel = await self.bot.fetch_channel(interaction.channel_id)
-        wiadomosc = await channel.send(message)
+        msg = await channel.send(message)
 
         print(f"""On "{channel.name}" sent message: "{message}". User: {interaction.user.name}. """)
         await interaction.response.send_message(f"Message sent to <#{interaction.channel_id}>", ephemeral=True)
 
         if delete_after:
             await asyncio.sleep(delete_after)
-            await wiadomosc.delete()
-            await interaction.edit_original_response(content=f"Message sent to <#{interaction.channel_id}>, was removed due to request to remove it after {delete_after} seconds.")
+            await msg.delete()
+            msg_text = f"Message sent to <#{interaction.channel_id}>, was removed due to request to remove it after {delete_after} seconds."
+            await interaction.edit_original_response(content=msg_text)
             print(f"Removed '{message}' because of removal delay of {delete_after} seconds")
 
     @commands.hybrid_command(name="dm_or_not", description="Checks is the message sent in the DM or a server")

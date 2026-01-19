@@ -18,7 +18,7 @@ from discord.ext import commands
 from discord import app_commands
 import asyncio
 import os
-from core.config import TMP_BASE,CURRENT_YEAR
+from core.config import TMP_BASE, CURRENT_YEAR, RICKROLL_GIF_URL
 from core.cowsay import cowsay
 from core.f1 import race_result, f1_season_calendar, f1_standings_py
 from core.howmany import change_file
@@ -33,10 +33,21 @@ class F1Commands(commands.Cog):
         roundnumber="Round number of the race asked. You can get one with /f1_calendar",
         emojis='Default is True, if False, emojis for podium positions will not be given.'
     )
-    async def f1_race_result(self, ctx: commands.Context, season: commands.Range[int, 1950, CURRENT_YEAR], roundnumber: commands.Range[int, 1, 24], emojis: bool = True): # Remember to change if F1 introduces an F1 calendar with more than 24 rounds.
+    # Remember to change *roundnumber* if F1 introduces an F1 calendar with more than 24 rounds.
+    async def f1_race_result(
+        self,
+        ctx: commands.Context,
+        season: commands.Range[int, 1950, CURRENT_YEAR],
+        roundnumber: commands.Range[int, 1, 24],
+        emojis: bool = True
+    ):
         """Gives the result of an F1 race asked for."""
         await ctx.defer()
-        grand_prix_name, results_list = await race_result(season=season, roundnumber=roundnumber, emojis=emojis)
+        grand_prix_name, results_list = await race_result(
+            season=season,
+            roundnumber=roundnumber,
+            emojis=emojis
+        )
         if grand_prix_name is None or results_list == []:
             await ctx.send(f'Could not find R{roundnumber} in {season} F1 season.')
             return
@@ -102,12 +113,10 @@ class howmanybuttonButtons(discord.ui.View):
 
     @discord.ui.button(label="Click me!", style=discord.ButtonStyle.success)
     async def howmanybutton_button(self, interaction: discord.Interaction, button: discord.ui.Button):
-        count = await asyncio.to_thread(change_file, os.path.join(TMP_BASE, 'howmanybutton'), interaction.user.id)
-        if count == 1:
-            content = f'<@{interaction.user.id}> clicked the button {count} time!'
-        else:
-            content = f'<@{interaction.user.id}> clicked the button {count} times!'
-        await interaction.response.edit_message(content=content)
+        count = await asyncio.to_thread(change_file,os.path.join(TMP_BASE, 'howmanybutton'),interaction.user.id)
+        suffix = "time" if count == 1 else "times"
+        msg = f"{interaction.user.mention} clicked the button {count} {suffix}!"
+        await interaction.response.edit_message(content=msg)
 
 
 class Meme(commands.Cog):
@@ -124,16 +133,12 @@ class Meme(commands.Cog):
     async def howmanytimes(self, ctx: commands.Context):
         """Says how many times this user typed this command."""
         count = await asyncio.to_thread(change_file, os.path.join(TMP_BASE, 'howmanytimes'), ctx.author.id)
-
-        if count == 1:
-            await ctx.send(f'You have used this command {count} time.')
-            return
-        await ctx.send(f'You have used this command {count} times.')
+        suffix = "time" if count == 1 else "times"
+        await ctx.send(f'You have used this command {count} {suffix}!')
 
     @commands.hybrid_command(name="complain", description="Compain to the bot owner.")
     async def complain(self, ctx: commands.Context):
-        """Complaining to yourself why you wanted to complain to the bot owner."""
-        await ctx.send('https://tenor.com/view/rickroll-roll-rick-never-gonna-give-you-up-never-gonna-gif-22954713', ephemeral=True)
+        await ctx.send(RICKROLL_GIF_URL, ephemeral=True)
         print(f"{ctx.author.name} complained and regretted it.")
 
     @commands.hybrid_command(name="heart", description="Shows a heart.")
@@ -147,7 +152,7 @@ class Meme(commands.Cog):
     @commands.hybrid_command(name="rickroll_me", description="Rickrolls the user.")
     async def rickroll(self, ctx: commands.Context):
         await ctx.send("Ok, if you want to be rickrolled, you will be.")
-        await ctx.send('https://tenor.com/view/rickroll-roll-rick-never-gonna-give-you-up-never-gonna-gif-22954713')
+        await ctx.send(RICKROLL_GIF_URL)
 
     @app_commands.command(name="howmanybutton", description="How many times did you press the button?")
     async def howmanybutton(self, interaction: discord.Interaction):

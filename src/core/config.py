@@ -25,6 +25,8 @@ TMP_BASE = os.path.join(PROJECT_ROOT, "tmp")
 OWNER_ID = int(os.environ.get('DISCORD_OWNER_ID', '0'))
 TOKEN = os.environ.get('DISCORD_BOT_TOKEN', '')
 
+RICKROLL_GIF_URL = 'https://tenor.com/view/rickroll-roll-rick-never-gonna-give-you-up-never-gonna-gif-22954713'
+
 CURRENT_YEAR = datetime.date.today().year
 
 status_map = {
