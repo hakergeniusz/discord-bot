@@ -20,7 +20,8 @@ import asyncio
 from core.youtube import download_youtube_video
 from core.admin_check import admin_check
 
-class Music(commands.Cog):
+@app_commands.guild_only()
+class Music(commands.GroupCog, group_name="music"):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
@@ -31,12 +32,10 @@ class Music(commands.Cog):
         await interaction.response.defer()
         if not interaction.user.voice or not interaction.user.voice.channel:
             await interaction.followup.send("You are not in a voice channel.")
-            print(f"{interaction.user.name} tried to rupture his eardrums, but he isn't in a VC, so I can't do it.")
             return
         vc_chan = interaction.guild.voice_client
         if vc_chan and vc_chan.is_playing():
             await interaction.followup.send("Already playing audio.")
-            print(f"{interaction.user.name} tried to rupture his eardrums, but I already do it.")
             return
         first_response = await interaction.followup.send('Attempting to download the video. This may take a while...')
         path = await asyncio.to_thread(download_youtube_video, youtube_url)
@@ -47,7 +46,6 @@ class Music(commands.Cog):
         user_vc_chan = interaction.user.voice.channel
         if not vc_chan:
             await user_vc_chan.connect()
-            print(f'Joined {user_vc_chan.name} to rupture eardrums of {interaction.user.name}')
             vc_chan = interaction.guild.voice_client
         else:
             await vc_chan.move_to(user_vc_chan)
@@ -62,10 +60,9 @@ class Music(commands.Cog):
         await first_response.edit(content=f"Playing audio on <#{user_vc_chan.id}>")
         print(f"Rupturing the eardrums of {interaction.user.name}")
 
-    @commands.hybrid_command(name="join_vc", description="Joins a voice channel")
+    @commands.hybrid_command(name="join", description="Joins a voice channel")
     @app_commands.guild_only()
     async def join_vc(self, ctx: commands.Context):
-        """Joins a voice channel user is connected to."""
         if not ctx.author.voice or not ctx.author.voice.channel:
             await ctx.send("You are not in a voice channel.", ephemeral=True)
             return
@@ -84,7 +81,7 @@ class Music(commands.Cog):
         print(f"Joined {voice_channel.name} with {ctx.author.name}")
 
     @admin_check()
-    @commands.hybrid_command(name="leave_vc", description="Leaves a voice channel. (Admin only)")
+    @commands.hybrid_command(name="leave", description="Leaves a voice channel (Admin only)")
     @commands.guild_only()
     async def leave(self, ctx: commands.Context):
         if not ctx.guild.voice_client:
