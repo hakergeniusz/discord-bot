@@ -17,36 +17,60 @@ import discord
 from discord.ext import commands
 
 
-class other(commands.Cog):
-    def __init__(self, bot: commands.Bot):
+class Other(commands.Cog):
+    """Cog for miscellaneous commands like ping and legal info."""
+
+    def __init__(self, bot: commands.Bot) -> None:
+        """Initialize the Other cog."""
         self.bot = bot
 
-    @commands.hybrid_command(name="ping", description="Pong! Outputs the latency of the bot.")
-    async def ping(self, ctx: commands.Context):
+    @commands.hybrid_command(
+        name="ping", description="Pong! Outputs the latency of the bot."
+    )
+    async def ping(self, ctx: commands.Context) -> None:
+        """Outputs the latency of the bot."""
         latency = round(self.bot.latency * 1000)
-        await ctx.reply(f'Pong! Latency is {latency}ms')
+        await ctx.reply(f"Pong! Latency is {latency}ms")
 
-    @commands.hybrid_command(name='source', description='Source of the bot.')
-    async def source(self, ctx: commands.Context):
+    @commands.hybrid_command(name="source", description="Source of the bot.")
+    async def source(self, ctx: commands.Context) -> None:
+        """Sends the source code link of the bot."""
         if not ctx.interaction:
-            await ctx.send('This bot is open-source! You can find the source here: https://github.com/hakergeniusz/discord-bot')
+            await ctx.send(
+                "This bot is open-source! You can find the source here: "
+                "https://github.com/hakergeniusz/discord-bot"
+            )
             return
         view = discord.ui.View()
-        view.add_item(discord.ui.Button(label="View Source Code", url="https://github.com/hakergeniusz/discord-bot"))
-        await ctx.send('This bot is open-source! You can find the source by clicking the following button:', view=view)
+        view.add_item(
+            discord.ui.Button(
+                label="View Source Code",
+                url="https://github.com/hakergeniusz/discord-bot",
+            )
+        )
+        await ctx.send(
+            "This bot is open-source! You can find the source by clicking the "
+            "following button:",
+            view=view,
+        )
 
-    @commands.hybrid_command(name='license', description="Bot's license information.")
-    async def licence(self, ctx: commands.Context):
+    @commands.hybrid_command(name="license", description="Bot's license information.")
+    async def licence(self, ctx: commands.Context) -> None:
+        """Sends the bot's license information."""
         if not ctx.interaction:
-            message = """
-            📜 **Legal Information & License**
-
-**Copyright (C) 2026 hakergeniusz**
-This program is free software: you can redistribute it and/or modify it under the terms of the **GNU Affero General Public License version 3** as published by the Free Software Foundation.
-
-⚠️ Disclaimer of Warranty
-This program is distributed in the hope that it will be useful, but **WITHOUT ANY WARRANTY**; without even the implied warranty of **MERCHANTABILITY** or **FITNESS FOR A PARTICULAR PURPOSE**. See the [GNU AGPLv3](https://www.gnu.org/licenses/agpl-3.0.txt) for more details.
-            """
+            message = (
+                "📜 **Legal Information & License**\n\n"
+                "**Copyright (C) 2026 hakergeniusz**\n"
+                "This program is free software: you can redistribute it and/or "
+                "modify it under the terms of the **GNU Affero General Public "
+                "License version 3** as published by the Free Software Foundation.\n\n"
+                "⚠️ Disclaimer of Warranty\n"
+                "This program is distributed in the hope that it will be useful, "
+                "but **WITHOUT ANY WARRANTY**; without even the implied warranty "
+                "of **MERCHANTABILITY** or **FITNESS FOR A PARTICULAR PURPOSE**. "
+                "See the [GNU AGPLv3](https://www.gnu.org/licenses/agpl-3.0.txt) "
+                "for more details."
+            )
             await ctx.send(message)
             return
         embed = discord.Embed(
@@ -54,20 +78,27 @@ This program is distributed in the hope that it will be useful, but **WITHOUT AN
             color=discord.Color.blue(),
             description=(
                 "**Copyright (C) 2026 hakergeniusz**\n\n"
-                "This program is free software: you can redistribute it and/or modify "
-                "it under the terms of the **GNU Affero General Public License version 3** as "
-                "published by the Free Software Foundation.\n\n"
+                "This program is free software: you can redistribute it and/or "
+                "modify it under the terms of the **GNU Affero General Public "
+                "License version 3** as published by the Free Software Foundation.\n\n"
                 "### ⚠️ Disclaimer of Warranty\n"
                 "This program is distributed in the hope that it will be useful, "
-                "but **WITHOUT ANY WARRANTY**; without even the implied warranty of "
-                "**MERCHANTABILITY** or **FITNESS FOR A PARTICULAR PURPOSE**. "
-                "See the [GNU AGPLv3](https://www.gnu.org/licenses/agpl-3.0.txt) for more details."
-            )
+                "but **WITHOUT ANY WARRANTY**; without even the implied warranty "
+                "of **MERCHANTABILITY** or **FITNESS FOR A PARTICULAR PURPOSE**. "
+                "See the [GNU AGPLv3](https://www.gnu.org/licenses/agpl-3.0.txt) "
+                "for more details."
+            ),
         )
         view = discord.ui.View()
-        view.add_item(discord.ui.Button(label="View Source Code", url="https://github.com/hakergeniusz/discord-bot"))
+        view.add_item(
+            discord.ui.Button(
+                label="View Source Code",
+                url="https://github.com/hakergeniusz/discord-bot",
+            )
+        )
         await ctx.send(embed=embed, view=view)
 
 
-async def setup(bot):
-    await bot.add_cog(other(bot))
+async def setup(bot: commands.Bot) -> None:
+    """Add Other cog to the bot."""
+    await bot.add_cog(Other(bot))

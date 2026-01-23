@@ -13,22 +13,29 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import discord
-from discord.ext import commands
-from discord import app_commands
 import asyncio
-from core.youtube import download_youtube_video
+
+import discord
+from discord import app_commands
+from discord.ext import commands
+
 from core.admin_check import admin_check
+from core.youtube import download_youtube_video
+
 
 @app_commands.guild_only()
 class Music(commands.GroupCog, group_name="music"):
-    def __init__(self, bot: commands.Bot):
+    """Cog for playing music from YouTube."""
+
+    def __init__(self, bot: commands.Bot) -> None:
+        """Initialize the Music cog."""
         self.bot = bot
 
     @app_commands.command(name="play", description="Plays music on a voice channel")
     @app_commands.describe(youtube_url="Youtube URL of the video you want to play.")
     @app_commands.guild_only()
-    async def play(self, interaction: discord.Interaction, youtube_url: str):
+    async def play(self, interaction: discord.Interaction, youtube_url: str) -> None:
+        """Plays music from a YouTube URL in a voice channel."""
         await interaction.response.defer()
         if not interaction.user.voice or not interaction.user.voice.channel:
             await interaction.followup.send("You are not in a voice channel.")
@@ -37,7 +44,9 @@ class Music(commands.GroupCog, group_name="music"):
         if vc_chan and vc_chan.is_playing():
             await interaction.followup.send("Already playing audio.")
             return
-        first_response = await interaction.followup.send('Attempting to download the video. This may take a while...')
+        first_response = await interaction.followup.send(
+            "Attempting to download the video. This may take a while..."
+        )
         path = await asyncio.to_thread(download_youtube_video, youtube_url)
         if not path:
             await first_response.edit(content="Incorrect URL/Failed to download video.")
@@ -62,7 +71,8 @@ class Music(commands.GroupCog, group_name="music"):
 
     @commands.hybrid_command(name="join", description="Joins a voice channel")
     @app_commands.guild_only()
-    async def join_vc(self, ctx: commands.Context):
+    async def join_vc(self, ctx: commands.Context) -> None:
+        """Joins the user's voice channel."""
         if not ctx.author.voice or not ctx.author.voice.channel:
             await ctx.send("You are not in a voice channel.", ephemeral=True)
             return
@@ -81,9 +91,12 @@ class Music(commands.GroupCog, group_name="music"):
         print(f"Joined {voice_channel.name} with {ctx.author.name}")
 
     @admin_check()
-    @commands.hybrid_command(name="leave", description="Leaves a voice channel (Admin only)")
+    @commands.hybrid_command(
+        name="leave", description="Leaves a voice channel (Admin only)"
+    )
     @commands.guild_only()
-    async def leave(self, ctx: commands.Context):
+    async def leave(self, ctx: commands.Context) -> None:
+        """Leaves the current voice channel."""
         if not ctx.guild.voice_client:
             await ctx.send("I'm not in a voice channel.", ephemeral=True)
             return
@@ -96,5 +109,6 @@ class Music(commands.GroupCog, group_name="music"):
         print(f"Leaving {ctx.channel.name} due to request of {ctx.author.name}")
 
 
-async def setup(bot):
+async def setup(bot: commands.Bot) -> None:
+    """Add Music cog to the bot."""
     await bot.add_cog(Music(bot))

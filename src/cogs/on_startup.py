@@ -13,18 +13,24 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import asyncio
+import os
+
 import discord
 from discord.ext import commands
-import os
-import asyncio
+
 
 class SyncCog(commands.Cog):
-    def __init__(self, bot):
+    """Cog specifically for sync and login events."""
+
+    def __init__(self, bot: commands.Bot) -> None:
+        """Initialize the SyncCog."""
         self.bot = bot
 
     @commands.Cog.listener()
-    async def on_ready(self):
-        os.system('clear')
+    async def on_ready(self) -> None:
+        """Clear the console and print login information when the bot is ready."""
+        os.system("clear")
         print("-" * 40)
         print(f'Logged on as "{self.bot.user}"')
         print("-" * 40)
@@ -37,5 +43,6 @@ class SyncCog(commands.Cog):
         await self.bot.change_presence(activity=None, status=discord.Status.dnd)
 
 
-async def setup(bot):
+async def setup(bot: commands.Bot) -> None:
+    """Add SyncCog to the bot."""
     await bot.add_cog(SyncCog(bot))
