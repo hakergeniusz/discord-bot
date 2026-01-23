@@ -13,15 +13,19 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
+
 import discord
+import pytest
+
 from src.core.admin_check import admin_check, admin_check_slash
 
 TEST_OWNER_ID = 123456789
 
+
 @pytest.fixture
-def mock_ctx():
+def mock_ctx() -> AsyncMock:
+    """Fixture for mocking discord.Context."""
     ctx = AsyncMock()
     ctx.message = AsyncMock()
     ctx.author = MagicMock(spec=discord.Member)
@@ -30,7 +34,8 @@ def mock_ctx():
 
 
 @pytest.fixture
-def mock_interaction():
+def mock_interaction() -> AsyncMock:
+    """Fixture for mocking discord.Interaction."""
     interaction = AsyncMock(spec=discord.Interaction)
     interaction.user = MagicMock(spec=discord.Member)
     interaction.user.id = 0
@@ -39,7 +44,8 @@ def mock_interaction():
 
 
 @pytest.mark.asyncio
-async def test_admin_check_owner_success(mock_ctx):
+async def test_admin_check_owner_success(mock_ctx: AsyncMock) -> None:
+    """Test successful admin check for owner."""
     mock_ctx.author.id = TEST_OWNER_ID
 
     with patch("src.core.admin_check.OWNER_ID", TEST_OWNER_ID):
@@ -54,7 +60,8 @@ async def test_admin_check_owner_success(mock_ctx):
 
 
 @pytest.mark.asyncio
-async def test_admin_check_not_owner_with_send(mock_ctx):
+async def test_admin_check_not_owner_with_send(mock_ctx: AsyncMock) -> None:
+    """Test admin check for non-owner with message sending."""
     mock_ctx.author.id = 999
 
     with patch("src.core.admin_check.OWNER_ID", TEST_OWNER_ID):
@@ -66,13 +73,16 @@ async def test_admin_check_not_owner_with_send(mock_ctx):
                 result = await predicate(mock_ctx)
 
                 assert result is False
-                mock_ctx.send.assert_called_once_with("You don't have required permissions to do that.")
+                mock_ctx.send.assert_called_once_with(
+                    "You don't have required permissions to do that."
+                )
                 mock_ctx.message.delete.assert_called_once()
                 mock_ctx.send.return_value.delete.assert_called_once()
 
 
 @pytest.mark.asyncio
-async def test_admin_check_not_owner_no_send(mock_ctx):
+async def test_admin_check_not_owner_no_send(mock_ctx: AsyncMock) -> None:
+    """Test admin check for non-owner without message sending."""
     mock_ctx.author.id = 999
     del mock_ctx.send
     mock_ctx.response = AsyncMock()
@@ -85,11 +95,14 @@ async def test_admin_check_not_owner_no_send(mock_ctx):
             result = await predicate(mock_ctx)
 
             assert result is False
-            mock_ctx.response.send_message.assert_called_once_with("You don't have required permissions to do that.", ephemeral=True)
+            mock_ctx.response.send_message.assert_called_once_with(
+                "You don't have required permissions to do that.", ephemeral=True
+            )
 
 
 @pytest.mark.asyncio
-async def test_admin_check_slash_owner_success(mock_interaction):
+async def test_admin_check_slash_owner_success(mock_interaction: AsyncMock) -> None:
+    """Test successful slash admin check for owner."""
     mock_interaction.user.id = TEST_OWNER_ID
 
     with patch("src.core.admin_check.OWNER_ID", TEST_OWNER_ID):
@@ -104,7 +117,8 @@ async def test_admin_check_slash_owner_success(mock_interaction):
 
 
 @pytest.mark.asyncio
-async def test_admin_check_slash_not_owner(mock_interaction):
+async def test_admin_check_slash_not_owner(mock_interaction: AsyncMock) -> None:
+    """Test slash admin check for non-owner."""
     mock_interaction.user.id = 999
 
     with patch("src.core.admin_check.OWNER_ID", TEST_OWNER_ID):
@@ -115,4 +129,6 @@ async def test_admin_check_slash_not_owner(mock_interaction):
             result = await predicate(mock_interaction)
 
             assert result is False
-            mock_interaction.response.send_message.assert_called_once_with("You don't have required permissions to do that.", ephemeral=True)
+            mock_interaction.response.send_message.assert_called_once_with(
+                "You don't have required permissions to do that.", ephemeral=True
+            )

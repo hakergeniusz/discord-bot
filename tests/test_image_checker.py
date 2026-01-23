@@ -13,20 +13,26 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import pytest
 from unittest.mock import AsyncMock
+
 import aiohttp
+import pytest
+
 from src.core.image_checker import image_checker
 
+
 @pytest.fixture
-def mock_session():
+def mock_session() -> AsyncMock:
+    """Fixture for mocking aiohttp.ClientSession."""
     return AsyncMock(spec=aiohttp.ClientSession)
 
+
 @pytest.mark.asyncio
-async def test_image_checker_pass(mock_session):
+async def test_image_checker_pass(mock_session: AsyncMock) -> None:
+    """Test image checker with a valid image URL."""
     mock_response = AsyncMock()
     mock_response.status = 200
-    mock_response.headers = {'Content-Type': 'image/png'}
+    mock_response.headers = {"Content-Type": "image/png"}
     mock_session.head.return_value.__aenter__.return_value = mock_response
 
     result = await image_checker(mock_session, "https://example.com/image.png")
@@ -34,7 +40,8 @@ async def test_image_checker_pass(mock_session):
 
 
 @pytest.mark.asyncio
-async def test_image_checker_not_found(mock_session):
+async def test_image_checker_not_found(mock_session: AsyncMock) -> None:
+    """Test image checker with a non-existent URL."""
     mock_response = AsyncMock()
     mock_response.status = 404
     mock_session.head.return_value.__aenter__.return_value = mock_response
@@ -44,10 +51,11 @@ async def test_image_checker_not_found(mock_session):
 
 
 @pytest.mark.asyncio
-async def test_image_checker_not_image(mock_session):
+async def test_image_checker_not_image(mock_session: AsyncMock) -> None:
+    """Test image checker with a URL that is not an image."""
     mock_response = AsyncMock()
     mock_response.status = 200
-    mock_response.headers = {'Content-Type': 'text/html'}
+    mock_response.headers = {"Content-Type": "text/html"}
     mock_session.head.return_value.__aenter__.return_value = mock_response
 
     result = await image_checker(mock_session, "https://example.com/test.html")
@@ -55,7 +63,8 @@ async def test_image_checker_not_image(mock_session):
 
 
 @pytest.mark.asyncio
-async def test_image_checker_timeout(mock_session):
+async def test_image_checker_timeout(mock_session: AsyncMock) -> None:
+    """Test image checker when a timeout occurs."""
     mock_session.head.side_effect = Exception("Timeout")
 
     result = await image_checker(mock_session, "https://example.com/test.html")

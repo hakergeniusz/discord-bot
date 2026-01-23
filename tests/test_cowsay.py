@@ -15,14 +15,20 @@
 
 from src.core.cowsay import cowsay
 
-def test_cowsay_pass():
+
+def test_cowsay_pass() -> None:
+    """Test basic cowsay functionality."""
     cowsay_pass = cowsay("Hello World")
     assert "Hello World" in cowsay_pass
 
-def test_cowsay_empty():
+
+def test_cowsay_empty() -> None:
+    """Test cowsay with empty input."""
     cowsay_empty = cowsay("")
     assert "What should I say?" in cowsay_empty
 
-def test_cowsay_codeblock():
+
+def test_cowsay_codeblock() -> None:
+    """Test cowsay with codeblocks in input."""
     cowsay_codeblock = cowsay("Say ``` test")
-    assert cowsay_codeblock.count('```') == 2
+    assert cowsay_codeblock.count("```") == 2

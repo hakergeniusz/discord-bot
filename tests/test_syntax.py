@@ -13,21 +13,23 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import os
 import py_compile
+from pathlib import Path
+
 import pytest
 
-def get_python_files():
-    src_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src'))
+
+def get_python_files() -> list[str]:
+    """Get all Python files in the src directory."""
+    src_dir = Path(__file__).resolve().parent.parent / "src"
     python_files = []
-    for root, _, files in os.walk(src_dir):
-        for file in files:
-            if file.endswith('.py'):
-                python_files.append(os.path.join(root, file))
+    for path in src_dir.rglob("*.py"):
+        python_files.append(str(path))
     return python_files
 
+
 @pytest.mark.parametrize("filepath", get_python_files())
-def test_python_syntax(filepath):
+def test_python_syntax(filepath: str) -> None:
     """Attempt to compile each file to check for syntax errors."""
     try:
         py_compile.compile(filepath, doraise=True)

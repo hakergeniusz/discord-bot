@@ -13,13 +13,17 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import pytest
 from unittest.mock import AsyncMock, patch
-from src.core.f1 import race_result, f1_season_calendar, f1_standings_py
+
+import pytest
+
 from src.core.config import CURRENT_YEAR
+from src.core.f1 import f1_season_calendar, f1_standings_py, race_result
+
 
 @pytest.mark.asyncio
-async def test_f1_standings_py_success():
+async def test_f1_standings_py_success() -> None:
+    """Test successful fetching of driver standings."""
     mock_data = {
         "MRData": {
             "StandingsTable": {
@@ -29,8 +33,11 @@ async def test_f1_standings_py_success():
                             {
                                 "position": "1",
                                 "points": "25",
-                                "Driver": {"givenName": "Max", "familyName": "Verstappen"},
-                                "Constructors": [{"name": "Red Bull"}]
+                                "Driver": {
+                                    "givenName": "Max",
+                                    "familyName": "Verstappen",
+                                },
+                                "Constructors": [{"name": "Red Bull"}],
                             }
                         ]
                     }
@@ -50,8 +57,10 @@ async def test_f1_standings_py_success():
         assert len(result) == 1
         assert "1. Max Verstappen (Red Bull) - 25 pts." in result
 
+
 @pytest.mark.asyncio
-async def test_f1_standings_py_empty():
+async def test_f1_standings_py_empty() -> None:
+    """Test driver standings with empty response."""
     with patch("aiohttp.ClientSession.get") as mock_get:
         mock_response = AsyncMock()
         mock_response.status = 404
@@ -60,8 +69,10 @@ async def test_f1_standings_py_empty():
         result = await f1_standings_py(2024)
         assert result == []
 
+
 @pytest.mark.asyncio
-async def test_f1_race_result_success():
+async def test_f1_race_result_success() -> None:
+    """Test successful fetching of race results."""
     mock_data = {
         "MRData": {
             "RaceTable": {
@@ -71,11 +82,14 @@ async def test_f1_race_result_success():
                         "Results": [
                             {
                                 "position": "1",
-                                "Driver": {"givenName": "Lewis", "familyName": "Hamilton"},
+                                "Driver": {
+                                    "givenName": "Lewis",
+                                    "familyName": "Hamilton",
+                                },
                                 "Constructor": {"name": "Mercedes"},
-                                "status": "Finished"
+                                "status": "Finished",
                             }
-                        ]
+                        ],
                     }
                 ]
             }
@@ -95,7 +109,8 @@ async def test_f1_race_result_success():
 
 
 @pytest.mark.asyncio
-async def test_f1_race_result_no_emojis():
+async def test_f1_race_result_no_emojis() -> None:
+    """Test race results without emojis."""
     mock_data = {
         "MRData": {
             "RaceTable": {
@@ -105,11 +120,14 @@ async def test_f1_race_result_no_emojis():
                         "Results": [
                             {
                                 "position": "1",
-                                "Driver": {"givenName": "Lewis", "familyName": "Hamilton"},
+                                "Driver": {
+                                    "givenName": "Lewis",
+                                    "familyName": "Hamilton",
+                                },
                                 "Constructor": {"name": "Mercedes"},
-                                "status": "Finished"
+                                "status": "Finished",
                             }
-                        ]
+                        ],
                     }
                 ]
             }
@@ -129,7 +147,8 @@ async def test_f1_race_result_no_emojis():
 
 
 @pytest.mark.asyncio
-async def test_f1_season_calendar_success():
+async def test_f1_season_calendar_success() -> None:
+    """Test successful fetching of season calendar."""
     mock_data = {
         "MRData": {
             "RaceTable": {
@@ -138,7 +157,7 @@ async def test_f1_season_calendar_success():
                         "round": "1",
                         "raceName": "Australian Grand Prix",
                         "date": "2026-03-08",
-                        "time": "04:00:00Z"
+                        "time": "04:00:00Z",
                     }
                 ]
             }
@@ -157,7 +176,8 @@ async def test_f1_season_calendar_success():
 
 
 @pytest.mark.asyncio
-async def test_f1_season_calendar_no_hour():
+async def test_f1_season_calendar_no_hour() -> None:
+    """Test season calendar when time is missing."""
     mock_data = {
         "MRData": {
             "RaceTable": {
@@ -184,7 +204,8 @@ async def test_f1_season_calendar_no_hour():
 
 
 @pytest.mark.asyncio
-async def test_f1_season_calendar_sprint():
+async def test_f1_season_calendar_sprint() -> None:
+    """Test season calendar with sprint races."""
     mock_data = {
         "MRData": {
             "RaceTable": {
@@ -194,7 +215,7 @@ async def test_f1_season_calendar_sprint():
                         "raceName": "Chinese Grand Prix",
                         "date": "2026-03-15",
                         "time": "07:00:00Z",
-                        "Sprint": {"date": "2026-03-14","time": "03:00:00Z"},
+                        "Sprint": {"date": "2026-03-14", "time": "03:00:00Z"},
                     }
                 ]
             }
@@ -213,7 +234,8 @@ async def test_f1_season_calendar_sprint():
 
 
 @pytest.mark.asyncio
-async def test_f1_standings_py_invalid_year():
+async def test_f1_standings_py_invalid_year() -> None:
+    """Test driver standings with invalid years."""
     standings1 = await f1_standings_py(1949)
     assert standings1 == []
     next_year = CURRENT_YEAR + 1
