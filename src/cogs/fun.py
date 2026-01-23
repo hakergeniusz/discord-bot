@@ -13,8 +13,6 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import asyncio
-
 import discord
 from discord import app_commands
 from discord.ext import commands
