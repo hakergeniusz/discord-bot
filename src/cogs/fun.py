@@ -168,6 +168,10 @@ class Meme(commands.Cog):
             return
         await ctx.send(cowsay(text))
 
+    @commands.command(name="nvidia")
+    async def nvidia(self, ctx: commands.Context):
+        await ctx.reply("https://tenor.com/view/linus-linus-torvalds-nvidia-fuck-you-gif-18053606", mention_author=False)
+
 async def setup(bot):
     await bot.add_cog(F1Commands(bot))
     await bot.add_cog(Meme(bot))
