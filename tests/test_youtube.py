@@ -24,24 +24,24 @@ def test_get_yt_video_id() -> None:
     assert get_yt_video_id(url) == "dQw4w9WgXcQ"
 
 
-def test_download_youtube_video_cached() -> None:
+@patch("src.core.youtube.Path.exists")
+@patch("yt_dlp.YoutubeDL")
+def test_download_youtube_video_cached(
+    mock_ydl: MagicMock, mock_exists: MagicMock
+) -> None:
     """Test downloading a video that is already cached."""
     video_id = "dQw4w9WgXcQ"
     url = f"https://www.youtube.com/watch?v={video_id}"
     cache_path = f"/tmp/{video_id}.opus"
 
-    with patch("os.path.exists") as mock_exists:
-        mock_exists.side_effect = lambda p: p == cache_path or p == "/tmp/"
+    def side_effect() -> bool:
+        return True
 
-        def side_effect(path: str) -> bool:
-            if path == cache_path:
-                return True
-            return False
+    mock_exists.return_value = True
 
-        mock_exists.side_effect = side_effect
-
-        result = download_youtube_video(url)
-        assert result == cache_path
+    result = download_youtube_video(url)
+    assert result == cache_path
+    assert not mock_ydl.called
 
 
 @patch("yt_dlp.YoutubeDL")
