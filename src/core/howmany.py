@@ -13,53 +13,48 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import os
+from pathlib import Path
+from typing import Optional
+
 from core.config import TMP_BASE
 
-async def create_file(file_name: str, file_content: str) -> bool:
-    """
-    Creates a file with requested name in TMP subfolder.
+
+async def create_file(file_name: str, file_content: str) -> Optional[bool]:
+    """Creates a file with requested name in TMP subfolder.
 
     Args:
-        file_name (str): The file name to create with the extension.
-        file_content (str): Content of the file to write.
+        file_name: The file name to create with the extension.
+        file_content: Content of the file to write.
 
     Returns:
         bool: True if file is written successfully, None if it isn't.
     """
-    PATH = os.path.join(TMP_BASE, f'{file_name}')
-    with open(PATH, 'w') as f:
-        f.write(f'{file_content}')
+    path = Path(TMP_BASE) / file_name
+    path.write_text(file_content)
 
-    if not os.path.exists(PATH):
+    if not path.exists():
         return None
 
-    with open(PATH, 'r') as f:
-        if f.read() == file_content:
-            return True
-        else:
-            return None
+    if path.read_text() == file_content:
+        return True
+    return None
 
 
-def change_file(path: int, id: int) -> int:
-    """
-    Adds 1 to the number in a file. If there is no file, a new file is created.
+def change_file(path: str, user_id: int) -> int:
+    """Adds 1 to the number in a file. If there is no file, a new file is created.
 
     Args:
-        path (str): Folder where the file is in.
-        id (int): Discord user ID of the user that triggered the command.
+        path: Folder where the file is in.
+        user_id: Discord user ID of the user that triggered the command.
 
     Returns:
         int: New number that is in the file.
     """
-    FILE_PATH = os.path.join(path, f'{id}.txt')
-    if not os.path.exists(FILE_PATH):
-        with open(FILE_PATH, 'w') as f:
-            f.write('0')
+    file_path = Path(path) / f"{user_id}.txt"
+    if not file_path.exists():
+        file_path.write_text("0")
 
-    with open(FILE_PATH, 'r') as f:
-        count = int(f.read())
-
-    with open(FILE_PATH, 'w') as f:
-        f.write(f'{count + 1}')
-        return count + 1
+    count = int(file_path.read_text())
+    new_count = count + 1
+    file_path.write_text(str(new_count))
+    return new_count

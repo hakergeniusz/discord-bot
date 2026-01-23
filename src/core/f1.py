@@ -14,53 +14,59 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import aiohttp
-from core.config import status_map, CURRENT_YEAR
+
+from core.config import CURRENT_YEAR, STATUS_MAP
 
 
 async def race_result(season: int, roundnumber: int, emojis: bool = True) -> list:
     """Gives the result of an F1 race session using Jolpica API.
 
     Args:
-        season (int)
+        season (int): The season to fetch results for.
         roundnumber (int): Race number in F1 calendar to check.
-        emojis (bool): Default is True, if False, emojis for first three positions will not be given.
+        emojis (bool): Default is True. If False, emojis for first three positions
+            will not be given.
 
     Returns:
         str: Circuit's name.
         list: A list with session results.
     """
     async with aiohttp.ClientSession() as session:
-        async with session.get(f'https://api.jolpi.ca/ergast/f1/{season}/{roundnumber}/results/') as response:
+        async with session.get(
+            f"https://api.jolpi.ca/ergast/f1/{season}/{roundnumber}/results/"
+        ) as response:
             if response.status in range(400, 499):
                 return None, []
 
             response = await response.json()
-            response = response['MRData']['RaceTable']['Races']
+            response = response["MRData"]["RaceTable"]["Races"]
             if response == []:
                 return None, []
-            circuit_name = response[0]['raceName']
+            circuit_name = response[0]["raceName"]
             results = []
-            for result in response[0]['Results']:
-                POS = result['position']
+            for result in response[0]["Results"]:
+                pos = result["position"]
                 if emojis:
-                    if POS == '1':
-                        POS = '🥇'
-                    elif POS == '2':
-                        POS = '🥈'
-                    elif POS == '3':
-                        POS = '🥉'
+                    if pos == "1":
+                        pos = "🥇"
+                    elif pos == "2":
+                        pos = "🥈"
+                    elif pos == "3":
+                        pos = "🥉"
                     else:
-                        POS = f'{POS}.'
+                        pos = f"{pos}."
                 else:
-                    POS = f'{POS}.'
-                DriverName = result['Driver']['givenName'] + ' ' + result['Driver']['familyName']
-                TEAM = result['Constructor']['name']
-                status = result['status']
-                status = status_map.get(status, status)
-                if status == 'Finished':
-                    results.append(f'{POS} {DriverName} ({TEAM})')
+                    pos = f"{pos}."
+                driver_name = (
+                    result["Driver"]["givenName"] + " " + result["Driver"]["familyName"]
+                )
+                team = result["Constructor"]["name"]
+                status = result["status"]
+                status = STATUS_MAP.get(status, status)
+                if status == "Finished":
+                    results.append(f"{pos} {driver_name} ({team})")
                 else:
-                    results.append(f'{POS} {DriverName} ({TEAM}) - {status}')
+                    results.append(f"{pos} {driver_name} ({team}) - {status}")
 
             return circuit_name, results
 
@@ -75,34 +81,38 @@ async def f1_season_calendar(season: int) -> list:
         list: A list with all races in the season.
     """
     async with aiohttp.ClientSession() as session:
-        async with session.get(f'https://api.jolpi.ca/ergast/f1/{season}/races/') as response:
+        async with session.get(
+            f"https://api.jolpi.ca/ergast/f1/{season}/races/"
+        ) as response:
             if response.status in range(400, 499):
                 return None
             response = await response.json()
-            response = response['MRData']['RaceTable']['Races']
+            response = response["MRData"]["RaceTable"]["Races"]
             races = []
             is_empty = 0
             for race in response:
-                roundnumber = race['round']
-                name = race['raceName']
-                date = race['date']
+                roundnumber = race["round"]
+                name = race["raceName"]
+                date = race["date"]
                 try:
-                    time = race['time'].replace('Z', '')
+                    time = race["time"].replace("Z", "")
                     time = time[:5]
                 except Exception:
                     time = None
-                if race.get('Sprint'):
+                if race.get("Sprint"):
                     sprint = True
                 else:
                     sprint = None
 
                 if time:
                     if sprint:
-                        races.append(f'{roundnumber}. {name} (Sprint) - {date} {time} UTC')
+                        races.append(
+                            f"{roundnumber}. {name} (Sprint) - {date} {time} UTC"
+                        )
                     else:
-                        races.append(f'{roundnumber}. {name} - {date} {time} UTC')
+                        races.append(f"{roundnumber}. {name} - {date} {time} UTC")
                 else:
-                    races.append(f'{roundnumber}. {name} - {date} UTC')
+                    races.append(f"{roundnumber}. {name} - {date} UTC")
                 is_empty += 1
             if is_empty == 0:
                 return []
@@ -110,33 +120,42 @@ async def f1_season_calendar(season: int) -> list:
 
 
 async def f1_standings_py(season: int = CURRENT_YEAR) -> list:
-    """
-    Fetches the F1 driver standings for a specific season. If 'season' is empty, the current year is used.
+    """Fetches the F1 driver standings for a specific season.
+
+    If 'season' is empty, the current year is used.
 
     Args:
         season (int): The season to fetch standings for. Defaults to the current year.
 
     Returns:
-        list: A list of strings formatted as 'position. DriverName (Team) - points pts.'.
+        list: A list of strings formatted as
+              'position. DriverName (Team) - points pts.'.
               Returns an empty list if the request fails or no data is found.
     """
     if season < 1950 or season > CURRENT_YEAR:
         return []
     async with aiohttp.ClientSession() as session:
-        async with session.get(f'https://api.jolpi.ca/ergast/f1/{season}/driverstandings/') as response:
+        async with session.get(
+            f"https://api.jolpi.ca/ergast/f1/{season}/driverstandings/"
+        ) as response:
             if response.status in range(400, 499):
                 return []
             data = await response.json()
             try:
-                standings_json = data['MRData']['StandingsTable']['StandingsLists'][0]['DriverStandings']
+                standings_table = data["MRData"]["StandingsTable"]
+                standings_json = standings_table["StandingsLists"][0]["DriverStandings"]
             except (KeyError, IndexError):
                 return []
 
             standings_list = []
             for driver in standings_json:
-                driver_name = f"{driver['Driver']['givenName']} {driver['Driver']['familyName']}"
-                position = driver['position']
-                team = driver['Constructors'][0]['name']
-                points = driver['points']
-                standings_list.append(f'{position}. {driver_name} ({team}) - {points} pts.')
+                driver_name = (
+                    f"{driver['Driver']['givenName']} {driver['Driver']['familyName']}"
+                )
+                position = driver["position"]
+                team = driver["Constructors"][0]["name"]
+                points = driver["points"]
+                standings_list.append(
+                    f"{position}. {driver_name} ({team}) - {points} pts."
+                )
             return standings_list

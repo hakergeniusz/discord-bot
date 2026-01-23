@@ -13,23 +13,27 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import os
+"""Configuration and constants for the bot."""
+
 import datetime
+import os
+from pathlib import Path
+
 from dotenv import load_dotenv
 
 load_dotenv()
 
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-TMP_BASE = os.path.join(PROJECT_ROOT, "tmp")
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+TMP_BASE = PROJECT_ROOT / "tmp"
 
-OWNER_ID = int(os.environ.get('DISCORD_OWNER_ID', '0'))
-TOKEN = os.environ.get('DISCORD_BOT_TOKEN', '')
+OWNER_ID = int(os.environ.get("DISCORD_OWNER_ID", "0"))
+TOKEN = os.environ.get("DISCORD_BOT_TOKEN", "")
 
-RICKROLL_GIF_URL = 'https://tenor.com/view/rickroll-roll-rick-never-gonna-give-you-up-never-gonna-gif-22954713'
+RICKROLL_GIF_URL = "https://tenor.com/view/rickroll-roll-rick-never-gonna-give-you-up-never-gonna-gif-22954713"
 
 CURRENT_YEAR = datetime.date.today().year
 
-status_map = {
+STATUS_MAP = {
     "Finished": "Finished",
     "+1 Lap": "+1 Lap",
     "+2 Laps": "+2 Laps",
@@ -129,5 +133,5 @@ status_map = {
     "Did not start": "DNS (Did not start)",
     "Withdrew": "DNS (Withdrew)",
     "Disqualified": "DSQ (Disqualified)",
-    "Excluded": "DSQ (Excluded)"
+    "Excluded": "DSQ (Excluded)",
 }

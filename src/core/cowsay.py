@@ -13,9 +13,9 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+
 def cowsay(text: str) -> str:
-    """
-    A simple cowsay.
+    """A simple cowsay.
 
     Args:
         text (str): Text for the cow to say. Any ``` will be removed.
@@ -29,11 +29,16 @@ def cowsay(text: str) -> str:
             " __________________ \n"
             "< What should I say? >\n"
             " ------------------ \n"
-            r"        \   ^__^" + "\n" +
-            r"         \  (oo)\_______" + "\n" +
-            r"            (__)\       )\\/\\" + "\n" +
-            r"                ||----w |" + "\n" +
-            r"                ||     ||" + "\n"
+            r"        \   ^__^"
+            + "\n"
+            + r"         \  (oo)\_______"
+            + "\n"
+            + r"            (__)\       )\\/\\"
+            + "\n"
+            + r"                ||----w |"
+            + "\n"
+            + r"                ||     ||"
+            + "\n"
             "```"
         )
     text = text.replace("```", "` ` `")
@@ -56,7 +61,7 @@ def cowsay(text: str) -> str:
     bubble = "\n".join(bubble_content)
     divider = " " + "-" * (width + 2)
 
-    cow_art = fr"""{top_bottom}
+    cow_art = rf"""{top_bottom}
 {bubble}
 {divider}
         \   ^__^

@@ -16,18 +16,19 @@
 import aiohttp
 
 IMAGE_CONTENT_TYPES = [
-    'image/jpeg',
-    'image/png',
-    'image/gif',
-    'image/webp',
-    'image/svg+xml'
+    "image/jpeg",
+    "image/png",
+    "image/gif",
+    "image/webp",
+    "image/svg+xml",
 ]
+
 
 async def image_checker(session: aiohttp.ClientSession, image_link: str) -> bool:
     """Checks does an image exist.
 
     Args:
-        session (aiohttp.ClientSession)
+        session (aiohttp.ClientSession): The aiohttp session to use for the check.
         image_link (str): Image URL to check.
 
 
@@ -40,7 +41,7 @@ async def image_checker(session: aiohttp.ClientSession, image_link: str) -> bool
         async with session.head(image_link, timeout=3) as response:
             if response.status != 200:
                 return False
-            content_type = response.headers.get('Content-Type', '').lower()
+            content_type = response.headers.get("Content-Type", "").lower()
             for image_type in IMAGE_CONTENT_TYPES:
                 if content_type.startswith(image_type):
                     return True
