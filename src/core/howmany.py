@@ -13,10 +13,13 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import asyncio
 from pathlib import Path
 from typing import Optional
 
 from core.config import TMP_BASE
+
+file_lock = asyncio.Lock()
 
 
 async def create_file(file_name: str, file_content: str) -> Optional[bool]:
@@ -40,7 +43,7 @@ async def create_file(file_name: str, file_content: str) -> Optional[bool]:
     return None
 
 
-def change_file(path: str, user_id: int) -> int:
+async def change_file(path: str, user_id: int) -> int:
     """Adds 1 to the number in a file. If there is no file, a new file is created.
 
     Args:
@@ -50,11 +53,14 @@ def change_file(path: str, user_id: int) -> int:
     Returns:
         int: New number that is in the file.
     """
-    file_path = Path(path) / f"{user_id}.txt"
-    if not file_path.exists():
-        file_path.write_text("0")
+    orig_path = Path(path) / f"{user_id}.txt"
+    new_path = orig_path.with_suffix(".txt.new")
+    async with file_lock:
+        if not orig_path.exists():
+            orig_path.write_text("0")
 
-    count = int(file_path.read_text())
-    new_count = count + 1
-    file_path.write_text(str(new_count))
-    return new_count
+        count = int(orig_path.read_text())
+        new_count = count + 1
+        new_path.write_text(str(new_count))
+        new_path.replace(orig_path)
+        return new_count

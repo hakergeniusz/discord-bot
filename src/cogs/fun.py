@@ -135,8 +135,8 @@ class HowManyButtonButtons(discord.ui.View):
         """Increment count when the button is clicked."""
         from pathlib import Path
 
-        count = await asyncio.to_thread(
-            change_file, str(Path(TMP_BASE) / "howmanybutton"), interaction.user.id
+        count = await change_file(
+            str(Path(TMP_BASE) / "howmanybutton"), interaction.user.id
         )
         suffix = "time" if count == 1 else "times"
         msg = f"{interaction.user.mention} clicked the button {count} {suffix}!"
@@ -163,9 +163,7 @@ class Meme(commands.Cog):
         """Says how many times this user typed this command."""
         from pathlib import Path
 
-        count = await asyncio.to_thread(
-            change_file, str(Path(TMP_BASE) / "howmanytimes"), ctx.author.id
-        )
+        count = await change_file(str(Path(TMP_BASE) / "howmanytimes"), ctx.author.id)
         suffix = "time" if count == 1 else "times"
         await ctx.send(f"You have used this command {count} {suffix}!")
 
