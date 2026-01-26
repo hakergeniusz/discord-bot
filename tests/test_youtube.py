@@ -34,14 +34,19 @@ def test_download_youtube_video_cached(
     url = f"https://www.youtube.com/watch?v={video_id}"
     cache_path = f"/tmp/{video_id}.opus"
 
-    def side_effect() -> bool:
-        return True
+    instance = mock_ydl.return_value.__enter__.return_value
+    instance.extract_info.return_value = {
+        "id": video_id,
+        "title": "Test Title",
+        "duration": 60,
+    }
 
     mock_exists.return_value = True
 
-    result = download_youtube_video(url)
-    assert result == cache_path
-    assert not mock_ydl.called
+    path, title, duration = download_youtube_video(url)
+    assert path == cache_path
+    assert title == "Test Title"
+    assert duration == "1 minute"
 
 
 @patch("yt_dlp.YoutubeDL")
@@ -52,4 +57,4 @@ def test_download_youtube_video_failure(mock_ydl: MagicMock) -> None:
 
     url = "https://www.youtube.com/watch?v=invalid"
     result = download_youtube_video(url)
-    assert result is None
+    assert result == (None, None, None)

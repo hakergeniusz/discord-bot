@@ -23,7 +23,7 @@ ydl_opts = {
     "outtmpl": "/tmp/%(id)s.%(ext)s",
     "format": "bestaudio/best",
     "noplaylist": True,
-    "quiet": False,
+    "quiet": True,
     "no_warnings": False,
     "nocheckcertificate": True,
     "ignoreerrors": False,
@@ -65,32 +65,69 @@ def get_yt_video_id(url: str) -> Optional[str]:
     return None
 
 
-def download_youtube_video(url: str) -> Optional[str]:
+def format_duration(seconds: int) -> str:
+    """Formats the duration of a YouTube video in a human-readable format.
+
+    Args:
+        seconds (int): The duration of the video in seconds.
+
+    Returns:
+        str: The duration of the video in a human-readable format.
+    """
+    if seconds < 60:
+        return f"{seconds} seconds"
+
+    minutes, seconds = divmod(seconds, 60)
+    hours, minutes = divmod(minutes, 60)
+
+    parts = []
+    if hours > 0:
+        parts.append(f"{hours} {'hour' if hours == 1 else 'hours'}")
+    if minutes > 0:
+        parts.append(f"{minutes} {'minute' if minutes == 1 else 'minutes'}")
+    if seconds > 0:
+        parts.append(f"{seconds} {'second' if seconds == 1 else 'seconds'}")
+
+    return " ".join(parts)
+
+
+def download_youtube_video(
+    url: str,
+) -> tuple[Optional[str], Optional[str], Optional[str]]:
     """Downloads a YouTube video from the given URL.
 
-    Returns the path to the downloaded file. If the video is already downloaded
-    and exists in /tmp, the path to the existing file is returned.
+    Returns the path to the downloaded file, title, and duration.
 
     Args:
         url (str): The URL of the YouTube video to be downloaded.
 
     Returns:
-        The path to the downloaded file (.opus), or None if it fails.
+        tuple[Optional[str], Optional[str], Optional[int]]:
+            (path, title, duration) or (None, None, None) if failed.
     """
     match = re.match(youtube_regex1, url)
     if not bool(match):
-        return None
-    video_id = get_yt_video_id(url)
-    if video_id:
-        video_path = Path(f"/tmp/{video_id}.opus")
-        if video_path.exists():
-            return str(video_path)
+        return None, None, None
+
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(url, download=False)
+            title = info.get("title")
+            duration = info.get("duration")
+            video_id = info.get("id")
+
+            if not video_id:
+                return None, None, None
+
+            video_path = Path(f"/tmp/{video_id}.opus")
+            if video_path.exists():
+                return str(video_path), title, format_duration(duration)
+
             info = ydl.extract_info(url, download=True)
             path = Path(ydl.prepare_filename(info)).with_suffix(".opus")
             if path.exists():
-                return str(path)
-            return None
+                return str(path), title, format_duration(duration)
+
+            return None, None, None
     except Exception:
-        return None
+        return None, None, None
