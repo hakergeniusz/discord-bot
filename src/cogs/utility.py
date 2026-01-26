@@ -43,6 +43,7 @@ class Utility(commands.Cog):
         name="The name how webhook will appear",
         avatar_url="The avatar URL for the webhook",
     )
+    @app_commands.checks.cooldown(1, 1.5, key=lambda i: (i.guild_id, i.user.id))
     async def webhook(
         self,
         interaction: discord.Interaction,
@@ -158,6 +159,7 @@ class Utility(commands.Cog):
         name="ai", description="AI that will (maybe) respond to your questions."
     )
     @app_commands.describe(prompt="Message to the AI")
+    @app_commands.checks.cooldown(1, 15.0, key=lambda i: (i.guild_id, i.user.id))
     async def ai(self, ctx: commands.Context, *, prompt: str) -> None:
         """AI that responds to user questions using Gemma 3."""
         await ctx.defer()

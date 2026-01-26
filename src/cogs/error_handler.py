@@ -34,6 +34,12 @@ class ErrorHandler(commands.Cog):
     ) -> None:
         """Handle errors in slash commands."""
         if isinstance(error, app_commands.CheckFailure):
+            if isinstance(error, app_commands.CommandOnCooldown):
+                await interaction.response.send_message(
+                    f"You are on cooldown. Please try again in {error.retry_after:.2f}"
+                    " seconds.",
+                    ephemeral=True,
+                )
             return
         print(f"App Command Error: {error}")
 
@@ -45,6 +51,12 @@ class ErrorHandler(commands.Cog):
         if isinstance(error, commands.CheckFailure):
             return
         print(f"Command Error: {error}")
+        if isinstance(error, commands.CommandOnCooldown):
+            await ctx.send(
+                f"You are on cooldown. Please try again in {error.retry_after:.2f}"
+                " seconds."
+            )
+            return
 
 
 async def setup(bot: commands.Bot) -> None:

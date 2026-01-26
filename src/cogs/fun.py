@@ -41,6 +41,7 @@ class F1Commands(commands.Cog):
     )
     # Remember to change *roundnumber* if F1 introduces an F1 calendar
     # with more than 24 rounds.
+    @app_commands.checks.cooldown(1, 1.5, key=lambda i: (i.guild_id, i.user.id))
     async def f1_race_result(
         self,
         ctx: commands.Context,
@@ -66,6 +67,7 @@ class F1Commands(commands.Cog):
 
     @commands.hybrid_command(name="f1_calendar", description="Shows an F1 calendar")
     @app_commands.describe(season="Season of the calendar you want to know")
+    @app_commands.checks.cooldown(1, 1.5, key=lambda i: (i.guild_id, i.user.id))
     async def f1_calendar(
         self, ctx: commands.Context, season: commands.Range[int, 1950, CURRENT_YEAR]
     ) -> None:
@@ -95,6 +97,7 @@ class F1Commands(commands.Cog):
         name="f1_standings", description="Shows F1 standings for a season."
     )
     @app_commands.describe(season="Season you want standings for.")
+    @app_commands.checks.cooldown(1, 1.5, key=lambda i: (i.guild_id, i.user.id))
     async def f1_standings(
         self, ctx: commands.Context, season: commands.Range[int, 1950, CURRENT_YEAR]
     ) -> None:
