@@ -13,6 +13,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import asyncio
+
 import discord
 from discord import app_commands
 from discord.ext import commands
@@ -52,10 +54,26 @@ class ErrorHandler(commands.Cog):
             return
         print(f"Command Error: {error}")
         if isinstance(error, commands.CommandOnCooldown):
-            await ctx.send(
+            if ctx.interaction:
+                await ctx.interaction.response.send_message(
+                    f"You are on cooldown. Please try again in {error.retry_after:.2f}"
+                    " seconds.",
+                    ephemeral=True,
+                )
+                return
+            creply = await ctx.send(
                 f"You are on cooldown. Please try again in {error.retry_after:.2f}"
                 " seconds."
             )
+            await asyncio.sleep(3)
+            try:
+                await ctx.message.delete()
+            except Exception:
+                pass
+            try:
+                await creply.delete()
+            except Exception:
+                pass
             return
 
 
