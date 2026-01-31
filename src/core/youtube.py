@@ -13,16 +13,27 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+"""Module for utility functions to download and process YouTube videos."""
+
+import json
 import re
 from pathlib import Path
 from typing import Optional
 
 import yt_dlp
 
+CACHE_DIR = Path("/tmp")
+URL_REGEX = (
+    r"(https?://)?(www\.|m\.)?"
+    r"(youtube\.com/watch\?v=|youtu\.be/|youtube\.com/shorts/)"
+    r"([\w-]{11})"
+)
+
 ydl_opts = {
     "outtmpl": "/tmp/%(id)s.%(ext)s",
     "format": "bestaudio/best",
     "noplaylist": True,
+    "writethumbnail": True,
     "quiet": True,
     "no_warnings": False,
     "nocheckcertificate": True,
@@ -37,12 +48,6 @@ ydl_opts = {
         }
     ],
 }
-
-youtube_regex1 = (
-    r"(https?://)?(www\.|m\.)?"
-    r"(youtube\.com/watch\?v=|youtu\.be/|youtube\.com/shorts/)"
-    r"([\w-]{11})"
-)
 
 
 def get_yt_video_id(url: str) -> Optional[str]:
@@ -93,41 +98,73 @@ def format_duration(seconds: int) -> str:
 
 def download_youtube_video(
     url: str,
-) -> tuple[Optional[str], Optional[str], Optional[str]]:
+) -> tuple[Optional[str], Optional[str], Optional[str], Optional[str], Optional[str]]:
     """Downloads a YouTube video from the given URL.
 
-    Returns the path to the downloaded file, title, and duration.
+    Returns the path to the downloaded file, title, duration, thumbnail URL and video ID.
 
     Args:
         url (str): The URL of the YouTube video to be downloaded.
 
     Returns:
-        tuple[Optional[str], Optional[str], Optional[int]]:
-            (path, title, duration) or (None, None, None) if failed.
-    """
-    match = re.match(youtube_regex1, url)
-    if not bool(match):
-        return None, None, None
+        tuple[Optional[str], Optional[str], Optional[str], Optional[str], Optional[str]]:
+            (path, title, duration, thumbnail, video_id) or (None, None, None, None, None) if failed.
+    """  # noqa: E501
+    match = re.search(URL_REGEX, url)
+    if not match:
+        return None, None, None, None, None
+
+    video_id = match.group(match.lastindex or 0)
+    if not isinstance(video_id, str):
+        return None, None, None, None, None
+    video_path = CACHE_DIR / f"{video_id}.opus"
+    metadata_path = CACHE_DIR / f"{video_id}.metadata.json"
+
+    if video_path.exists() and metadata_path.exists():
+        try:
+            with metadata_path.open("r", encoding="utf-8") as f:
+                metadata = json.load(f)
+                return (
+                    str(video_path),
+                    metadata.get("title"),
+                    metadata.get("duration"),
+                    metadata.get("thumbnail"),
+                    video_id,
+                )
+        except (json.JSONDecodeError, OSError):
+            pass
 
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(url, download=False)
+            if video_path.exists():
+                info = ydl.extract_info(url, download=False)
+            else:
+                info = ydl.extract_info(url, download=True)
+
+            if not info:
+                return None, None, None, None, None
+
+            video_id = info.get("id")
             title = info.get("title")
             duration = info.get("duration")
             video_id = info.get("id")
+            thumbnail = info.get("thumbnail")
+            formatted_duration = (
+                format_duration(int(duration)) if duration else "0 seconds"
+            )
 
-            if not video_id:
-                return None, None, None
+            metadata = {
+                "title": title,
+                "duration": formatted_duration,
+                "thumbnail": thumbnail,
+            }
+            with metadata_path.open("w", encoding="utf-8") as f:
+                json.dump(metadata, f)
 
-            video_path = Path(f"/tmp/{video_id}.opus")
             if video_path.exists():
-                return str(video_path), title, format_duration(duration)
+                return (str(video_path), title, formatted_duration, thumbnail, video_id)
 
-            info = ydl.extract_info(url, download=True)
-            path = Path(ydl.prepare_filename(info)).with_suffix(".opus")
-            if path.exists():
-                return str(path), title, format_duration(duration)
-
-            return None, None, None
-    except Exception:
-        return None, None, None
+            return None, None, None, None, None
+    except Exception as e:
+        print(f"Error downloading video: {e}")
+        return None, None, None, None, None
