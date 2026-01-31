@@ -39,14 +39,16 @@ def test_download_youtube_video_cached(
         "id": video_id,
         "title": "Test Title",
         "duration": 60,
+        "thumbnail": "https://example.com/thumb.jpg",
     }
 
     mock_exists.return_value = True
 
-    path, title, duration = download_youtube_video(url)
+    path, title, duration, thumbnail, video_id = download_youtube_video(url)
     assert path == cache_path
     assert title == "Test Title"
     assert duration == "1 minute"
+    assert thumbnail == "https://example.com/thumb.jpg"
 
 
 @patch("yt_dlp.YoutubeDL")
@@ -57,4 +59,4 @@ def test_download_youtube_video_failure(mock_ydl: MagicMock) -> None:
 
     url = "https://www.youtube.com/watch?v=invalid"
     result = download_youtube_video(url)
-    assert result == (None, None, None)
+    assert result == (None, None, None, None, None)
