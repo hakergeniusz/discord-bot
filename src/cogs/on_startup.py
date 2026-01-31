@@ -13,6 +13,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+"""Module for handling bot startup events and slash command synchronization."""
+
 import asyncio
 import os
 
@@ -38,9 +40,12 @@ class SyncCog(commands.Cog):
         print("This program comes with ABSOLUTELY NO WARRANTY.")
         print("This is free software under the GNU AGPLv3.")
         print("-" * 40)
-        await self.bot.tree.sync()
-        await asyncio.sleep(2)
-        await self.bot.change_presence(activity=None, status=discord.Status.dnd)
+        try:
+            await self.bot.tree.sync()
+            await asyncio.sleep(2)
+            await self.bot.change_presence(activity=None, status=discord.Status.dnd)
+        except (discord.Forbidden, discord.HTTPException):
+            pass
 
 
 async def setup(bot: commands.Bot) -> None:

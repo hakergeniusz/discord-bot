@@ -13,6 +13,10 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+"""Module for fun and Formula 1 related commands."""
+
+from pathlib import Path
+
 import discord
 from discord import app_commands
 from discord.ext import commands
@@ -131,11 +135,9 @@ class HowManyButtonButtons(discord.ui.View):
 
     @discord.ui.button(label="Click me!", style=discord.ButtonStyle.success)
     async def howmanybutton_button(
-        self, interaction: discord.Interaction, button: discord.ui.Button
+        self, interaction: discord.Interaction, _button: discord.ui.Button
     ) -> None:
         """Increment count when the button is clicked."""
-        from pathlib import Path
-
         count = await change_file(
             str(Path(TMP_BASE) / "howmanybutton"), interaction.user.id
         )
@@ -162,8 +164,6 @@ class Meme(commands.Cog):
     )
     async def howmanytimes(self, ctx: commands.Context) -> None:
         """Says how many times this user typed this command."""
-        from pathlib import Path
-
         count = await change_file(str(Path(TMP_BASE) / "howmanytimes"), ctx.author.id)
         suffix = "time" if count == 1 else "times"
         await ctx.send(f"You have used this command {count} {suffix}!")

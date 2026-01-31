@@ -13,6 +13,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+"""Module for administrative commands and bot status management."""
+
 import asyncio
 
 import aiohttp
@@ -33,7 +35,7 @@ class StatusButtons(discord.ui.View):
 
     @discord.ui.button(label="Online", style=discord.ButtonStyle.success)
     async def online_button(
-        self, interaction: discord.Interaction, button: discord.ui.Button
+        self, interaction: discord.Interaction, _button: discord.ui.Button
     ) -> None:
         """Set the bot's status to Online."""
         await self.bot.change_presence(status=discord.Status.online)
@@ -42,7 +44,7 @@ class StatusButtons(discord.ui.View):
 
     @discord.ui.button(label="Do Not Disturb", style=discord.ButtonStyle.danger)
     async def dnd_button(
-        self, interaction: discord.Interaction, button: discord.ui.Button
+        self, interaction: discord.Interaction, _button: discord.ui.Button
     ) -> None:
         """Set the bot's status to Do Not Disturb."""
         await self.bot.change_presence(status=discord.Status.dnd)
@@ -53,7 +55,7 @@ class StatusButtons(discord.ui.View):
 
     @discord.ui.button(label="Idle", style=discord.ButtonStyle.secondary)
     async def idle_button(
-        self, interaction: discord.Interaction, button: discord.ui.Button
+        self, interaction: discord.Interaction, _button: discord.ui.Button
     ) -> None:
         """Set the bot's status to Idle."""
         await self.bot.change_presence(status=discord.Status.idle)
@@ -62,7 +64,7 @@ class StatusButtons(discord.ui.View):
 
     @discord.ui.button(label="Invisible (offline)", style=discord.ButtonStyle.primary)
     async def invisible_button(
-        self, interaction: discord.Interaction, button: discord.ui.Button
+        self, interaction: discord.Interaction, _button: discord.ui.Button
     ) -> None:
         """Set the bot's status to Invisible."""
         await self.bot.change_presence(status=discord.Status.invisible)
@@ -129,7 +131,7 @@ class OwnerCommands(commands.Cog):
         await asyncio.sleep(3)
         try:
             await message.delete()
-        except Exception:
+        except (discord.Forbidden, discord.HTTPException):
             pass
 
     @admin_check_slash()
@@ -156,7 +158,7 @@ class OwnerCommands(commands.Cog):
                 "I am forbidden to create a webhook in this channel "
                 "(I don't have permissions)."
             )
-        except Exception:
+        except (discord.HTTPException, aiohttp.ClientError):
             await ctx.send("Failed to create webhook.")
 
     @admin_check()

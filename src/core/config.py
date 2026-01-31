@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-"""Configuration and constants for the bot."""
+"""Configuration module for the bot, including secrets and global constants."""
 
 import datetime
 import os
@@ -29,7 +29,7 @@ TMP_BASE = PROJECT_ROOT / "tmp"
 OWNER_ID = int(os.environ.get("DISCORD_OWNER_ID", "0"))
 TOKEN = os.environ.get("DISCORD_BOT_TOKEN", "")
 
-RICKROLL_GIF_URL = "https://tenor.com/view/rickroll-roll-rick-never-gonna-give-you-up-never-gonna-gif-22954713"
+RICKROLL_GIF_URL = "https://tenor.com/view/rickroll-roll-rick-never-gonna-give-you-up-never-gonna-gif-22954713"  # noqa: E501
 
 CURRENT_YEAR = datetime.date.today().year
 

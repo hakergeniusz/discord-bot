@@ -13,6 +13,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+"""Main entry point for the Discord bot. Handles bot initialization and cog loading."""
+
 from pathlib import Path
 
 import discord

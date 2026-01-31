@@ -13,8 +13,11 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+"""Module for utility commands including webhooks, say, and AI."""
+
 import asyncio
 import random
+from pathlib import Path
 
 import aiohttp
 import discord
@@ -184,8 +187,6 @@ class Utility(commands.Cog):
         if len(full_response) <= 1900:
             await message.edit(content=full_response)
             return
-
-        from pathlib import Path
 
         file_path = Path(TMP_BASE) / f"{random.randint(100000, 999999)}.txt"
         await create_file(file_name=str(file_path), file_content=full_response)

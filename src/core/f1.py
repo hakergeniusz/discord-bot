@@ -13,12 +13,16 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+"""Module for fetching Formula 1 data using the Jolpica API."""
+
 import aiohttp
 
 from core.config import CURRENT_YEAR, STATUS_MAP
 
 
-async def race_result(season: int, roundnumber: int, emojis: bool = True) -> list:
+async def race_result(
+    season: int, roundnumber: int, emojis: bool = True
+) -> tuple[str | None, list[str]]:
     """Gives the result of an F1 race session using Jolpica API.
 
     Args:
@@ -28,8 +32,7 @@ async def race_result(season: int, roundnumber: int, emojis: bool = True) -> lis
             will not be given.
 
     Returns:
-        str: Circuit's name.
-        list: A list with session results.
+        tuple[str | None, list[str]]: Circuit's name and a list with session results.
     """
     async with aiohttp.ClientSession() as session:
         async with session.get(
@@ -71,7 +74,7 @@ async def race_result(season: int, roundnumber: int, emojis: bool = True) -> lis
             return circuit_name, results
 
 
-async def f1_season_calendar(season: int) -> list:
+async def f1_season_calendar(season: int) -> list[str]:
     """Gives the F1 calendar using Jolpica API.
 
     Args:
@@ -85,7 +88,7 @@ async def f1_season_calendar(season: int) -> list:
             f"https://api.jolpi.ca/ergast/f1/{season}/races/"
         ) as response:
             if response.status in range(400, 499):
-                return None
+                return []
             response = await response.json()
             response = response["MRData"]["RaceTable"]["Races"]
             races = []
@@ -119,7 +122,7 @@ async def f1_season_calendar(season: int) -> list:
             return races
 
 
-async def f1_standings_py(season: int = CURRENT_YEAR) -> list:
+async def f1_standings_py(season: int = CURRENT_YEAR) -> list[str]:
     """Fetches the F1 driver standings for a specific season.
 
     If 'season' is empty, the current year is used.

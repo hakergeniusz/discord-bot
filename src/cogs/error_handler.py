@@ -13,7 +13,10 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+"""Module for global error handling for both prefix and slash commands."""
+
 import asyncio
+import traceback
 
 import discord
 from discord import app_commands
@@ -43,7 +46,11 @@ class ErrorHandler(commands.Cog):
                     ephemeral=True,
                 )
             return
+        if isinstance(error, app_commands.CommandInvokeError):
+            error = error.original
+
         print(f"App Command Error: {error}")
+        traceback.print_exception(type(error), error, error.__traceback__)
 
     @commands.Cog.listener()
     async def on_command_error(
@@ -52,7 +59,12 @@ class ErrorHandler(commands.Cog):
         """Handle errors in prefix and hybrid commands."""
         if isinstance(error, commands.CheckFailure):
             return
+
+        if isinstance(error, commands.CommandInvokeError):
+            error = error.original
+
         print(f"Command Error: {error}")
+        traceback.print_exception(type(error), error, error.__traceback__)
         if isinstance(error, commands.CommandOnCooldown):
             if ctx.interaction:
                 await ctx.interaction.response.send_message(
@@ -68,11 +80,11 @@ class ErrorHandler(commands.Cog):
             await asyncio.sleep(3)
             try:
                 await ctx.message.delete()
-            except Exception:
+            except (discord.Forbidden, discord.HTTPException):
                 pass
             try:
                 await creply.delete()
-            except Exception:
+            except (discord.Forbidden, discord.HTTPException):
                 pass
             return
 

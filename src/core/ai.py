@@ -13,6 +13,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+"""Module for interacting with Google's Gemma AI models."""
+
 from typing import AsyncGenerator
 
 from google import genai
