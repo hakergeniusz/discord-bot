@@ -158,7 +158,13 @@ class Music(commands.Cog):
             await first_response.edit(content="Failed to play audio.")
             return
 
-        await first_response.edit(content=f"Playing audio on <#{user_vc_chan.id}>")
+        embed = discord.Embed(
+            title="Started playing",
+            description=f"**{title}** ({duration})",
+            color=discord.Color.green(),
+        )
+        embed.set_image(url=thumbnail)
+        await first_response.edit(embed=embed, content="")
         print(f"Rupturing the eardrums of {ctx.author.name}")
 
     @admin_check()
