@@ -102,7 +102,7 @@ class Music(commands.Cog):
         queue = self.queues.get(guild_id, [])
         is_already_in_queue = any(s.requester_id == ctx.author.id for s in queue)
         if is_already_in_queue:
-            await ctx.send("You are already in the queue.")
+            await ctx.send("Your song is already in the queue.")
             return
         first_response = await ctx.send("Processing the video URL...")
         result = await asyncio.to_thread(download_youtube_video, youtube_url)
@@ -200,7 +200,7 @@ class Music(commands.Cog):
 
         queue_list = "\n".join(
             [
-                f"**{s.title}** ({s.duration}) - <@{s.requester_id}>"
+                f"**{i + 1}. {s.title}** ({s.duration}) - requested by <@{s.requester_id}>"  # noqa: E501
                 for i, s in enumerate(queue)
             ]
         )
