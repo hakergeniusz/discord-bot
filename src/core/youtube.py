@@ -99,16 +99,25 @@ def format_duration(seconds: int) -> str:
 def download_youtube_video(
     url: str,
 ) -> tuple[Optional[str], Optional[str], Optional[str], Optional[str], Optional[str]]:
-    """Downloads a YouTube video from the given URL.
+    """Downloads a YouTube video and extracts metadata.
 
-    Returns the path to the downloaded file, title, duration, thumbnail URL and video ID.
+    This function attempts to download a video in .opus format using yt-dlp.
+    It implements a caching mechanism: if the file and its metadata already exist
+    in CACHE_DIR, it returns the cached data instead of downloading again.
 
     Args:
-        url (str): The URL of the YouTube video to be downloaded.
+        url (str): The full YouTube video URL to process.
 
     Returns:
-        tuple[Optional[str], Optional[str], Optional[str], Optional[str], Optional[str]]:
-            (path, title, duration, thumbnail, video_id) or (None, None, None, None, None) if failed.
+        tuple: A five-element tuple containing:
+            - path (str | None): Absolute path to the downloaded .opus file.
+            - title (str | None): The title of the video.
+            - duration (str | None): Formatted duration (e.g., "4 minutes 20 seconds").
+            - thumbnail (str | None): Direct URL to the video's thumbnail image.
+            - video_id (str | None): The extracted YouTube video ID.
+
+            Returns (None, None, None, None, None) if the URL is invalid,
+            the download fails, or metadata cannot be processed.
     """  # noqa: E501
     match = re.search(URL_REGEX, url)
     if not match:
