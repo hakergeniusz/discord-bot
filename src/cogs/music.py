@@ -16,6 +16,7 @@
 """Module for music-related commands using YouTube."""
 
 import asyncio
+import time
 from dataclasses import dataclass
 
 import discord
@@ -23,7 +24,7 @@ from discord import app_commands
 from discord.ext import commands
 
 from core.admin_check import admin_check
-from core.youtube import download_youtube_video
+from core.youtube import download_youtube_video, format_duration
 
 
 @dataclass
@@ -36,6 +37,7 @@ class Song:
     thumbnail: str
     requester_id: int
     video_id: str
+    time_started: int
 
 
 class Music(commands.Cog):
@@ -77,7 +79,7 @@ class Music(commands.Cog):
             self._play_next(guild_id, interaction)
 
     @commands.guild_only()
-    @commands.hybrid_group(name="music", invoke_without_command=True)
+    @commands.hybrid_group(name="music", invoke_without_command=True)  # type: ignore
     async def music(self, ctx: commands.Context) -> None:
         """Default command used to group other ones."""
         if ctx.invoked_subcommand is None:
@@ -92,7 +94,7 @@ class Music(commands.Cog):
     ) -> None:
         """Plays music from a YouTube URL in a voice channel."""
         await ctx.defer()
-        if not ctx.author.voice or not ctx.author.voice.channel:
+        if not ctx.author.voice or not ctx.author.voice.channel:  # type: ignore
             await ctx.send("You are not in a voice channel.")
             return
         if not ctx.guild:
@@ -115,11 +117,12 @@ class Music(commands.Cog):
 
         song = Song(
             path=path,
-            title=title,
-            duration=duration,
-            thumbnail=thumbnail,
+            title=str(title),
+            duration=str(duration),
+            thumbnail=str(thumbnail),
             requester_id=ctx.author.id,
-            video_id=video_id,
+            video_id=str(video_id),
+            time_started=int(time.time()),
         )
 
         if guild_id not in self.queues:
@@ -254,6 +257,10 @@ class Music(commands.Cog):
             title="Now Playing",
             description=f"**[{song.title}]({yt_url})**",
             color=discord.Color.blue(),
+        )
+        currently_at = format_duration(int(time.time() - song.time_started))
+        embed.add_field(
+            name="Currently at", value=currently_at, inline=True
         )
         embed.add_field(name="Duration", value=song.duration, inline=True)
         embed.add_field(
