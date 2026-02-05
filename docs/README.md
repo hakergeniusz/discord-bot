@@ -47,9 +47,8 @@ python3 -m main
 ```
 
 ## 🐧 System Compatibility
-Bot is actively developed on Fedora Workstation. Bot should work on most Linux distributions.
-* Fedora Workstation 43,
-* Python 3.14 (Python 3.12 and 3.13 should work too)
+Bot is actively developed on **Arch Linux** and hosted on **Debian 13**. Bot should work on most Linux distributions.
+* Python 3.14 (Python 3.12 and 3.13 works too)
 > **Note:** No support or instructions will be provided for Windows or macOS.
 
 ---
