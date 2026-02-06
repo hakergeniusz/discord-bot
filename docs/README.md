@@ -1,6 +1,6 @@
 # 🤖 Discord Bot
 
-<img src="https://img.shields.io/badge/License-AGPLv3-orange.svg?style=for-the-badge" height="60">
+<img src="https://img.shields.io/badge/License-AGPLv3-orange.svg?style=for-the-badge" height="40">
 
 ---
 
