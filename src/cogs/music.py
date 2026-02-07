@@ -97,15 +97,22 @@ class Music(commands.Cog):
         if not ctx.author.voice or not ctx.author.voice.channel:  # type: ignore
             await ctx.send("You are not in a voice channel.")
             return
+
         if not ctx.guild:
             return
+
         vc_chan = ctx.guild.voice_client
         guild_id = ctx.guild.id
         queue = self.queues.get(guild_id, [])
         is_already_in_queue = any(s.requester_id == ctx.author.id for s in queue)
         if is_already_in_queue:
-            await ctx.send("Your song is already in the queue.")
+            await ctx.send("You already have a song in in the queue.")
             return
+
+        if Song.requester_id == ctx.author.id:
+            await ctx.send("A song submitted by you is already playing.")
+            return
+
         first_response = await ctx.send("Processing the video URL...")
         result = await asyncio.to_thread(download_youtube_video, youtube_url)
 
