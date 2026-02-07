@@ -25,7 +25,7 @@ You must have following installed on your computer for this bot to work correctl
 > NOTE: If you want `latest` branch with new features (also broken bot), use `git clone -b latest https://github.com/hakergeniusz/discord-bot.git`.
 2. Open the folder with `cd discord-bot`.
 3. Create and fill up `.env` file.
-4. Run `uv run bot` once to install all required libraries.
+4. Run `uv sync` to install all required libraries.
 
 > **Note on `.env` values:**
 > ```
