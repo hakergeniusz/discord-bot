@@ -14,6 +14,7 @@ You must have following installed on your computer for this bot to work correctl
 * A **Discord bot token** from Discord Developer Program.
 * A **Linux** operating system. **Code will not work on Windows**
 * **Python 3.12+**
+* **uv** for managing libraries
 * **Git** for cloning the repository
 * **FFmpeg** for `/play` command to work correctly.
 
@@ -23,10 +24,8 @@ You must have following installed on your computer for this bot to work correctl
 1. Download all files from this repository with `git clone -b main https://github.com/hakergeniusz/discord-bot.git`.
 > NOTE: If you want `latest` branch with new features (also broken bot), use `git clone -b latest https://github.com/hakergeniusz/discord-bot.git`.
 2. Open the folder with `cd discord-bot`.
-3. Create a Python venv with `python3 -m venv .venv`.
-4. Activate venv with `source .venv/bin/activate`.
-5. Install all required libraries with `pip install -r requirements.txt`.
-6. Create and fill up `.env` file.
+3. Create and fill up `.env` file.
+4. Run `uv run bot` once to install all required libraries.
 
 > **Note on `.env` values:**
 > ```
@@ -41,9 +40,9 @@ You must have following installed on your computer for this bot to work correctl
 ---
 
 ## 🚀 Running the bot
-With your `.venv` active, execute the following command in `src` folder:
+Execute the following command:
 ```bash
-python3 -m main
+uv run bot
 ```
 
 ## 🐧 System Compatibility

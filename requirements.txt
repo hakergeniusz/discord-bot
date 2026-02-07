@@ -1,8 +1,0 @@
-discord.py
-discord.py[voice]
-python-dotenv
-google-genai
-yt-dlp
-pytest
-pytest-asyncio
-ruff
