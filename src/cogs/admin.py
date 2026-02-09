@@ -161,7 +161,6 @@ class OwnerCommands(commands.Cog):
         except (discord.HTTPException, aiohttp.ClientError):
             await ctx.send("Failed to create webhook.")
 
-    @admin_check()
     @commands.hybrid_command(name="delete_webhook", description="Deletes a webhook")
     @app_commands.describe(webhook="Webhook link.")
     async def delete_webhook(self, ctx: commands.Context, webhook: str) -> None:
