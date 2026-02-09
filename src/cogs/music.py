@@ -78,13 +78,16 @@ class Music(commands.Cog):
             print(f"Error playing next song: {e}")
             self._play_next(guild_id, interaction)
 
-    @commands.guild_only()
     @commands.hybrid_group(name="music", invoke_without_command=True)  # type: ignore
     async def music(self, ctx: commands.Context) -> None:
         """Default command used to group other ones."""
         if ctx.invoked_subcommand is None:
-            await ctx.send("Available commands: play, skip, leave, queue, nowplaying.")
+            await ctx.send("""
+                Available commands: play, skip, leave, queue, nowplaying.
+                > You can't use music commands in DMs anyway!
+            """)
 
+    @commands.guild_only()
     @music.command(name="play", description="Plays music on a voice channel")
     @app_commands.describe(youtube_url="Youtube URL of the video you want to play.")
     async def play(
@@ -177,6 +180,7 @@ class Music(commands.Cog):
         await first_response.edit(embed=embed, content="")
         print(f"Rupturing the eardrums of {ctx.author.name}")
 
+    @commands.guild_only()
     @admin_check()
     @music.command(name="leave", description="Leaves a voice channel (Admin only).")
     async def leave(self, ctx: commands.Context) -> None:
@@ -224,6 +228,7 @@ class Music(commands.Cog):
         await ctx.send(embed=embed)
 
     @admin_check()
+    @commands.guild_only()
     @music.command(name="skip", description="Skips the currently playing song")
     async def skip(self, ctx: commands.Context) -> None:
         """Skips the currently playing song."""
@@ -241,6 +246,7 @@ class Music(commands.Cog):
         vc_chan.stop()
         await ctx.send("Skipped the current song.")
 
+    @commands.guild_only()
     @music.command(
         name="nowplaying",
         aliases=["np", "current"],
