@@ -16,18 +16,17 @@ jobs:
       uses: astral-sh/setup-uv@v5
       with:
         enable-cache: true
-        version: "latest"
 
     - name: Set up Python 3.14
-      run: uv python install 3.14
+      run: |
+        uv python install 3.14
+        uv python pin 3.14
 
     - name: Install dependencies
       run: uv sync --all-extras --dev
 
-    - name: Lint with ruff
-      run: uv run ruff check .
-
-    - name: Run tests with pytest
+    - name: Lint and Test
       run: |
         export PYTHONPATH=$PYTHONPATH:$(pwd)/src
+        uv run ruff check .
         uv run pytest
