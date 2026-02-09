@@ -44,7 +44,7 @@ class SyncCog(commands.Cog):
             await self.bot.tree.sync()
             await asyncio.sleep(2)
             await self.bot.change_presence(activity=None, status=discord.Status.dnd)
-        except (discord.Forbidden, discord.HTTPException):
+        except discord.Forbidden, discord.HTTPException:
             pass
 
 

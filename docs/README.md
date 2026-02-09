@@ -13,7 +13,7 @@ Feature-rich Discord bot made by hakergeniusz with the goal of learning Discord.
 You must have following installed on your computer for this bot to work correctly:
 * A **Discord bot token** from Discord Developer Program.
 * A **Linux** operating system. **Code will not work on Windows**
-* **Python 3.12+**
+* **Python 3.14**
 * **uv** for managing libraries
 * **Git** for cloning the repository
 * **FFmpeg** for `/play` command to work correctly.
@@ -47,7 +47,6 @@ uv run bot
 
 ## 🐧 System Compatibility
 Bot is actively developed on **Arch Linux** and hosted on **Debian 13**. Bot should work on most Linux distributions.
-* Python 3.14 (Python 3.12 and 3.13 works too)
 > **Note:** No support or instructions will be provided for Windows or macOS.
 
 ---

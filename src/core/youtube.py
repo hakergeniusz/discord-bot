@@ -140,7 +140,7 @@ def download_youtube_video(
                     metadata.get("thumbnail"),
                     video_id,
                 )
-        except (json.JSONDecodeError, OSError):
+        except json.JSONDecodeError, OSError:
             pass
 
     try:

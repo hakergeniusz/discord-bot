@@ -147,7 +147,7 @@ async def f1_standings_py(season: int = CURRENT_YEAR) -> list[str]:
             try:
                 standings_table = data["MRData"]["StandingsTable"]
                 standings_json = standings_table["StandingsLists"][0]["DriverStandings"]
-            except (KeyError, IndexError):
+            except KeyError, IndexError:
                 return []
 
             standings_list = []

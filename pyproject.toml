@@ -4,7 +4,7 @@ version = "2.1.0-beta.1"
 description = "Yet Another Shitly Made Discord Bot."
 license = "AGPL-3.0-or-later"
 readme = "docs/README.md"
-requires-python = ">=3.12"
+requires-python = "3.14"
 dependencies = [
 	"discord-py>=2.6.4",
     "discord-py[voice]>=2.6.4",
@@ -44,9 +44,10 @@ build-backend = "hatchling.build"
 
 ## --- RUFF ---
 [tool.ruff]
+select = ["ALL"]
 # Ruff configuration for PEP8 compliance
 # See https://beta.ruff.rs/docs/settings/ for more information
-target-version = "py314"
+target-version = "py314" #  3.14159265359!
 extend-exclude = [
     "*.py.example",
 ]

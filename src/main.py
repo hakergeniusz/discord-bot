@@ -62,12 +62,14 @@ class MyBot(commands.Bot):
 
 bot = MyBot()
 
+
 def main() -> None:
     """Entry point for the bot."""
     try:
         bot.run(TOKEN)
     except KeyboardInterrupt:
         print("\nShutting down the bot...")
+
 
 if __name__ == "__main__":
     main()

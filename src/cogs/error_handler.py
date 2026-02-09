@@ -80,11 +80,11 @@ class ErrorHandler(commands.Cog):
             await asyncio.sleep(3)
             try:
                 await ctx.message.delete()
-            except (discord.Forbidden, discord.HTTPException):
+            except discord.Forbidden, discord.HTTPException:
                 pass
             try:
                 await creply.delete()
-            except (discord.Forbidden, discord.HTTPException):
+            except discord.Forbidden, discord.HTTPException:
                 pass
             return
 

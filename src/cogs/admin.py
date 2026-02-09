@@ -118,7 +118,7 @@ class OwnerCommands(commands.Cog):
         if ctx.message:
             try:
                 await ctx.message.delete()
-            except (discord.Forbidden, discord.HTTPException):
+            except discord.Forbidden, discord.HTTPException:
                 pass
         await chan.purge(limit=range_val)
 
@@ -131,7 +131,7 @@ class OwnerCommands(commands.Cog):
         await asyncio.sleep(3)
         try:
             await message.delete()
-        except (discord.Forbidden, discord.HTTPException):
+        except discord.Forbidden, discord.HTTPException:
             pass
 
     @admin_check_slash()
@@ -158,7 +158,7 @@ class OwnerCommands(commands.Cog):
                 "I am forbidden to create a webhook in this channel "
                 "(I don't have permissions)."
             )
-        except (discord.HTTPException, aiohttp.ClientError):
+        except discord.HTTPException, aiohttp.ClientError:  # works in python 3.14!
             await ctx.send("Failed to create webhook.")
 
     @commands.hybrid_command(name="delete_webhook", description="Deletes a webhook")
