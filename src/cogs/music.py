@@ -74,6 +74,7 @@ class Music(commands.Cog):
                 interaction.channel.send(f"Now playing: **{song.title}**"),
                 self.bot.loop,
             )
+            song.time_started = int(time.time())
         except Exception as e:
             print(f"Error playing next song: {e}")
             self._play_next(guild_id, interaction)
@@ -112,13 +113,11 @@ class Music(commands.Cog):
             await ctx.send("You already have a song in in the queue.")
             return
 
-        try:
-            if Song.requester_id == ctx.author.id:
-                await ctx.send("A song submitted by you is already playing.")
-                return
-        except AttributeError:
-            # If this gives an error, it means that nothing is playing
-            pass
+        current = self.current_song.get(guild_id)
+
+        if current and current.requester_id == ctx.author.id:
+            await ctx.send("A song submitted by you is already playing.")
+            return
 
         first_response = await ctx.send("Processing the video URL...")
         result = await asyncio.to_thread(download_youtube_video, youtube_url)
