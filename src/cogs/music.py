@@ -112,9 +112,13 @@ class Music(commands.Cog):
             await ctx.send("You already have a song in in the queue.")
             return
 
-        if Song.requester_id == ctx.author.id:
-            await ctx.send("A song submitted by you is already playing.")
-            return
+        try:
+            if Song.requester_id == ctx.author.id:
+                await ctx.send("A song submitted by you is already playing.")
+                return
+        except AttributeError:
+            # If this gives an error, it means that nothing is playing
+            pass
 
         first_response = await ctx.send("Processing the video URL...")
         result = await asyncio.to_thread(download_youtube_video, youtube_url)
@@ -196,7 +200,7 @@ class Music(commands.Cog):
 
         try:
             await ctx.guild.voice_client.disconnect()
-        except (discord.Forbidden, discord.HTTPException):
+        except discord.Forbidden, discord.HTTPException:
             await ctx.send("Failed to leave the voice channel.", ephemeral=True)
             return
         await ctx.send("Left the voice channel.")
@@ -272,9 +276,7 @@ class Music(commands.Cog):
             color=discord.Color.blue(),
         )
         currently_at = format_duration(int(time.time() - song.time_started))
-        embed.add_field(
-            name="Currently at", value=currently_at, inline=True
-        )
+        embed.add_field(name="Currently at", value=currently_at, inline=True)
         embed.add_field(name="Duration", value=song.duration, inline=True)
         embed.add_field(
             name="Requested by", value=f"<@{song.requester_id}>", inline=True
