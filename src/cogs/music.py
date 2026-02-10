@@ -70,8 +70,20 @@ class Music(commands.Cog):
                 music,
                 after=lambda e: self._play_next(guild_id, interaction),
             )
+            yt_url = f"https://www.youtube.com/watch?v={song.video_id}"
+            embed = discord.Embed(
+                title="Starting playing",
+                description=f"**[{song.title}]({yt_url})**",
+                color=discord.Color.blue(),
+            )
+            embed.add_field(name="Duration", value=song.duration, inline=True)
+            embed.add_field(
+                name="Requested by", value=f"<@{song.requester_id}>", inline=True
+            )
+            if song.thumbnail:
+                embed.set_thumbnail(url=song.thumbnail)
             asyncio.run_coroutine_threadsafe(
-                interaction.channel.send(f"Now playing: **{song.title}**"),
+                interaction.channel.send(embed=embed),
                 self.bot.loop,
             )
             song.time_started = int(time.time())
