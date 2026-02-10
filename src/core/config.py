@@ -19,15 +19,23 @@ import datetime
 import os
 from pathlib import Path
 
+import yaml
 from dotenv import load_dotenv
 
 load_dotenv()
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 TMP_BASE = PROJECT_ROOT / "tmp"
+CONFIG_PATH = PROJECT_ROOT / "config.yaml"
 
-OWNER_ID = int(os.environ.get("DISCORD_OWNER_ID", "0"))
 TOKEN = os.environ.get("DISCORD_BOT_TOKEN", "")
+if CONFIG_PATH.exists():
+    CONFIG_DATA = yaml.safe_load(CONFIG_PATH.read_text())
+    if CONFIG_DATA.get("admins", []):
+        ADMINS = list(CONFIG_DATA.get("admins"))
+    else:
+        ADMINS = []
+    PREFIX = CONFIG_DATA.get("prefix", "!")
 
 RICKROLL_GIF_URL = "https://tenor.com/view/rickroll-roll-rick-never-gonna-give-you-up-never-gonna-gif-22954713"  # noqa: E501
 

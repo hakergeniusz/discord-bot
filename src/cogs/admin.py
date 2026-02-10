@@ -74,20 +74,20 @@ class StatusButtons(discord.ui.View):
         print("Status set to Invisible")
 
 
-class OwnerCommands(commands.Cog):
-    """Cog for commands restricted to the bot owner."""
+class AdminCommands(commands.Cog):
+    """Cog for commands restricted to the admins."""
 
     def __init__(self, bot: commands.Bot) -> None:
-        """Initialize the OwnerCommands cog."""
+        """Initialize the AdminCommands cog."""
         self.bot = bot
 
     @admin_check()
     @commands.hybrid_command(
         name="shutdown",
-        description="[OWNER ONLY] Turns off the bot",
+        description="[ADMIN ONLY] Turns off the bot",
     )
     async def shutdown(self, ctx: commands.Context) -> None:
-        """Turns off the bot. Restricted to owner."""
+        """Turns off the bot. Restricted to admins."""
         await ctx.send("Shutting down the bot...")
         print("Shutting down the bot...")
         await self.bot.close()
@@ -164,7 +164,7 @@ class OwnerCommands(commands.Cog):
     @commands.hybrid_command(name="delete_webhook", description="Deletes a webhook")
     @app_commands.describe(webhook="Webhook link.")
     async def delete_webhook(self, ctx: commands.Context, webhook: str) -> None:
-        """Deletes a webhook from the current channel."""
+        """Deletes a webhook from the a channel."""
         async with aiohttp.ClientSession() as session:
             async with session.delete(webhook) as response:
                 if response.status in (401, 404):
@@ -181,5 +181,5 @@ class OwnerCommands(commands.Cog):
 
 
 async def setup(bot: commands.Bot) -> None:
-    """Add OwnerCommands cog to the bot."""
-    await bot.add_cog(OwnerCommands(bot))
+    """Add AdminCommands cog to the bot."""
+    await bot.add_cog(AdminCommands(bot))

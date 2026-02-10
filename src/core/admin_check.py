@@ -21,7 +21,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from core.config import OWNER_ID
+from core.config import ADMINS
 
 
 def admin_check() -> commands.check:
@@ -39,10 +39,13 @@ def admin_check() -> commands.check:
     async def predicate(ctx: commands.Context) -> bool:
         user = getattr(ctx, "author", getattr(ctx, "user", None))
 
-        if user and user.id == OWNER_ID:
+        if user and user.id in ADMINS:
             return True
 
-        msg = "You don't have required permissions to do that."
+        if ADMINS == []:
+            msg = "Admin commands have been disabled."
+        else:
+            msg = "You don't have required permissions to do that."
         if hasattr(ctx, "send"):
             message = await ctx.send(msg)
             await asyncio.sleep(3)
@@ -75,7 +78,7 @@ def admin_check_slash() -> commands.check:
     """
 
     async def predicate(interaction: discord.Interaction) -> bool:
-        if interaction.user.id == OWNER_ID:
+        if interaction.user.id in ADMINS:
             return True
         await interaction.response.send_message(
             "You don't have required permissions to do that.", ephemeral=True

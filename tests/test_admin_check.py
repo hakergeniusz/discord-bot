@@ -20,7 +20,7 @@ import pytest
 
 from src.core.admin_check import admin_check, admin_check_slash
 
-TEST_OWNER_ID = 123456789
+TEST_ADMIN_ID = 123456789
 
 
 @pytest.fixture
@@ -44,11 +44,11 @@ def mock_interaction() -> AsyncMock:
 
 
 @pytest.mark.asyncio
-async def test_admin_check_owner_success(mock_ctx: AsyncMock) -> None:
-    """Test successful admin check for owner."""
-    mock_ctx.author.id = TEST_OWNER_ID
+async def test_admin_check_success(mock_ctx: AsyncMock) -> None:
+    """Test successful admin check."""
+    mock_ctx.author.id = TEST_ADMIN_ID
 
-    with patch("src.core.admin_check.OWNER_ID", TEST_OWNER_ID):
+    with patch("src.core.admin_check.ADMINS", [TEST_ADMIN_ID]):
         with patch("discord.ext.commands.check") as mock_check:
             admin_check()
             predicate = mock_check.call_args[0][0]
@@ -60,11 +60,11 @@ async def test_admin_check_owner_success(mock_ctx: AsyncMock) -> None:
 
 
 @pytest.mark.asyncio
-async def test_admin_check_not_owner_with_send(mock_ctx: AsyncMock) -> None:
-    """Test admin check for non-owner with message sending."""
+async def test_admin_check_not_admin_with_send(mock_ctx: AsyncMock) -> None:
+    """Test admin check for non-admin with message sending."""
     mock_ctx.author.id = 999
 
-    with patch("src.core.admin_check.OWNER_ID", TEST_OWNER_ID):
+    with patch("src.core.admin_check.ADMINS", [TEST_ADMIN_ID]):
         with patch("asyncio.sleep", return_value=None):
             with patch("discord.ext.commands.check") as mock_check:
                 admin_check()
@@ -81,13 +81,13 @@ async def test_admin_check_not_owner_with_send(mock_ctx: AsyncMock) -> None:
 
 
 @pytest.mark.asyncio
-async def test_admin_check_not_owner_no_send(mock_ctx: AsyncMock) -> None:
-    """Test admin check for non-owner without message sending."""
+async def test_admin_check_not_admin_no_send(mock_ctx: AsyncMock) -> None:
+    """Test admin check for non-admin without message sending."""
     mock_ctx.author.id = 999
     del mock_ctx.send
     mock_ctx.response = AsyncMock()
 
-    with patch("src.core.admin_check.OWNER_ID", TEST_OWNER_ID):
+    with patch("src.core.admin_check.ADMINS", [TEST_ADMIN_ID]):
         with patch("discord.ext.commands.check") as mock_check:
             admin_check()
             predicate = mock_check.call_args[0][0]
@@ -101,11 +101,11 @@ async def test_admin_check_not_owner_no_send(mock_ctx: AsyncMock) -> None:
 
 
 @pytest.mark.asyncio
-async def test_admin_check_slash_owner_success(mock_interaction: AsyncMock) -> None:
-    """Test successful slash admin check for owner."""
-    mock_interaction.user.id = TEST_OWNER_ID
+async def test_admin_check_slash_admin_success(mock_interaction: AsyncMock) -> None:
+    """Test successful slash admin check for admin."""
+    mock_interaction.user.id = TEST_ADMIN_ID
 
-    with patch("src.core.admin_check.OWNER_ID", TEST_OWNER_ID):
+    with patch("src.core.admin_check.ADMINS", [TEST_ADMIN_ID]):
         with patch("discord.app_commands.check") as mock_check:
             admin_check_slash()
             predicate = mock_check.call_args[0][0]
@@ -117,11 +117,11 @@ async def test_admin_check_slash_owner_success(mock_interaction: AsyncMock) -> N
 
 
 @pytest.mark.asyncio
-async def test_admin_check_slash_not_owner(mock_interaction: AsyncMock) -> None:
-    """Test slash admin check for non-owner."""
+async def test_admin_check_slash_not_admin(mock_interaction: AsyncMock) -> None:
+    """Test slash admin check for non-admin."""
     mock_interaction.user.id = 999
 
-    with patch("src.core.admin_check.OWNER_ID", TEST_OWNER_ID):
+    with patch("src.core.admin_check.ADMINS", [TEST_ADMIN_ID]):
         with patch("discord.app_commands.check") as mock_check:
             admin_check_slash()
             predicate = mock_check.call_args[0][0]

@@ -24,18 +24,27 @@ You must have following installed on your computer for this bot to work correctl
 1. Download all files from this repository with `git clone -b main https://github.com/hakergeniusz/discord-bot.git`.
 > NOTE: If you want `latest` branch with new features (also broken bot), use `git clone -b latest https://github.com/hakergeniusz/discord-bot.git`.
 2. Open the folder with `cd discord-bot`.
-3. Create and fill up `.env` file.
+3. Create and fill up `.env` and `config.yaml` file.
 4. Run `uv sync` to install all required libraries.
 
-> **Note on `.env` values:**
+> **`.env` values:**
 > ```
 > DISCORD_BOT_TOKEN=YOUR_BOT_TOKEN
-> DISCORD_OWNER_ID=YOUR_DISCORD_ID
 > GEMINI_API_KEY=GOOGLE_AI_STUDIO_KEY
 > ```
 > * `DISCORD_BOT_TOKEN`: Your Discord bot token from Discord Developer Program.
-> * `DISCORD_OWNER_ID`: Your Discord user ID or other account that you want it to have all permissions.
 > * `GEMINI_API_KEY`: Your Google AI Studio API key (obtainable for free on aistudio.google.com).
+
+> **Example `config.yaml` file:**
+> ```
+> prefix: "!"
+> admins:
+>    - 123456789
+>    - 987654321
+> ```
+> * `prefix`: The prefix for bot commands. Default is `!`
+> * `admins`: List for Discord user IDs that have access to admin commands.
+
 
 ---
 
@@ -47,7 +56,7 @@ uv run bot
 
 ## 🐧 System Compatibility
 Bot is actively developed on **Arch Linux** and hosted on **Debian 13**. Bot should work on most Linux distributions.
-> **Note:** No support or instructions will be provided for Windows or macOS.
+> **Note:** No support or instructions will be provided for Windows or macOS (macOS may work due to UNIX compatibility).
 
 ---
 
