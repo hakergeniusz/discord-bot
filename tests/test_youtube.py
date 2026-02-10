@@ -20,8 +20,8 @@ from src.core.youtube import download_youtube_video, get_yt_video_id
 
 def test_get_yt_video_id() -> None:
     """Test YouTube video ID extraction."""
-    url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-    assert get_yt_video_id(url) == "dQw4w9WgXcQ"
+    url = "https://www.youtube.com/watch?v=NonExisting"
+    assert get_yt_video_id(url) == "NonExisting"
 
 
 @patch("src.core.youtube.Path.exists")
@@ -30,7 +30,7 @@ def test_download_youtube_video_cached(
     mock_ydl: MagicMock, mock_exists: MagicMock
 ) -> None:
     """Test downloading a video that is already cached."""
-    video_id = "dQw4w9WgXcQ"
+    video_id = "NonExisting"
     url = f"https://www.youtube.com/watch?v={video_id}"
     cache_path = f"/tmp/{video_id}.opus"
 
