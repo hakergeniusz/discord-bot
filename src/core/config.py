@@ -36,6 +36,9 @@ if CONFIG_PATH.exists():
     else:
         ADMINS = []
     PREFIX = CONFIG_DATA.get("prefix", "!")
+else:
+    ADMINS = []
+    PREFIX = "!"
 
 RICKROLL_GIF_URL = "https://tenor.com/view/rickroll-roll-rick-never-gonna-give-you-up-never-gonna-gif-22954713"  # noqa: E501
 
