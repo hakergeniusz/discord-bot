@@ -29,7 +29,7 @@ URL_REGEX = (
     r"([\w-]{11})"
 )
 
-ydl_opts = {
+YDL_OPTS = {
     "outtmpl": "/tmp/%(id)s.%(ext)s",
     "format": "bestaudio/best",
     "noplaylist": True,
@@ -144,7 +144,7 @@ def download_youtube_video(
             pass
 
     try:
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        with yt_dlp.YoutubeDL(YDL_OPTS) as ydl: # type: ignore
             if video_path.exists():
                 info = ydl.extract_info(url, download=False)
             else:

@@ -16,6 +16,7 @@
 """Module for verifying if a URL points to a valid image."""
 
 import aiohttp
+from aiohttp import ClientTimeout
 
 IMAGE_CONTENT_TYPES = [
     "image/jpeg",
@@ -40,7 +41,8 @@ async def image_checker(session: aiohttp.ClientSession, image_link: str) -> bool
     if not image_link:
         return False
     try:
-        async with session.head(image_link, timeout=3) as response:
+        timeout = ClientTimeout(total=3)
+        async with session.head(image_link, timeout=timeout) as response:
             if response.status != 200:
                 return False
             content_type = response.headers.get("Content-Type", "").lower()

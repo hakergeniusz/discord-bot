@@ -24,13 +24,10 @@ from discord.ext import commands
 from core.config import ADMINS
 
 
-def admin_check() -> commands.check:
+def admin_check() -> commands.check: # type: ignore
     """Checks does the author of the context (ctx) have admin permissions.
 
     Works with prefix and hybrid commands. Does not work with slash only commands.
-
-    Returns:
-        commands.check: A decorator that can be used to protect bot commands.
 
     Implementation:
         Add @admin_check() at start of command's code.
@@ -58,14 +55,14 @@ def admin_check() -> commands.check:
             except discord.Forbidden, discord.HTTPException:
                 pass
         else:
-            await ctx.response.send_message(msg, ephemeral=True)
+            await ctx.interaction.response.send_message(msg, ephemeral=True)
 
         return False
 
     return commands.check(predicate)
 
 
-def admin_check_slash() -> commands.check:
+def admin_check_slash() -> commands.check: # type: ignore
     """Checks does the author of the interaction have admin permissions.
 
     Works only with slash commands.
