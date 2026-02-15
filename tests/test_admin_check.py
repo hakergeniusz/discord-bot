@@ -84,8 +84,13 @@ async def test_admin_check_not_admin_with_send(mock_ctx: AsyncMock) -> None:
 async def test_admin_check_not_admin_no_send(mock_ctx: AsyncMock) -> None:
     """Test admin check for non-admin without message sending."""
     mock_ctx.author.id = 999
-    del mock_ctx.send
-    mock_ctx.response = AsyncMock()
+
+    if hasattr(mock_ctx, "send"):
+        del mock_ctx.send
+
+    mock_interaction = AsyncMock()
+    mock_ctx.interaction = mock_interaction
+    resp_mock = mock_interaction.response
 
     with patch("src.core.admin_check.ADMINS", [TEST_ADMIN_ID]):
         with patch("discord.ext.commands.check") as mock_check:
@@ -95,7 +100,7 @@ async def test_admin_check_not_admin_no_send(mock_ctx: AsyncMock) -> None:
             result = await predicate(mock_ctx)
 
             assert result is False
-            mock_ctx.response.send_message.assert_called_once_with(
+            resp_mock.send_message.assert_called_once_with(
                 "You don't have required permissions to do that.", ephemeral=True
             )
 

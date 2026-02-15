@@ -144,7 +144,7 @@ def download_youtube_video(
             pass
 
     try:
-        with yt_dlp.YoutubeDL(YDL_OPTS) as ydl: # type: ignore
+        with yt_dlp.YoutubeDL(YDL_OPTS) as ydl:  # type: ignore
             if video_path.exists():
                 info = ydl.extract_info(url, download=False)
             else:
