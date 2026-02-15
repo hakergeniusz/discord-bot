@@ -239,7 +239,7 @@ class Music(commands.Cog):
             description=queue_list,
             color=discord.Color.blue(),
         )
-
+        embed.set_footer(text="Tip: use /music nowplaying to show currently playing song.") # noqa: E501
         await ctx.send(embed=embed)
 
     @admin_check()
