@@ -106,7 +106,7 @@ class Music(commands.Cog):
     async def play(
         self,
         ctx: commands.Context,
-        youtube_url: str = "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        youtube_url: str = "https://www.youtube.com/watch?v=fpQHabt6e-w",
     ) -> None:
         """Plays music from a YouTube URL in a voice channel."""
         await ctx.defer()
