@@ -24,7 +24,7 @@ from discord.ext import commands
 from core.config import ADMINS
 
 
-def admin_check() -> commands.check: # type: ignore
+def admin_check() -> commands.check:  # type: ignore
     """Checks does the author of the context (ctx) have admin permissions.
 
     Works with prefix and hybrid commands. Does not work with slash only commands.
@@ -62,7 +62,7 @@ def admin_check() -> commands.check: # type: ignore
     return commands.check(predicate)
 
 
-def admin_check_slash() -> commands.check: # type: ignore
+def admin_check_slash() -> commands.check:  # type: ignore
     """Checks does the author of the interaction have admin permissions.
 
     Works only with slash commands.
