@@ -46,10 +46,11 @@ def admin_check() -> commands.check:  # type: ignore
         if hasattr(ctx, "send"):
             message = await ctx.send(msg)
             await asyncio.sleep(3)
-            try:
-                await ctx.message.delete()
-            except discord.Forbidden, discord.HTTPException:
-                pass
+            if ctx.message:
+                try:
+                    await ctx.message.delete()
+                except discord.Forbidden, discord.HTTPException:
+                    pass
             try:
                 await message.delete()
             except discord.Forbidden, discord.HTTPException:

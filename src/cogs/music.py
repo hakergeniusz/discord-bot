@@ -49,7 +49,12 @@ class Music(commands.Cog):
         self.queues = {}
         self.current_song = {}
 
-    def _play_next(self, guild_id: int, interaction: discord.Interaction) -> None:
+    def _play_next(
+        self,
+        guild_id: int,
+        interaction: discord.Interaction | commands.Context,
+        retry_count: int = 0,
+    ) -> None:
         """Plays the next song in the queue for a guild."""
         if guild_id not in self.queues or not self.queues[guild_id]:
             self.current_song[guild_id] = None
@@ -68,7 +73,7 @@ class Music(commands.Cog):
             music = discord.FFmpegPCMAudio(song.path)
             vc_chan.play(
                 music,
-                after=lambda e: self._play_next(guild_id, interaction),
+                after=lambda e: self._play_next(guild_id, interaction, 0),
             )
             yt_url = f"https://www.youtube.com/watch?v={song.video_id}"
             embed = discord.Embed(
@@ -89,7 +94,10 @@ class Music(commands.Cog):
             song.time_started = int(time.time())
         except Exception as e:
             print(f"Error playing next song: {e}")
-            self._play_next(guild_id, interaction)
+            if retry_count < 3:
+                self._play_next(guild_id, interaction, retry_count + 1)
+            else:
+                print(f"Max retries reached for guild {guild_id}. Stopping playback.")
 
     @commands.hybrid_group(name="music", invoke_without_command=True)  # type: ignore
     async def music(self, ctx: commands.Context) -> None:
@@ -217,6 +225,7 @@ class Music(commands.Cog):
         await ctx.send("Left the voice channel.")
         print(f"Leaving {ctx.channel.name} due to request of {ctx.author.name}")
 
+    @commands.guild_only()
     @music.command(name="queue", description="Shows the current music queue")
     async def queue(self, ctx: commands.Context) -> None:
         """Shows the current music queue."""
