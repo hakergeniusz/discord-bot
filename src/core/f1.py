@@ -74,6 +74,61 @@ async def race_result(
             return circuit_name, results
 
 
+async def f1_qualifying(
+    season: int, roundnumber: int
+) -> tuple[str | None, list[str]]:
+    """Gives the result of an F1 qualifying session using Jolpica API.
+
+    Args:
+        season (int): The season to fetch results for.
+        roundnumber (int): Race number in F1 calendar to check.
+
+    Returns:
+        tuple[str | None, list[str]]: Circuit's name and a list with session results.
+    """
+    async with aiohttp.ClientSession() as session:
+        async with session.get(
+            f"https://api.jolpi.ca/ergast/f1/{season}/{roundnumber}/qualifying/"
+        ) as response:
+            if response.status in range(400, 499):
+                return None, []
+
+            response = await response.json()
+            response = response["MRData"]["RaceTable"]["Races"]
+            if response == []:
+                return None, []
+            circuit_name = response[0]["raceName"]
+            results = []
+            for result in response[0]["QualifyingResults"]:
+                driver_name = (
+                    result["Driver"]["givenName"] + " " + result["Driver"]["familyName"]
+                )
+                team = result["Constructor"]["name"]
+                session_out = identify_qualifying_session(result)
+                set_time = result[session_out]
+                results.append(
+                    f"{result['position']}. {driver_name} ({team}) - {session_out} {set_time}"
+                )
+
+            return circuit_name, results
+
+
+def identify_qualifying_session(driver_data: dict) -> str:
+    """Identifies the furthest qualifying session reached by a driver.
+
+    Args:
+        driver_data (dict): The driver's qualifying data from the API.
+
+    Returns:
+        str: The session name ("Q1", "Q2", or "Q3").
+    """
+    if "Q3" in driver_data:
+        return "Q3"
+    if "Q2" in driver_data:
+        return "Q2"
+    return "Q1"
+
+
 async def f1_season_calendar(season: int) -> list[str]:
     """Gives the F1 calendar using Jolpica API.
 

@@ -18,7 +18,82 @@ from unittest.mock import AsyncMock, patch
 import pytest
 
 from src.core.config import CURRENT_YEAR
-from src.core.f1 import f1_season_calendar, f1_standings_py, race_result
+from src.core.f1 import (
+    f1_qualifying,
+    f1_season_calendar,
+    f1_standings_py,
+    identify_qualifying_session,
+    race_result,
+)
+
+
+@pytest.mark.asyncio
+async def test_f1_qualifying_success() -> None:
+    """Test successful fetching of qualifying results."""
+    mock_data = {
+        "MRData": {
+            "RaceTable": {
+                "Races": [
+                    {
+                        "raceName": "Australian Grand Prix",
+                        "QualifyingResults": [
+                            {
+                                "position": "1",
+                                "Driver": {
+                                    "givenName": "George",
+                                    "familyName": "Russell",
+                                },
+                                "Constructor": {"name": "Mercedes"},
+                                "Q1": "1:19.507",
+                                "Q2": "1:18.934",
+                                "Q3": "1:18.518",
+                            },
+                            {
+                                "position": "11",
+                                "Driver": {
+                                    "givenName": "Nico",
+                                    "familyName": "Hülkenberg",
+                                },
+                                "Constructor": {"name": "Haas"},
+                                "Q1": "1:21.024",
+                                "Q2": "1:20.303",
+                            },
+                            {
+                                "position": "17",
+                                "Driver": {
+                                    "givenName": "Fernando",
+                                    "familyName": "Alonso",
+                                },
+                                "Constructor": {"name": "Aston Martin"},
+                                "Q1": "1:21.969",
+                            },
+                        ],
+                    }
+                ]
+            }
+        }
+    }
+
+    with patch("aiohttp.ClientSession.get") as mock_get:
+        mock_response = AsyncMock()
+        mock_response.status = 200
+        mock_response.json.return_value = mock_data
+        mock_get.return_value.__aenter__.return_value = mock_response
+
+        gp_name, results = await f1_qualifying(2026, 1)
+
+        assert gp_name == "Australian Grand Prix"
+        assert len(results) == 3
+        assert "1. George Russell (Mercedes) - Q3" in results[0]
+        assert "11. Nico Hülkenberg (Haas) - Q2" in results[1]
+        assert "17. Fernando Alonso (Aston Martin) - Q1" in results[2]
+
+
+def test_identify_qualifying_session() -> None:
+    """Test identifying the furthest qualifying session."""
+    assert identify_qualifying_session({"Q1": "1:20", "Q2": "1:19", "Q3": "1:18"}) == "Q3"
+    assert identify_qualifying_session({"Q1": "1:20", "Q2": "1:19"}) == "Q2"
+    assert identify_qualifying_session({"Q1": "1:20"}) == "Q1"
 
 
 @pytest.mark.asyncio

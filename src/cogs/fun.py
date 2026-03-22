@@ -23,7 +23,7 @@ from discord.ext import commands
 
 from core.config import CURRENT_YEAR, RICKROLL_GIF_URL, TMP_BASE
 from core.cowsay import cowsay
-from core.f1 import f1_season_calendar, f1_standings_py, race_result
+from core.f1 import f1_qualifying, f1_season_calendar, f1_standings_py, race_result
 from core.howmany import change_file
 
 
@@ -64,6 +64,39 @@ class F1Commands(commands.Cog):
         results = "\n".join(results_list)
         response_f1 = discord.Embed(
             title=f"F1 {grand_prix_name} ({season})",
+            description=results,
+            color=discord.Color.red(),
+        )
+        await ctx.send(embed=response_f1)
+
+    @commands.hybrid_command(
+        name="f1_qualifying",
+        description="Outputs the result of an F1 qualifying session",
+    )
+    @app_commands.describe(
+        season="Season of the qualifying you want the result of",
+        roundnumber="Round number of the qualifying asked. You can get one with /f1_calendar",
+    )
+    # Remember to change *roundnumber* if F1 introduces an F1 calendar
+    # with more than 24 rounds.
+    @app_commands.checks.cooldown(1, 1.5, key=lambda i: (i.guild_id, i.user.id))
+    async def f1_qualifying_result(
+        self,
+        ctx: commands.Context,
+        season: commands.Range[int, 1950, CURRENT_YEAR],
+        roundnumber: commands.Range[int, 1, 24],
+    ) -> None:
+        """Gives the result of an F1 qualifying asked for."""
+        await ctx.defer()
+        grand_prix_name, results_list = await f1_qualifying(
+            season=season, roundnumber=roundnumber
+        )
+        if grand_prix_name is None or results_list == []:
+            await ctx.send(f"Could not find R{roundnumber} in {season} F1 season.")
+            return
+        results = "\n".join(results_list)
+        response_f1 = discord.Embed(
+            title=f"F1 Qualifying {grand_prix_name} ({season})",
             description=results,
             color=discord.Color.red(),
         )
