@@ -75,7 +75,7 @@ class F1Commands(commands.Cog):
     )
     @app_commands.describe(
         season="Season of the qualifying you want the result of",
-        roundnumber="Round number of the qualifying asked. You can get one with /f1_calendar",
+        roundnumber="Round number. You can get one with /f1_calendar",
     )
     # Remember to change *roundnumber* if F1 introduces an F1 calendar
     # with more than 24 rounds.

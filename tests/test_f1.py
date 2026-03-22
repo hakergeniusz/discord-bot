@@ -91,7 +91,9 @@ async def test_f1_qualifying_success() -> None:
 
 def test_identify_qualifying_session() -> None:
     """Test identifying the furthest qualifying session."""
-    assert identify_qualifying_session({"Q1": "1:20", "Q2": "1:19", "Q3": "1:18"}) == "Q3"
+    assert (
+        identify_qualifying_session({"Q1": "1:20", "Q2": "1:19", "Q3": "1:18"}) == "Q3"
+    )
     assert identify_qualifying_session({"Q1": "1:20", "Q2": "1:19"}) == "Q2"
     assert identify_qualifying_session({"Q1": "1:20"}) == "Q1"
 

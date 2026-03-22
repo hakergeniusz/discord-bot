@@ -107,7 +107,8 @@ async def f1_qualifying(
                 session_out = identify_qualifying_session(result)
                 set_time = result[session_out]
                 results.append(
-                    f"{result['position']}. {driver_name} ({team}) - {session_out} {set_time}"
+                    f"{result['position']}. {driver_name} ({team}) - "
+                    f"{session_out} {set_time}"
                 )
 
             return circuit_name, results
