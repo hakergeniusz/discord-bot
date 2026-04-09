@@ -219,7 +219,7 @@ class Music(commands.Cog):
 
         try:
             await ctx.guild.voice_client.disconnect()
-        except discord.Forbidden, discord.HTTPException:
+        except (discord.Forbidden, discord.HTTPException):
             await ctx.send("Failed to leave the voice channel.", ephemeral=True)
             return
         await ctx.send("Left the voice channel.")

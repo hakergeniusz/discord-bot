@@ -49,11 +49,11 @@ def admin_check() -> commands.check:  # type: ignore
             if ctx.message:
                 try:
                     await ctx.message.delete()
-                except discord.Forbidden, discord.HTTPException:
+                except (discord.Forbidden, discord.HTTPException):
                     pass
             try:
                 await message.delete()
-            except discord.Forbidden, discord.HTTPException:
+            except (discord.Forbidden, discord.HTTPException):
                 pass
         else:
             await ctx.interaction.response.send_message(msg, ephemeral=True)
