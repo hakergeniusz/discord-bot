@@ -164,7 +164,7 @@ class Utility(commands.Cog):
     @app_commands.describe(prompt="Message to the AI")
     @commands.cooldown(1, 15, commands.BucketType.member)
     async def ai(self, ctx: commands.Context, *, prompt: str) -> None:
-        """AI that responds to user questions using Gemma 3."""
+        """AI that responds to user questions using Gemma 4."""
         await ctx.defer()
         print(f"{ctx.author.name} says: {prompt}")
         full_response = ""

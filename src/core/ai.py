@@ -23,7 +23,7 @@ gemini_client = genai.Client().aio
 
 
 async def process_prompt(message: str) -> AsyncGenerator[str, None]:
-    """Sends asynchronously a prompt to Gemma 3 27B and yields chunks of text.
+    """Sends asynchronously a prompt to Gemma 4 26B and yields chunks of text.
 
     Args:
         message (str): The prompt from the user.
@@ -33,7 +33,7 @@ async def process_prompt(message: str) -> AsyncGenerator[str, None]:
     """
     response = await gemini_client.models.generate_content_stream(
         contents=f"{message}",
-        model="gemma-3-27b-it",
+        model="gemma-4-26b-a4b-it",
     )
     async for chunk in response:
         if chunk.text:
