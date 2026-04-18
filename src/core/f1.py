@@ -74,9 +74,7 @@ async def race_result(
             return circuit_name, results
 
 
-async def f1_qualifying(
-    season: int, roundnumber: int
-) -> tuple[str | None, list[str]]:
+async def f1_qualifying(season: int, roundnumber: int) -> tuple[str | None, list[str]]:
     """Gives the result of an F1 qualifying session using Jolpica API.
 
     Args:
