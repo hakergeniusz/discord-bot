@@ -11,3 +11,5 @@ test.py
 .zed/
 uv.lock/
 config.yaml
+gha-creds-*.json
+GEMINI.md
