@@ -55,7 +55,7 @@ uv run bot
 ```
 
 ## 🐧 System Compatibility
-Bot is actively developed on **Arch Linux** and hosted on **Debian 13**. Bot should work on most Linux distributions.
+Bot is developed on **Arch Linux** and hosted on **Debian 13**. Bot should work on most Linux distributions.
 > **Note:** No support or instructions will be provided for Windows or macOS (macOS may work due to UNIX compatibility).
 
 ---
