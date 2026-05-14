@@ -250,6 +250,11 @@ class Meme(commands.Cog):
             "https://tenor.com/view/linus-linus-torvalds-nvidia-fuck-you-gif-18053606",
             mention_author=False,
         )
+    
+    @commands.hybrid_command(name="archbtw", description="Do you use Arch Linux?")
+    async def archbtw(self, ctx: commands.Context) -> None:
+        """Says "I use Arch btw" meme"""
+        await ctx.reply("I use Arch btw")
 
 
 async def setup(bot: commands.Bot) -> None:
