@@ -1,26 +1,35 @@
-# Copyright (C) 2026 hakergeniusz
+# Copyright (c) 2025-2026 hakergeniusz
 #
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the European
+# Commission - subsequent versions of the EUPL (the "Licence"); You may not use this work
+# except in compliance with the Licence.
 #
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Affero General Public License for more details.
+# You may obtain a copy of the Licence at:
+# https://joinup.ec.europa.eu/software/page/eupl
 #
-# You should have received a copy of the GNU Affero General Public License
-# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+# Unless required by applicable law or agreed to in writing, software distributed under
+# the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
+# ANY KIND, either express or implied. See the Licence for the specific language
+# governing permissions and limitations under the Licence.
 
 """Main entry point for the Discord bot. Handles bot initialization and cog loading."""
 
+import asyncio
+import contextlib
+import sys
 from pathlib import Path
 
 import discord
 from discord.ext import commands
 
 from core.config import PREFIX, TOKEN
+from core.logger import get_logger
+
+logger = get_logger(__name__)
+
+# Use ProactorEventLoop on Windows for better compatibility with subprocesses/FFmpeg
+if sys.platform == "win32":
+    asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
 
 
 class MyBot(commands.Bot):
@@ -39,9 +48,9 @@ class MyBot(commands.Bot):
 
     async def load_cogs(self) -> None:
         """Walk through the cogs directory and load all Python files as extensions."""
-        cogs_path = Path(__file__).resolve().parent / "cogs"
-        count = 0
-        for path in cogs_path.rglob("*.py"):
+        cogs_path: Path = Path(__file__).resolve().parent / "cogs"  # noqa: ASYNC240
+        count: int = 0
+        for path in cogs_path.rglob("*.py"):  # noqa: ASYNC240
             if path.name == "__init__.py":
                 continue
 
@@ -49,15 +58,15 @@ class MyBot(commands.Bot):
             module_path = ".".join(relative_path.with_suffix("").parts)
             try:
                 await self.load_extension(module_path)
-                print(f"Successfully loaded: {module_path}")
                 count += 1
-            except Exception as e:
-                print(f"Failed to load {module_path}: {e}")
+            except Exception:
+                logger.exception("Failed to load %s", module_path)
 
         if count == 0:
-            print("Could not load any cogs. ")
-            raise RuntimeError("Could not load any cogs.")
-        print(f"--- Finished loading {count} cogs ---")
+            msg = "Could not load any cogs."
+            logger.error(msg)
+            raise RuntimeError(msg)
+        logger.info("--- Finished loading %d cogs ---", count)
 
 
 bot = MyBot()
@@ -65,10 +74,8 @@ bot = MyBot()
 
 def main() -> None:
     """Entry point for the bot."""
-    try:
+    with contextlib.suppress(KeyboardInterrupt):
         bot.run(TOKEN)
-    except KeyboardInterrupt:
-        print("\nShutting down the bot...")
 
 
 if __name__ == "__main__":

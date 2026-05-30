@@ -12,21 +12,22 @@
 # ANY KIND, either express or implied. See the Licence for the specific language
 # governing permissions and limitations under the Licence.
 
-"""Unit tests for syntax validation of source files."""
+"""Module for configuring the bot's logging system."""
 
-import py_compile
-from pathlib import Path
-
-import pytest
+import logging
+import sys
 
 
-def get_python_files() -> list[str]:
-    """Get all Python files in the src directory."""
-    src_dir = Path(__file__).resolve().parent.parent / "src"
-    return [str(path) for path in src_dir.rglob("*.py")]
-
-
-@pytest.mark.parametrize("filepath", get_python_files())
-def test_python_syntax(filepath: str) -> None:
-    """Attempt to compile each file to check for syntax errors."""
-    py_compile.compile(filepath, doraise=True)
+def get_logger(name: str) -> logging.Logger:
+    """Creates and returns a configured logger."""
+    logger = logging.getLogger(name)
+    logger.propagate = False
+    if not logger.handlers:
+        handler = logging.StreamHandler(sys.stdout)
+        formatter = logging.Formatter(
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        )
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+        logger.setLevel(logging.INFO)
+    return logger

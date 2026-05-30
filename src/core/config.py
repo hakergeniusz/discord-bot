@@ -1,22 +1,22 @@
-# Copyright (C) 2026 hakergeniusz
+# Copyright (c) 2025-2026 hakergeniusz
 #
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the European
+# Commission - subsequent versions of the EUPL (the "Licence"); You may not use this work
+# except in compliance with the Licence.
 #
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Affero General Public License for more details.
+# You may obtain a copy of the Licence at:
+# https://joinup.ec.europa.eu/software/page/eupl
 #
-# You should have received a copy of the GNU Affero General Public License
-# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+# Unless required by applicable law or agreed to in writing, software distributed under
+# the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
+# ANY KIND, either express or implied. See the Licence for the specific language
+# governing permissions and limitations under the Licence.
 
 """Configuration module for the bot, including secrets and global constants."""
 
 import datetime
 import os
+import tempfile
 from pathlib import Path
 
 import yaml
@@ -25,24 +25,24 @@ from dotenv import load_dotenv
 load_dotenv()
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-TMP_BASE = PROJECT_ROOT / "tmp"
+TMP_BASE = Path(tempfile.gettempdir()) / "discord-bot"
 CONFIG_PATH = PROJECT_ROOT / "config.yaml"
 
 TOKEN = os.environ.get("DISCORD_BOT_TOKEN", "")
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
 if CONFIG_PATH.exists():
     CONFIG_DATA = yaml.safe_load(CONFIG_PATH.read_text())
-    if CONFIG_DATA.get("admins", []):
-        ADMINS = list(CONFIG_DATA.get("admins"))
-    else:
-        ADMINS = []
+    ADMINS = list(CONFIG_DATA.get("admins")) if CONFIG_DATA.get("admins", []) else []
     PREFIX = CONFIG_DATA.get("prefix", "!")
 else:
     ADMINS = []
     PREFIX = "!"
 
-RICKROLL_GIF_URL = "https://tenor.com/view/rickroll-roll-rick-never-gonna-give-you-up-never-gonna-gif-22954713"  # noqa: E501
+RICKROLL_GIF_URL = (
+    "https://tenor.com/view/rickroll-roll-rick-never-gonna-give-you-up-never-gonna-gif-22954713"
+)
 
-CURRENT_YEAR = datetime.date.today().year
+CURRENT_YEAR = datetime.datetime.now(tz=datetime.UTC).date().year
 
 STATUS_MAP = {
     "Finished": "Finished",
@@ -146,3 +146,22 @@ STATUS_MAP = {
     "Disqualified": "DSQ (Disqualified)",
     "Excluded": "DSQ (Excluded)",
 }
+
+
+# Magic values
+
+## Response codes
+UNAUTHORIZED_RESPONSE_CODE: int = 401
+RATE_LIMIT_RESPONSE_CODE: int = 429
+SUCCESS_RESPONSE_CODE: int = 204
+NORESPONSE_SUCCESS_RESPONSE_CODE: int = 200
+
+
+COWSAY_INPUT_LIMIT: int = 250
+MAX_MUSIC_REPLY_COUNT: int = 3
+SECONDS_IN_MINUTE: int = 60
+F1_FIRST_YEAR: int = 1950
+DISCORD_MESSAGE_LIMIT: int = 2000
+AI_RESPONSE_LIMIT: int = DISCORD_MESSAGE_LIMIT - 100
+FULL_COWSAY_LIMIT: int = 1500
+COWSAY_SLICE_LIMIT: int = FULL_COWSAY_LIMIT - 3

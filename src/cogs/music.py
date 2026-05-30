@@ -1,21 +1,21 @@
-# Copyright (C) 2026 hakergeniusz
+# Copyright (c) 2025-2026 hakergeniusz
 #
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the European
+# Commission - subsequent versions of the EUPL (the "Licence"); You may not use this work
+# except in compliance with the Licence.
 #
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Affero General Public License for more details.
+# You may obtain a copy of the Licence at:
+# https://joinup.ec.europa.eu/software/page/eupl
 #
-# You should have received a copy of the GNU Affero General Public License
-# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+# Unless required by applicable law or agreed to in writing, software distributed under
+# the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
+# ANY KIND, either express or implied. See the Licence for the specific language
+# governing permissions and limitations under the Licence.
 
 """Module for music-related commands using YouTube."""
 
 import asyncio
+import sys
 import time
 from dataclasses import dataclass
 
@@ -24,7 +24,10 @@ from discord import app_commands
 from discord.ext import commands
 
 from core.admin_check import admin_check
+from core.logger import get_logger
 from core.youtube import download_youtube_video, format_duration
+
+logger = get_logger(__name__)
 
 
 @dataclass
@@ -49,11 +52,10 @@ class Music(commands.Cog):
         self.queues = {}
         self.current_song = {}
 
-    def _play_next(
+    async def _play_next(
         self,
         guild_id: int,
         interaction: discord.Interaction | commands.Context,
-        retry_count: int = 0,
     ) -> None:
         """Plays the next song in the queue for a guild."""
         if guild_id not in self.queues or not self.queues[guild_id]:
@@ -70,10 +72,13 @@ class Music(commands.Cog):
         song = self.queues[guild_id].pop(0)
         self.current_song[guild_id] = song
         try:
-            music = discord.FFmpegPCMAudio(song.path)
+            ffmpeg_options = {"executable": "ffmpeg.exe"} if sys.platform == "win32" else {}
+            music = discord.FFmpegPCMAudio(song.path, **ffmpeg_options)
             vc_chan.play(
                 music,
-                after=lambda e: self._play_next(guild_id, interaction, 0),
+                after=lambda _: self.bot.loop.call_soon_threadsafe(
+                    lambda: asyncio.create_task(self._play_next(guild_id, interaction)),
+                ),
             )
             yt_url = f"https://www.youtube.com/watch?v={song.video_id}"
             embed = discord.Embed(
@@ -83,23 +88,18 @@ class Music(commands.Cog):
             )
             embed.add_field(name="Duration", value=song.duration, inline=True)
             embed.add_field(
-                name="Requested by", value=f"<@{song.requester_id}>", inline=True
+                name="Requested by",
+                value=f"<@{song.requester_id}>",
+                inline=True,
             )
             if song.thumbnail:
                 embed.set_thumbnail(url=song.thumbnail)
-            asyncio.run_coroutine_threadsafe(
-                interaction.channel.send(embed=embed),
-                self.bot.loop,
-            )
+            await interaction.channel.send(embed=embed)
             song.time_started = int(time.time())
-        except Exception as e:
-            print(f"Error playing next song: {e}")
-            if retry_count < 3:
-                self._play_next(guild_id, interaction, retry_count + 1)
-            else:
-                print(f"Max retries reached for guild {guild_id}. Stopping playback.")
+        except discord.DiscordException, OSError:
+            logger.exception("Failed to play audio")
 
-    @commands.hybrid_group(name="music", invoke_without_command=True)  # type: ignore
+    @commands.hybrid_group(name="music", invoke_without_command=True)
     async def music(self, ctx: commands.Context) -> None:
         """Default command used to group other ones."""
         if ctx.invoked_subcommand is None:
@@ -118,7 +118,7 @@ class Music(commands.Cog):
     ) -> None:
         """Plays music from a YouTube URL in a voice channel."""
         await ctx.defer()
-        if not ctx.author.voice or not ctx.author.voice.channel:  # type: ignore
+        if not ctx.author.voice or not ctx.author.voice.channel:
             await ctx.send("You are not in a voice channel.")
             return
 
@@ -183,13 +183,17 @@ class Music(commands.Cog):
             if not vc_chan or not isinstance(vc_chan, discord.VoiceClient):
                 await first_response.edit(content="Voice client not connected.")
                 return
-            music = discord.FFmpegPCMAudio(path)
+            ffmpeg_options = {"executable": "ffmpeg.exe"} if sys.platform == "win32" else {}
+            music = discord.FFmpegPCMAudio(path, **ffmpeg_options)
             self.current_song[guild_id] = song
             vc_chan.play(
                 music,
-                after=lambda e: self._play_next(guild_id, ctx),
+                after=lambda _: self.bot.loop.call_soon_threadsafe(
+                    lambda: asyncio.create_task(self._play_next(guild_id, ctx)),
+                ),
             )
-        except Exception:
+        except discord.DiscordException, OSError:
+            logger.exception("Failed to play audio")
             self.current_song[guild_id] = None
             await first_response.edit(content="Failed to play audio.")
             return
@@ -201,7 +205,6 @@ class Music(commands.Cog):
         )
         embed.set_image(url=thumbnail)
         await first_response.edit(embed=embed, content="")
-        print(f"Rupturing the eardrums of {ctx.author.name}")
 
     @commands.guild_only()
     @admin_check()
@@ -223,7 +226,6 @@ class Music(commands.Cog):
             await ctx.send("Failed to leave the voice channel.", ephemeral=True)
             return
         await ctx.send("Left the voice channel.")
-        print(f"Leaving {ctx.channel.name} due to request of {ctx.author.name}")
 
     @commands.guild_only()
     @music.command(name="queue", description="Shows the current music queue")
@@ -238,9 +240,9 @@ class Music(commands.Cog):
 
         queue_list = "\n".join(
             [
-                f"**{i + 1}. {s.title}** ({s.duration}) - requested by <@{s.requester_id}>"  # noqa: E501
+                f"**{i + 1}. {s.title}** ({s.duration}) - requested by <@{s.requester_id}>"
                 for i, s in enumerate(queue)
-            ]
+            ],
         )
 
         embed = discord.Embed(
@@ -249,8 +251,8 @@ class Music(commands.Cog):
             color=discord.Color.blue(),
         )
         embed.set_footer(
-            text="Tip: use /music nowplaying to show currently playing song."
-        )  # noqa: E501
+            text="Tip: use /music nowplaying to show currently playing song.",
+        )
         await ctx.send(embed=embed)
 
     @admin_check()
@@ -261,11 +263,7 @@ class Music(commands.Cog):
         if not ctx.guild:
             return
         vc_chan = ctx.guild.voice_client
-        if (
-            not vc_chan
-            or not isinstance(vc_chan, discord.VoiceClient)
-            or not vc_chan.is_playing()
-        ):
+        if not vc_chan or not isinstance(vc_chan, discord.VoiceClient) or not vc_chan.is_playing():
             await ctx.send("Nothing is playing right now.")
             return
 
@@ -283,11 +281,7 @@ class Music(commands.Cog):
         guild_id = ctx.guild.id
         song = self.current_song.get(guild_id)
 
-        if (
-            not song
-            or not ctx.guild.voice_client
-            or not ctx.guild.voice_client.is_playing()
-        ):
+        if not song or not ctx.guild.voice_client or not ctx.guild.voice_client.is_playing():
             await ctx.send("Nothing is playing right now.")
             return
 
@@ -301,7 +295,9 @@ class Music(commands.Cog):
         embed.add_field(name="Currently at", value=currently_at, inline=True)
         embed.add_field(name="Duration", value=song.duration, inline=True)
         embed.add_field(
-            name="Requested by", value=f"<@{song.requester_id}>", inline=True
+            name="Requested by",
+            value=f"<@{song.requester_id}>",
+            inline=True,
         )
         if song.thumbnail:
             embed.set_thumbnail(url=song.thumbnail)

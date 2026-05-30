@@ -1,17 +1,18 @@
-# Copyright (C) 2026 hakergeniusz
+# Copyright (c) 2025-2026 hakergeniusz
 #
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the European
+# Commission - subsequent versions of the EUPL (the "Licence"); You may not use this work
+# except in compliance with the Licence.
 #
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Affero General Public License for more details.
+# You may obtain a copy of the Licence at:
+# https://joinup.ec.europa.eu/software/page/eupl
 #
-# You should have received a copy of the GNU Affero General Public License
-# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+# Unless required by applicable law or agreed to in writing, software distributed under
+# the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
+# ANY KIND, either express or implied. See the Licence for the specific language
+# governing permissions and limitations under the Licence.
+
+"""Unit tests for the F1 core module."""
 
 from unittest.mock import AsyncMock, patch
 
@@ -68,10 +69,10 @@ async def test_f1_qualifying_success() -> None:
                                 "Q1": "1:21.969",
                             },
                         ],
-                    }
-                ]
-            }
-        }
+                    },
+                ],
+            },
+        },
     }
 
     with patch("aiohttp.ClientSession.get") as mock_get:
@@ -91,9 +92,7 @@ async def test_f1_qualifying_success() -> None:
 
 def test_identify_qualifying_session() -> None:
     """Test identifying the furthest qualifying session."""
-    assert (
-        identify_qualifying_session({"Q1": "1:20", "Q2": "1:19", "Q3": "1:18"}) == "Q3"
-    )
+    assert identify_qualifying_session({"Q1": "1:20", "Q2": "1:19", "Q3": "1:18"}) == "Q3"
     assert identify_qualifying_session({"Q1": "1:20", "Q2": "1:19"}) == "Q2"
     assert identify_qualifying_session({"Q1": "1:20"}) == "Q1"
 
@@ -115,12 +114,12 @@ async def test_f1_standings_py_success() -> None:
                                     "familyName": "Verstappen",
                                 },
                                 "Constructors": [{"name": "Red Bull"}],
-                            }
-                        ]
-                    }
-                ]
-            }
-        }
+                            },
+                        ],
+                    },
+                ],
+            },
+        },
     }
 
     with patch("aiohttp.ClientSession.get") as mock_get:
@@ -165,12 +164,12 @@ async def test_f1_race_result_success() -> None:
                                 },
                                 "Constructor": {"name": "Mercedes"},
                                 "status": "Finished",
-                            }
+                            },
                         ],
-                    }
-                ]
-            }
-        }
+                    },
+                ],
+            },
+        },
     }
 
     with patch("aiohttp.ClientSession.get") as mock_get:
@@ -203,12 +202,12 @@ async def test_f1_race_result_no_emojis() -> None:
                                 },
                                 "Constructor": {"name": "Mercedes"},
                                 "status": "Finished",
-                            }
+                            },
                         ],
-                    }
-                ]
-            }
-        }
+                    },
+                ],
+            },
+        },
     }
 
     with patch("aiohttp.ClientSession.get") as mock_get:
@@ -235,10 +234,10 @@ async def test_f1_season_calendar_success() -> None:
                         "raceName": "Australian Grand Prix",
                         "date": "2026-03-08",
                         "time": "04:00:00Z",
-                    }
-                ]
-            }
-        }
+                    },
+                ],
+            },
+        },
     }
 
     with patch("aiohttp.ClientSession.get") as mock_get:
@@ -263,10 +262,10 @@ async def test_f1_season_calendar_no_hour() -> None:
                         "round": "1",
                         "raceName": "Australian Grand Prix",
                         "date": "2026-03-08",
-                    }
-                ]
-            }
-        }
+                    },
+                ],
+            },
+        },
     }
 
     with patch("aiohttp.ClientSession.get") as mock_get:
@@ -293,10 +292,10 @@ async def test_f1_season_calendar_sprint() -> None:
                         "date": "2026-03-15",
                         "time": "07:00:00Z",
                         "Sprint": {"date": "2026-03-14", "time": "03:00:00Z"},
-                    }
-                ]
-            }
-        }
+                    },
+                ],
+            },
+        },
     }
 
     with patch("aiohttp.ClientSession.get") as mock_get:

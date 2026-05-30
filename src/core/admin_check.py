@@ -1,21 +1,21 @@
-# Copyright (C) 2026 hakergeniusz
+# Copyright (c) 2025-2026 hakergeniusz
 #
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the European
+# Commission - subsequent versions of the EUPL (the "Licence"); You may not use this work
+# except in compliance with the Licence.
 #
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Affero General Public License for more details.
+# You may obtain a copy of the Licence at:
+# https://joinup.ec.europa.eu/software/page/eupl
 #
-# You should have received a copy of the GNU Affero General Public License
-# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+# Unless required by applicable law or agreed to in writing, software distributed under
+# the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
+# ANY KIND, either express or implied. See the Licence for the specific language
+# governing permissions and limitations under the Licence.
 
 """Module providing decorators for administrative permission checks."""
 
 import asyncio
+import contextlib
 
 import discord
 from discord import app_commands
@@ -24,7 +24,7 @@ from discord.ext import commands
 from core.config import ADMINS
 
 
-def admin_check() -> commands.check:  # type: ignore
+def admin_check() -> commands.check:
     """Checks does the author of the context (ctx) have admin permissions.
 
     Works with prefix and hybrid commands. Does not work with slash only commands.
@@ -47,14 +47,10 @@ def admin_check() -> commands.check:  # type: ignore
             message = await ctx.send(msg)
             await asyncio.sleep(3)
             if ctx.message:
-                try:
+                with contextlib.suppress(discord.Forbidden, discord.HTTPException):
                     await ctx.message.delete()
-                except discord.Forbidden, discord.HTTPException:
-                    pass
-            try:
+            with contextlib.suppress(discord.Forbidden, discord.HTTPException):
                 await message.delete()
-            except discord.Forbidden, discord.HTTPException:
-                pass
         else:
             await ctx.interaction.response.send_message(msg, ephemeral=True)
 
@@ -63,7 +59,7 @@ def admin_check() -> commands.check:  # type: ignore
     return commands.check(predicate)
 
 
-def admin_check_slash() -> commands.check:  # type: ignore
+def admin_check_slash() -> commands.check:
     """Checks does the author of the interaction have admin permissions.
 
     Works only with slash commands.
@@ -79,7 +75,8 @@ def admin_check_slash() -> commands.check:  # type: ignore
         if interaction.user.id in ADMINS:
             return True
         await interaction.response.send_message(
-            "You don't have required permissions to do that.", ephemeral=True
+            "You don't have required permissions to do that.",
+            ephemeral=True,
         )
         return False
 

@@ -1,22 +1,26 @@
-# Copyright (C) 2026 hakergeniusz
+# Copyright (c) 2025-2026 hakergeniusz
 #
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the European
+# Commission - subsequent versions of the EUPL (the "Licence"); You may not use this work
+# except in compliance with the Licence.
 #
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Affero General Public License for more details.
+# You may obtain a copy of the Licence at:
+# https://joinup.ec.europa.eu/software/page/eupl
 #
-# You should have received a copy of the GNU Affero General Public License
-# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+# Unless required by applicable law or agreed to in writing, software distributed under
+# the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
+# ANY KIND, either express or implied. See the Licence for the specific language
+# governing permissions and limitations under the Licence.
 
 """Module for verifying if a URL points to a valid image."""
 
 import aiohttp
 from aiohttp import ClientTimeout
+
+from core.config import NORESPONSE_SUCCESS_RESPONSE_CODE
+from core.logger import get_logger
+
+logger = get_logger(__name__)
 
 IMAGE_CONTENT_TYPES = [
     "image/jpeg",
@@ -43,12 +47,10 @@ async def image_checker(session: aiohttp.ClientSession, image_link: str) -> bool
     try:
         timeout = ClientTimeout(total=3)
         async with session.head(image_link, timeout=timeout) as response:
-            if response.status != 200:
+            if response.status != NORESPONSE_SUCCESS_RESPONSE_CODE:
                 return False
             content_type = response.headers.get("Content-Type", "").lower()
-            for image_type in IMAGE_CONTENT_TYPES:
-                if content_type.startswith(image_type):
-                    return True
-            return False
+            return any(content_type.startswith(image_type) for image_type in IMAGE_CONTENT_TYPES)
     except Exception:
+        logger.exception("Error checking image")
         return False

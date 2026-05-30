@@ -12,21 +12,31 @@
 # ANY KIND, either express or implied. See the Licence for the specific language
 # governing permissions and limitations under the Licence.
 
-"""Unit tests for syntax validation of source files."""
+"""Tests for the Other cog."""
 
-import py_compile
-from pathlib import Path
+from unittest.mock import AsyncMock, MagicMock
 
+import discord
 import pytest
 
-
-def get_python_files() -> list[str]:
-    """Get all Python files in the src directory."""
-    src_dir = Path(__file__).resolve().parent.parent / "src"
-    return [str(path) for path in src_dir.rglob("*.py")]
+from cogs.other import Other
 
 
-@pytest.mark.parametrize("filepath", get_python_files())
-def test_python_syntax(filepath: str) -> None:
-    """Attempt to compile each file to check for syntax errors."""
-    py_compile.compile(filepath, doraise=True)
+@pytest.mark.asyncio
+async def test_other_init() -> None:
+    """Test Other cog initialization."""
+    bot = MagicMock(spec=discord.ext.commands.Bot)
+    cog = Other(bot)
+    assert cog.bot == bot
+
+
+@pytest.mark.asyncio
+async def test_ping() -> None:
+    """Test ping command."""
+    ctx = AsyncMock()
+    bot = MagicMock(spec=discord.ext.commands.Bot)
+    bot.latency = 0.1
+    cog = Other(bot)
+
+    await cog.ping.callback(cog, ctx)
+    ctx.reply.assert_called_with("Pong! Latency is 100ms")

@@ -1,17 +1,16 @@
-# Copyright (C) 2026 hakergeniusz
+# Copyright (c) 2025-2026 hakergeniusz
 #
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the European
+# Commission - subsequent versions of the EUPL (the "Licence"); You may not use this work
+# except in compliance with the Licence.
 #
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Affero General Public License for more details.
+# You may obtain a copy of the Licence at:
+# https://joinup.ec.europa.eu/software/page/eupl
 #
-# You should have received a copy of the GNU Affero General Public License
-# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+# Unless required by applicable law or agreed to in writing, software distributed under
+# the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
+# ANY KIND, either express or implied. See the Licence for the specific language
+# governing permissions and limitations under the Licence.
 
 """Module for fun and Formula 1 related commands."""
 
@@ -21,7 +20,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from core.config import CURRENT_YEAR, RICKROLL_GIF_URL, TMP_BASE
+from core.config import COWSAY_INPUT_LIMIT, CURRENT_YEAR, RICKROLL_GIF_URL, TMP_BASE
 from core.cowsay import cowsay
 from core.f1 import f1_qualifying, f1_season_calendar, f1_standings_py, race_result
 from core.howmany import change_file
@@ -35,13 +34,13 @@ class F1Commands(commands.Cog):
         self.bot = bot
 
     @commands.hybrid_command(
-        name="f1_race_result", description="Outputs the result of an F1 race"
+        name="f1_race_result",
+        description="Outputs the result of an F1 race",
     )
     @app_commands.describe(
         season="Season of the race you want the result of",
         roundnumber="Round number of the race asked. You can get one with /f1_calendar",
-        emojis="Default is True, if False, emojis for podium positions "
-        "will not be given.",
+        emojis="Default is True, if False, emojis for podium positions will not be given.",
     )
     # Remember to change *roundnumber* if F1 introduces an F1 calendar
     # with more than 24 rounds.
@@ -51,12 +50,15 @@ class F1Commands(commands.Cog):
         ctx: commands.Context,
         season: commands.Range[int, 1950, CURRENT_YEAR],
         roundnumber: commands.Range[int, 1, 24],
+        *,
         emojis: bool = True,
     ) -> None:
         """Gives the result of an F1 race asked for."""
         await ctx.defer()
         grand_prix_name, results_list = await race_result(
-            season=season, roundnumber=roundnumber, emojis=emojis
+            season=season,
+            roundnumber=roundnumber,
+            emojis=emojis,
         )
         if grand_prix_name is None or results_list == []:
             await ctx.send(f"Could not find R{roundnumber} in {season} F1 season.")
@@ -89,7 +91,8 @@ class F1Commands(commands.Cog):
         """Gives the result of an F1 qualifying asked for."""
         await ctx.defer()
         grand_prix_name, results_list = await f1_qualifying(
-            season=season, roundnumber=roundnumber
+            season=season,
+            roundnumber=roundnumber,
         )
         if grand_prix_name is None or results_list == []:
             await ctx.send(f"Could not find R{roundnumber} in {season} F1 season.")
@@ -106,7 +109,9 @@ class F1Commands(commands.Cog):
     @app_commands.describe(season="Season of the calendar you want to know")
     @app_commands.checks.cooldown(1, 1.5, key=lambda i: (i.guild_id, i.user.id))
     async def f1_calendar(
-        self, ctx: commands.Context, season: commands.Range[int, 1950, CURRENT_YEAR]
+        self,
+        ctx: commands.Context,
+        season: commands.Range[int, 1950, CURRENT_YEAR],
     ) -> None:
         """Shows the F1 calendar for a specific season."""
         await ctx.defer()
@@ -131,26 +136,29 @@ class F1Commands(commands.Cog):
         await ctx.send(embed=f1_calendar)
 
     @commands.hybrid_command(
-        name="f1_standings", description="Shows F1 standings for a season."
+        name="f1_standings",
+        description="Shows F1 standings for a season.",
     )
     @app_commands.describe(season="Season you want standings for.")
     @app_commands.checks.cooldown(1, 1.5, key=lambda i: (i.guild_id, i.user.id))
     async def f1_standings(
-        self, ctx: commands.Context, season: commands.Range[int, 1950, CURRENT_YEAR]
+        self,
+        ctx: commands.Context,
+        season: commands.Range[int, 1950, CURRENT_YEAR],
     ) -> None:
         """Shows F1 standings for a specific season."""
         await ctx.defer()
-        standings_list = await f1_standings_py(season)
+        standings_list: list = await f1_standings_py(season)
         if standings_list == []:
             await ctx.send(f"No standings found for {season}.")
             return
-        standings = "\n".join(standings_list)
+        standings: str = "\n".join(standings_list)
         if not ctx.interaction:
-            message = f"**F1 {season} standings:**\n{standings}"
+            message: str = f"**F1 {season} standings:**\n{standings}"
             await ctx.send(message)
             return
 
-        f1_standings = discord.Embed(
+        f1_standings: discord.Embed = discord.Embed(
             title=f"F1 {season} standings",
             description=standings,
             color=discord.Color.red(),
@@ -168,14 +176,17 @@ class HowManyButtonButtons(discord.ui.View):
 
     @discord.ui.button(label="Click me!", style=discord.ButtonStyle.success)
     async def howmanybutton_button(
-        self, interaction: discord.Interaction, _button: discord.ui.Button
+        self,
+        interaction: discord.Interaction,
+        _button: discord.ui.Button,
     ) -> None:
         """Increment count when the button is clicked."""
-        count = await change_file(
-            str(Path(TMP_BASE) / "howmanybutton"), interaction.user.id
+        count: int = await change_file(
+            str(Path(TMP_BASE) / "howmanybutton"),
+            interaction.user.id,
         )
-        suffix = "time" if count == 1 else "times"
-        msg = f"{interaction.user.mention} clicked the button {count} {suffix}!"
+        suffix: str = "time" if count == 1 else "times"
+        msg: str = f"{interaction.user.mention} clicked the button {count} {suffix}!"
         await interaction.response.edit_message(content=msg)
 
 
@@ -190,22 +201,24 @@ class Meme(commands.Cog):
     async def nothing(self, ctx: commands.Context) -> None:
         """Literally nothing."""
         await ctx.send(".", ephemeral=True)
-        print(f"{ctx.author.name} tried nothing...")
 
     @commands.hybrid_command(
-        name="howmanytimes", description="Says how many times was the command typed"
+        name="howmanytimes",
+        description="Says how many times was the command typed",
     )
     async def howmanytimes(self, ctx: commands.Context) -> None:
         """Says how many times this user typed this command."""
-        count = await change_file(str(Path(TMP_BASE) / "howmanytimes"), ctx.author.id)
-        suffix = "time" if count == 1 else "times"
+        count: int = await change_file(
+            str(Path(TMP_BASE) / "howmanytimes"),
+            ctx.author.id,
+        )
+        suffix: str = "time" if count == 1 else "times"
         await ctx.send(f"You have used this command {count} {suffix}!")
 
     @commands.hybrid_command(name="complain", description="Compain to the bot owner.")
     async def complain(self, ctx: commands.Context) -> None:
         """Sends a rickroll GIF when someone tries to complain."""
         await ctx.send(RICKROLL_GIF_URL, ephemeral=True)
-        print(f"{ctx.author.name} complained and regretted it.")
 
     @commands.hybrid_command(name="heart", description="Shows a heart.")
     async def heart(self, ctx: commands.Context) -> None:
@@ -224,7 +237,8 @@ class Meme(commands.Cog):
         await ctx.send(RICKROLL_GIF_URL)
 
     @app_commands.command(
-        name="howmanybutton", description="How many times did you press the button?"
+        name="howmanybutton",
+        description="How many times did you press the button?",
     )
     async def howmanybutton(self, interaction: discord.Interaction) -> None:
         """Sends a message with a button that tracks global clicks.
@@ -236,9 +250,9 @@ class Meme(commands.Cog):
 
     @commands.hybrid_command(name="cowsay", description="I'm a cow!")
     @app_commands.describe(text="What you want me to say?")
-    async def cowsay(self, ctx: commands.Context, *, text: str = None) -> None:
+    async def cowsay(self, ctx: commands.Context, *, text: str | None = None) -> None:
         """I'm a cow! Sends text wrapped in cowsay."""
-        if text and len(text) >= 250:
+        if text and len(text) >= COWSAY_INPUT_LIMIT:
             await ctx.send("You can't say that much!")
             return
         await ctx.send(cowsay(text))
@@ -250,10 +264,10 @@ class Meme(commands.Cog):
             "https://tenor.com/view/linus-linus-torvalds-nvidia-fuck-you-gif-18053606",
             mention_author=False,
         )
-    
+
     @commands.hybrid_command(name="archbtw", description="Do you use Arch Linux?")
     async def archbtw(self, ctx: commands.Context) -> None:
-        """Says "I use Arch btw" meme"""
+        """Says "I use Arch btw" meme."""
         await ctx.reply("I use Arch btw")
 
 

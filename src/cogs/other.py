@@ -1,17 +1,16 @@
-# Copyright (C) 2026 hakergeniusz
+# Copyright (c) 2025-2026 hakergeniusz
 #
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the European
+# Commission - subsequent versions of the EUPL (the "Licence"); You may not use this work
+# except in compliance with the Licence.
 #
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Affero General Public License for more details.
+# You may obtain a copy of the Licence at:
+# https://joinup.ec.europa.eu/software/page/eupl
 #
-# You should have received a copy of the GNU Affero General Public License
-# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+# Unless required by applicable law or agreed to in writing, software distributed under
+# the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
+# ANY KIND, either express or implied. See the Licence for the specific language
+# governing permissions and limitations under the Licence.
 
 """Module for miscellaneous commands such as ping and license information."""
 
@@ -27,7 +26,8 @@ class Other(commands.Cog):
         self.bot = bot
 
     @commands.hybrid_command(
-        name="ping", description="Pong! Outputs the latency of the bot."
+        name="ping",
+        description="Pong! Outputs the latency of the bot.",
     )
     async def ping(self, ctx: commands.Context) -> None:
         """Outputs the latency of the bot."""
@@ -40,7 +40,7 @@ class Other(commands.Cog):
         if not ctx.interaction:
             await ctx.send(
                 "This bot is open-source! You can find the source here: "
-                "https://github.com/hakergeniusz/discord-bot"
+                "https://github.com/hakergeniusz/discord-bot",
             )
             return
         view = discord.ui.View()
@@ -48,11 +48,10 @@ class Other(commands.Cog):
             discord.ui.Button(
                 label="View Source Code",
                 url="https://github.com/hakergeniusz/discord-bot",
-            )
+            ),
         )
         await ctx.send(
-            "This bot is open-source! You can find the source by clicking the "
-            "following button:",
+            "This bot is open-source! You can find the source by clicking the following button:",
             view=view,
         )
 
@@ -62,15 +61,15 @@ class Other(commands.Cog):
         if not ctx.interaction:
             message = (
                 "📜 **Legal Information & License**\n\n"
-                "**Copyright (C) 2026 hakergeniusz**\n"
+                "**Copyright (c) 2025-2026 hakergeniusz**\n"
                 "This program is free software: you can redistribute it and/or "
-                "modify it under the terms of the **GNU Affero General Public "
-                "License version 3** as published by the Free Software Foundation.\n\n"
+                "modify it under the terms of the **EUPL-1.2** "
+                "as published by the European Commission.\n\n"
                 "⚠️ Disclaimer of Warranty\n"
                 "This program is distributed in the hope that it will be useful, "
                 "but **WITHOUT ANY WARRANTY**; without even the implied warranty "
                 "of **MERCHANTABILITY** or **FITNESS FOR A PARTICULAR PURPOSE**. "
-                "See the [GNU AGPLv3](https://www.gnu.org/licenses/agpl-3.0.txt) "
+                "See the [EUPL-1.2](https://joinup.ec.europa.eu/software/page/eupl) "
                 "for more details."
             )
             await ctx.send(message)
@@ -79,15 +78,15 @@ class Other(commands.Cog):
             title="📜 Legal Information & License",
             color=discord.Color.blue(),
             description=(
-                "**Copyright (C) 2026 hakergeniusz**\n\n"
+                "**Copyright (c) 2025-2026 hakergeniusz**\n\n"
                 "This program is free software: you can redistribute it and/or "
-                "modify it under the terms of the **GNU Affero General Public "
-                "License version 3** as published by the Free Software Foundation.\n\n"
+                "modify it under the terms of the **EUPL-1.2** "
+                "as published by the European Commission.\n\n"
                 "### ⚠️ Disclaimer of Warranty\n"
                 "This program is distributed in the hope that it will be useful, "
                 "but **WITHOUT ANY WARRANTY**; without even the implied warranty "
                 "of **MERCHANTABILITY** or **FITNESS FOR A PARTICULAR PURPOSE**. "
-                "See the [GNU AGPLv3](https://www.gnu.org/licenses/agpl-3.0.txt) "
+                "See the [EUPL-1.2](https://joinup.ec.europa.eu/software/page/eupl) "
                 "for more details."
             ),
         )
@@ -96,7 +95,7 @@ class Other(commands.Cog):
             discord.ui.Button(
                 label="View Source Code",
                 url="https://github.com/hakergeniusz/discord-bot",
-            )
+            ),
         )
         await ctx.send(embed=embed, view=view)
 

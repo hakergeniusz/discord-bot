@@ -1,19 +1,20 @@
-# Copyright (C) 2026 hakergeniusz
+# Copyright (c) 2025-2026 hakergeniusz
 #
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the European
+# Commission - subsequent versions of the EUPL (the "Licence"); You may not use this work
+# except in compliance with the Licence.
 #
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Affero General Public License for more details.
+# You may obtain a copy of the Licence at:
+# https://joinup.ec.europa.eu/software/page/eupl
 #
-# You should have received a copy of the GNU Affero General Public License
-# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+# Unless required by applicable law or agreed to in writing, software distributed under
+# the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
+# ANY KIND, either express or implied. See the Licence for the specific language
+# governing permissions and limitations under the Licence.
 
 """Module for generating ASCII art of a cow saying text."""
+
+from core.config import COWSAY_SLICE_LIMIT, FULL_COWSAY_LIMIT
 
 
 def cowsay(text: str) -> str:
@@ -32,21 +33,21 @@ def cowsay(text: str) -> str:
             "< What should I say? >\n"
             " ------------------ \n"
             r"        \   ^__^"
-            + "\n"
-            + r"         \  (oo)\_______"
-            + "\n"
-            + r"            (__)\       )\\/\\"
-            + "\n"
-            + r"                ||----w |"
-            + "\n"
-            + r"                ||     ||"
-            + "\n"
+            "\n"
+            r"         \  (oo)\_______"
+            "\n"
+            r"            (__)\       )\\/\\"
+            "\n"
+            r"                ||----w |"
+            "\n"
+            r"                ||     ||"
+            "\n"
             "```"
         )
     text = text.replace("```", "` ` `")
 
-    if len(text) > 1800:
-        text = text[:1797] + "..."
+    if len(text) > FULL_COWSAY_LIMIT:
+        text = text[:COWSAY_SLICE_LIMIT] + "..."
 
     lines = text.splitlines()
     if not lines:
@@ -56,9 +57,7 @@ def cowsay(text: str) -> str:
     width = max(len(line) for line in lines)
 
     top_bottom = " " + "_" * (width + 2)
-    bubble_content = []
-    for line in lines:
-        bubble_content.append(f"< {line.ljust(width)} >")
+    bubble_content = [f"< {line.ljust(width)} >" for line in lines]
 
     bubble = "\n".join(bubble_content)
     divider = " " + "-" * (width + 2)

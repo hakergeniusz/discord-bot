@@ -1,4 +1,4 @@
-This project is licensed under the GNU Affero General Public License version 3.
+This project is licensed under the European Union Public License, version 1.2.
 The following third-party libraries are used in this project:
 
 1. discord.py
@@ -41,7 +41,5 @@ The following third-party libraries are used in this project:
    Copyright (c) 2023-present Astral Software Inc.
    https://github.com/astral-sh/ruff
 
+
 If your work is in my repository but isn't listed here, please let me know!
-
-
-Huge thanks to Google Gemini for helping with the coding!

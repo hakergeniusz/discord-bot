@@ -1,28 +1,27 @@
-# Copyright (C) 2026 hakergeniusz
+# Copyright (c) 2025-2026 hakergeniusz
 #
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the European
+# Commission - subsequent versions of the EUPL (the "Licence"); You may not use this work
+# except in compliance with the Licence.
 #
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Affero General Public License for more details.
+# You may obtain a copy of the Licence at:
+# https://joinup.ec.europa.eu/software/page/eupl
 #
-# You should have received a copy of the GNU Affero General Public License
-# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+# Unless required by applicable law or agreed to in writing, software distributed under
+# the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
+# ANY KIND, either express or implied. See the Licence for the specific language
+# governing permissions and limitations under the Licence.
 
 """Module for utility functions to download and process YouTube videos."""
 
 import json
 import re
-from pathlib import Path
-from typing import Optional
 
 import yt_dlp
 
-CACHE_DIR = Path("/tmp")
+from core.config import SECONDS_IN_MINUTE, TMP_BASE
+
+CACHE_DIR = TMP_BASE
 URL_REGEX = (
     r"(https?://)?(www\.|m\.)?"
     r"(youtube\.com/watch\?v=|youtu\.be/|youtube\.com/shorts/)"
@@ -30,7 +29,7 @@ URL_REGEX = (
 )
 
 YDL_OPTS = {
-    "outtmpl": "/tmp/%(id)s.%(ext)s",
+    "outtmpl": str(CACHE_DIR / "%(id)s.%(ext)s"),
     "format": "bestaudio/best",
     "noplaylist": True,
     "writethumbnail": True,
@@ -39,18 +38,18 @@ YDL_OPTS = {
     "nocheckcertificate": True,
     "ignoreerrors": False,
     "logtostderr": False,
-    "source_address": "0.0.0.0",
+    "source_address": "0.0.0.0",  # noqa: S104
     "postprocessors": [
         {
             "key": "FFmpegExtractAudio",
             "preferredcodec": "opus",
             "preferredquality": "192",
-        }
+        },
     ],
 }
 
 
-def get_yt_video_id(url: str) -> Optional[str]:
+def get_yt_video_id(url: str) -> str | None:
     """Gives YouTube video ID from a link.
 
     Args:
@@ -79,7 +78,7 @@ def format_duration(seconds: int) -> str:
     Returns:
         str: The duration of the video in a human-readable format.
     """
-    if seconds < 60:
+    if seconds < SECONDS_IN_MINUTE:
         return f"{seconds} seconds"
 
     minutes, seconds = divmod(seconds, 60)
@@ -98,7 +97,7 @@ def format_duration(seconds: int) -> str:
 
 def download_youtube_video(
     url: str,
-) -> tuple[Optional[str], Optional[str], Optional[str], Optional[str], Optional[str]]:
+) -> tuple[str | None, str | None, str | None, str | None, str | None]:
     """Downloads a YouTube video and extracts metadata.
 
     This function attempts to download a video in .opus format using yt-dlp.
@@ -118,12 +117,9 @@ def download_youtube_video(
 
             Returns (None, None, None, None, None) if the URL is invalid,
             the download fails, or metadata cannot be processed.
-    """  # noqa: E501
+    """
     match = re.search(URL_REGEX, url)
-    if not match:
-        return None, None, None, None, None
-
-    video_id = match.group(match.lastindex or 0)
+    video_id = match.group(match.lastindex or 0) if match else None
     if not isinstance(video_id, str):
         return None, None, None, None, None
     video_path = CACHE_DIR / f"{video_id}.opus"
@@ -144,7 +140,7 @@ def download_youtube_video(
             pass
 
     try:
-        with yt_dlp.YoutubeDL(YDL_OPTS) as ydl:  # type: ignore
+        with yt_dlp.YoutubeDL(YDL_OPTS) as ydl:
             if video_path.exists():
                 info = ydl.extract_info(url, download=False)
             else:
@@ -158,9 +154,7 @@ def download_youtube_video(
             duration = info.get("duration")
             video_id = info.get("id")
             thumbnail = info.get("thumbnail")
-            formatted_duration = (
-                format_duration(int(duration)) if duration else "0 seconds"
-            )
+            formatted_duration = format_duration(int(duration)) if duration else "0 seconds"
 
             metadata = {
                 "title": title,
@@ -174,6 +168,5 @@ def download_youtube_video(
                 return (str(video_path), title, formatted_duration, thumbnail, video_id)
 
             return None, None, None, None, None
-    except Exception as e:
-        print(f"Error downloading video: {e}")
+    except yt_dlp.DownloadError, OSError, TypeError:
         return None, None, None, None, None

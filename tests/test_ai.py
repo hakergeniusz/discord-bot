@@ -1,17 +1,18 @@
-# Copyright (C) 2026 hakergeniusz
+# Copyright (c) 2025-2026 hakergeniusz
 #
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the European
+# Commission - subsequent versions of the EUPL (the "Licence"); You may not use this work
+# except in compliance with the Licence.
 #
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Affero General Public License for more details.
+# You may obtain a copy of the Licence at:
+# https://joinup.ec.europa.eu/software/page/eupl
 #
-# You should have received a copy of the GNU Affero General Public License
-# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+# Unless required by applicable law or agreed to in writing, software distributed under
+# the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
+# ANY KIND, either express or implied. See the Licence for the specific language
+# governing permissions and limitations under the Licence.
+
+"""Unit tests for the AI core module."""
 
 from unittest.mock import AsyncMock, patch
 
@@ -31,7 +32,8 @@ class MockChunk:
 
 @pytest.mark.asyncio
 @patch(
-    "src.core.ai.gemini_client.models.generate_content_stream", new_callable=AsyncMock
+    "src.core.ai.gemini_client.models.generate_content_stream",
+    new_callable=AsyncMock,
 )
 async def test_process_prompt_success(mock_generate: AsyncMock) -> None:
     """Test successful processing of a prompt yielding multiple chunks."""
@@ -41,9 +43,7 @@ async def test_process_prompt_success(mock_generate: AsyncMock) -> None:
     mock_response.__aiter__.return_value = chunks
     mock_generate.return_value = mock_response
 
-    result_chunks = []
-    async for chunk in process_prompt("hi"):
-        result_chunks.append(chunk)
+    result_chunks = [chunk async for chunk in process_prompt("hi")]
 
     assert result_chunks == ["Hello", " ", "world!"]
     mock_generate.assert_called_once_with(contents="hi", model="gemma-4-26b-a4b-it")
@@ -51,7 +51,8 @@ async def test_process_prompt_success(mock_generate: AsyncMock) -> None:
 
 @pytest.mark.asyncio
 @patch(
-    "src.core.ai.gemini_client.models.generate_content_stream", new_callable=AsyncMock
+    "src.core.ai.gemini_client.models.generate_content_stream",
+    new_callable=AsyncMock,
 )
 async def test_process_prompt_empty_chunks(mock_generate: AsyncMock) -> None:
     """Test that empty chunks are skipped."""
@@ -61,8 +62,5 @@ async def test_process_prompt_empty_chunks(mock_generate: AsyncMock) -> None:
     mock_response.__aiter__.return_value = chunks
     mock_generate.return_value = mock_response
 
-    result_chunks = []
-    async for chunk in process_prompt("hi"):
-        result_chunks.append(chunk)
-
+    result_chunks = [chunk async for chunk in process_prompt("hi")]
     assert result_chunks == ["Hello", "world!"]

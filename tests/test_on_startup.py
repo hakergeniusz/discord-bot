@@ -12,21 +12,28 @@
 # ANY KIND, either express or implied. See the Licence for the specific language
 # governing permissions and limitations under the Licence.
 
-"""Unit tests for syntax validation of source files."""
+"""Tests for the on_startup cog."""
 
-import py_compile
-from pathlib import Path
+from unittest.mock import AsyncMock, MagicMock
 
+import discord
 import pytest
+from discord.ext import commands
+
+from cogs.on_startup import SyncCog
 
 
-def get_python_files() -> list[str]:
-    """Get all Python files in the src directory."""
-    src_dir = Path(__file__).resolve().parent.parent / "src"
-    return [str(path) for path in src_dir.rglob("*.py")]
+@pytest.mark.asyncio
+async def test_on_ready_sync() -> None:
+    """Test on_ready synchronization."""
+    bot = MagicMock(spec=commands.Bot)
+    bot.tree = AsyncMock()
+    bot.change_presence = AsyncMock()
+    cog = SyncCog(bot)
 
+    await cog.on_ready()
 
-@pytest.mark.parametrize("filepath", get_python_files())
-def test_python_syntax(filepath: str) -> None:
-    """Attempt to compile each file to check for syntax errors."""
-    py_compile.compile(filepath, doraise=True)
+    bot.tree.sync.assert_called_once()
+    bot.change_presence.assert_called_once()
+    _args, kwargs = bot.change_presence.call_args
+    assert kwargs["status"] == discord.Status.dnd

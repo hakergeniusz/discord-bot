@@ -1,22 +1,22 @@
 # 🤖 Discord Bot
 
-<img src="https://img.shields.io/badge/License-AGPLv3-orange.svg?style=for-the-badge" height="40">
+<img src="https://img.shields.io/badge/License-EUPL_v1.2-blue.svg?style=for-the-badge" height="40">
 
 ---
 
 ## 👋 Introduction
-Feature-rich Discord bot made by hakergeniusz with the goal of learning Discord.py. It is licenced with GNU Affero General Public License version 3.
+Feature-rich Discord bot made by hakergeniusz with the goal of learning Discord.py.
 
 ---
 
 ## ⚙️ Prerequisites
 You must have following installed on your computer for this bot to work correctly:
 * A **Discord bot token** from Discord Developer Program.
-* A **Linux** operating system. **Code will not work on Windows**
-* **Python 3.14**
-* **uv** for managing libraries
-* **Git** for cloning the repository
-* **FFmpeg** for `/play` command to work correctly.
+*   **Linux, macOS, or Windows** operating system.
+*   **Python 3.14**
+*   **uv** for managing libraries
+*   **Git** for cloning the repository
+*   **FFmpeg** for `/play` command to work correctly (ensure it's in your PATH).
 
 ---
 
@@ -54,9 +54,9 @@ Execute the following command:
 uv run bot
 ```
 
-## 🐧 System Compatibility
-Bot is developed on **Arch Linux** and hosted on **Debian 13**. Bot should work on most Linux distributions.
-> **Note:** No support or instructions will be provided for Windows or macOS (macOS may work due to UNIX compatibility).
+## 💻 System Compatibility
+Bot is developed on **Arch Linux** and hosted on **Debian 13**. Bot is compatible with **Linux, Windows, and macOS**.
+> **Note:** FFmpeg must be installed and added to the system's PATH for music features.
 
 ---
 
@@ -67,6 +67,9 @@ All credits for are in [CREDITS](CREDITS) file.
 
 ## 📜 License
 
-This program is free software: you can redistribute it and/or modify it under the terms of the **GNU Affero General Public License** as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+This software is licensed under the **European Union Public License (EUPL) version 1.2** or – as soon as they are approved by the European Commission – subsequent versions of the EUPL.
 
-This program is distributed in the hope that it will be useful, but **WITHOUT ANY WARRANTY**; without even the implied warranty of **MERCHANTABILITY** or **FITNESS FOR A PARTICULAR PURPOSE**. See the [LICENSE](LICENSE) file for more details.
+You may not use this work except in compliance with the Licence. You may obtain a copy of the Licence at:
+[https://joinup.ec.europa.eu/software/page/eupl](https://joinup.ec.europa.eu/software/page/eupl)
+
+Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an **"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND**, either express or implied. See the [LICENSE](LICENSE) file for the specific language governing permissions and limitations under the Licence.

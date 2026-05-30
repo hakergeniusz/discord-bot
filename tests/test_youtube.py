@@ -1,21 +1,22 @@
-# Copyright (C) 2026 hakergeniusz
+# Copyright (c) 2025-2026 hakergeniusz
 #
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the European
+# Commission - subsequent versions of the EUPL (the "Licence"); You may not use this work
+# except in compliance with the Licence.
 #
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Affero General Public License for more details.
+# You may obtain a copy of the Licence at:
+# https://joinup.ec.europa.eu/software/page/eupl
 #
-# You should have received a copy of the GNU Affero General Public License
-# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+# Unless required by applicable law or agreed to in writing, software distributed under
+# the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
+# ANY KIND, either express or implied. See the Licence for the specific language
+# governing permissions and limitations under the Licence.
+
+"""Unit tests for the YouTube core module."""
 
 from unittest.mock import MagicMock, patch
 
-from src.core.youtube import download_youtube_video, get_yt_video_id
+from src.core.youtube import CACHE_DIR, download_youtube_video, get_yt_video_id
 
 
 def test_get_yt_video_id() -> None:
@@ -24,15 +25,14 @@ def test_get_yt_video_id() -> None:
     assert get_yt_video_id(url) == "NonExisting"
 
 
-@patch("src.core.youtube.Path.exists")
-@patch("yt_dlp.YoutubeDL")
+@patch("src.core.youtube.yt_dlp.YoutubeDL")
 def test_download_youtube_video_cached(
-    mock_ydl: MagicMock, mock_exists: MagicMock
+    mock_ydl: MagicMock,
 ) -> None:
     """Test downloading a video that is already cached."""
     video_id = "NonExisting"
     url = f"https://www.youtube.com/watch?v={video_id}"
-    cache_path = f"/tmp/{video_id}.opus"
+    cache_path = str(CACHE_DIR / f"{video_id}.opus")
 
     instance = mock_ydl.return_value.__enter__.return_value
     instance.extract_info.return_value = {
@@ -42,13 +42,22 @@ def test_download_youtube_video_cached(
         "thumbnail": "https://example.com/thumb.jpg",
     }
 
-    mock_exists.return_value = True
-
-    path, title, duration, thumbnail, video_id = download_youtube_video(url)
-    assert path == cache_path
-    assert title == "Test Title"
-    assert duration == "1 minute"
-    assert thumbnail == "https://example.com/thumb.jpg"
+    with (
+        patch("src.core.youtube.json.load") as mock_json_load,
+        patch("src.core.youtube.open", create=True),
+        patch("src.core.config.Path.exists", return_value=True),
+    ):
+        mock_json_load.return_value = {
+            "title": "Test Title",
+            "duration": "1 minute",
+            "thumbnail": "https://example.com/thumb.jpg",
+        }
+        path, title, duration, thumbnail, video_id_out = download_youtube_video(url)
+        assert path == cache_path
+        assert title == "Test Title"
+        assert duration == "1 minute"
+        assert thumbnail == "https://example.com/thumb.jpg"
+        assert video_id_out == video_id
 
 
 @patch("yt_dlp.YoutubeDL")

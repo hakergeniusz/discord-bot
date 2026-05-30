@@ -2,7 +2,7 @@
 name = "discord-bot"
 version = "2.1.0"
 description = "Yet Another Shitly Made Discord Bot."
-license = "AGPL-3.0-or-later"
+license = "EUPL-1.2"
 readme = "docs/README.md"
 requires-python = ">=3.14"
 dependencies = [
@@ -45,34 +45,19 @@ build-backend = "hatchling.build"
 
 ## --- RUFF ---
 [tool.ruff]
-select = ["ALL"]
-# Ruff configuration for PEP8 compliance
-# See https://beta.ruff.rs/docs/settings/ for more information
 target-version = "py314" #  3.14159265359!
 extend-exclude = [
     "*.py.example",
 ]
+line-length = 100
 
 [tool.ruff.lint]
-# Enable the following rule categories:
-# E: pycodestyle errors
-# F: Pyflakes
-# I: isort
-# N: pep8-naming
-# W: pycodestyle warnings
-# B: flake8-bugbear
-# C: flake8-comprehensions
-# D: pydocstyle
-# ANN: flake8-annotations
-# PTH: flake8-use-pathlib
-select = [
-    "E", "F", "I", "N", "W", "B", "C", "D", "ANN", "PTH", "C90",
-]
-
+select = ["ALL"]
 # Ignore specific rules if needed
 ignore = [
-    "D100", # Missing docstring in public module (often redundant)
-    "D104", # Missing docstring in public package
+    "S101", # Allow assert
+    "S108", # Allow usage of /tmp/
+    "PLR0911", # Too many return statements
 ]
 
 [tool.ruff.lint.pydocstyle]
@@ -80,3 +65,6 @@ convention = "google"
 
 [tool.ruff.lint.mccabe]
 max-complexity = 12
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["PLR2004"]

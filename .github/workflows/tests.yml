@@ -1,32 +1,79 @@
-name: Python Tests
+name: CI
 
 on:
   push:
-    branches: [ "main", "latest" ]
+    branches: ["main", "latest"]
   pull_request:
-    branches: [ "main", "latest" ]
+    branches: ["main", "latest"]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  test:
+  lint:
+    name: Lint & Format
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Install uv
-      uses: astral-sh/setup-uv@v5
-      with:
-        enable-cache: true
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
 
-    - name: Set up Python 3.14
-      run: |
-        uv python install 3.14
-        uv python pin 3.14
+      - name: Set up Python 3.14
+        run: uv python install 3.14
 
-    - name: Install dependencies
-      run: uv sync --all-extras --dev
+      - name: Install dependencies
+        run: uv sync --all-extras --dev
 
-    - name: Lint and Test
-      run: |
-        export PYTHONPATH=$PYTHONPATH:$(pwd)/src
-        uv run ruff check .
-        uv run pytest
+      - name: Ruff check
+        run: uv run ruff check .
+
+      - name: Ruff format
+        run: uv run ruff format --check .
+
+  test-linux:
+    name: Tests (Linux)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Set up Python 3.14
+        run: uv python install 3.14
+
+      - name: Install dependencies
+        run: uv sync --all-extras --dev
+
+      - name: Run pytest
+        run: |
+          export PYTHONPATH=$PYTHONPATH:$(pwd)/src
+          uv run pytest
+
+  test-windows:
+    name: Tests (Windows)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Set up Python 3.14
+        run: uv python install 3.14
+
+      - name: Install dependencies
+        run: uv sync --all-extras --dev
+
+      - name: Run pytest
+        run: |
+          $env:PYTHONPATH = "$env:PYTHONPATH;$(Get-Location)/src"
+          uv run pytest
