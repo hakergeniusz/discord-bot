@@ -26,6 +26,7 @@ from discord.ext import commands
 from core.admin_check import admin_check
 from core.logger import get_logger
 from core.youtube import download_youtube_video, format_duration
+from core.config import ADMINS
 
 logger = get_logger(__name__)
 
@@ -129,7 +130,7 @@ class Music(commands.Cog):
         guild_id = ctx.guild.id
         queue = self.queues.get(guild_id, [])
         is_already_in_queue = any(s.requester_id == ctx.author.id for s in queue)
-        if is_already_in_queue:
+        if is_already_in_queue and ctx.author.id not in ADMINS:
             await ctx.send("You already have a song in in the queue.")
             return
 
