@@ -51,7 +51,7 @@ jobs:
       - name: Install dependencies
         run: uv sync --all-extras --dev
 
-      - name: Run pytest
+      - name: Run tests (including startup check)
         run: |
           export PYTHONPATH=$PYTHONPATH:$(pwd)/src
           uv run pytest
@@ -73,7 +73,29 @@ jobs:
       - name: Install dependencies
         run: uv sync --all-extras --dev
 
-      - name: Run pytest
+      - name: Run tests (including startup check)
         run: |
           $env:PYTHONPATH = "$env:PYTHONPATH;$(Get-Location)/src"
+          uv run pytest
+
+  test-macos:
+    name: Tests (macOS)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Set up Python 3.14
+        run: uv python install 3.14
+
+      - name: Install dependencies
+        run: uv sync --all-extras --dev
+
+      - name: Run tests (including startup check)
+        run: |
+          export PYTHONPATH=$PYTHONPATH:$(pwd)/src
           uv run pytest
