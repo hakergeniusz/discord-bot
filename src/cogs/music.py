@@ -24,9 +24,9 @@ from discord import app_commands
 from discord.ext import commands
 
 from core.admin_check import admin_check
+from core.config import ADMINS
 from core.logger import get_logger
 from core.youtube import download_youtube_video, format_duration
-from core.config import ADMINS
 
 logger = get_logger(__name__)
 
