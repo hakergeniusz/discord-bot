@@ -46,7 +46,7 @@ async def test_process_prompt_success(mock_generate: AsyncMock) -> None:
     result_chunks = [chunk async for chunk in process_prompt("hi")]
 
     assert result_chunks == ["Hello", " ", "world!"]
-    mock_generate.assert_called_once_with(contents="hi", model="gemma-4-26b-a4b-it")
+    mock_generate.assert_called_once_with(contents="hi", model="gemma-4-31b-it")
 
 
 @pytest.mark.asyncio
