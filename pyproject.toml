@@ -50,9 +50,10 @@ extend-exclude = [
     "*.py.example",
 ]
 line-length = 100
+preview = true  # required for CPY001 (mandatory file header)
 
 [tool.ruff.lint]
-select = ["ALL"]
+select = ["ALL", "CPY001"]
 # Ignore specific rules if needed
 ignore = [
     "S101", # Allow assert
@@ -68,3 +69,7 @@ max-complexity = 12
 
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = ["PLR2004"]
+
+[tool.ruff.lint.flake8-copyright]
+# Mandatory EUPL copyright + license header on every Python file (CPY001 is preview-only).
+author = "hakergeniusz"
