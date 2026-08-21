@@ -19,7 +19,11 @@ import sys
 
 
 def get_logger(name: str) -> logging.Logger:
-    """Creates and returns a configured logger."""
+    """Creates and returns a configured logger.
+
+    Returns:
+        logging.Logger: A configured logger instance.
+    """
     logger = logging.getLogger(name)
     logger.propagate = False
     if not logger.handlers:

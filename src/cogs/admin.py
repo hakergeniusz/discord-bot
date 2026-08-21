@@ -16,6 +16,7 @@
 
 import asyncio
 import contextlib
+import typing
 
 import aiohttp
 import discord
@@ -116,6 +117,7 @@ class AdminCommands(commands.Cog):
     @commands.has_permissions(manage_messages=True)
     @app_commands.describe(range_val="How many messages you want to delete (max: 100)")
     @commands.guild_only()
+    @typing.override
     async def purge(
         self,
         ctx: commands.Context,
@@ -158,6 +160,7 @@ class AdminCommands(commands.Cog):
         name="change_status",
         description="Changes the status of the bot",
     )
+    @typing.override
     async def change_status(self, interaction: discord.Interaction) -> None:
         """Sends a message with buttons to change the status of the bot."""
         logger.info("Change status command invoked by %s", interaction.user)
@@ -171,6 +174,7 @@ class AdminCommands(commands.Cog):
     @admin_check()
     @commands.hybrid_command(name="create_webhook", description="Creates a webhook.")
     @commands.guild_only()
+    @typing.override
     async def create_webhook(self, ctx: commands.Context) -> None:
         """Creates a webhook for the current channel."""
         logger.info("Create webhook command invoked by %s", ctx.author)
@@ -183,12 +187,13 @@ class AdminCommands(commands.Cog):
                 "I am forbidden to create a webhook in this channel (I don't have permissions).",
             )
             logger.warning("Webhook creation forbidden")
-        except discord.HTTPException, aiohttp.ClientError:  # works in python 3.14!
+        except discord.HTTPException, aiohttp.ClientError:
             await ctx.send("Failed to create webhook.")
             logger.exception("Webhook creation failed")
 
     @commands.hybrid_command(name="delete_webhook", description="Deletes a webhook")
     @app_commands.describe(webhook="Webhook link.")
+    @typing.override
     async def delete_webhook(self, ctx: commands.Context, webhook: str) -> None:
         """Deletes a webhook from the a channel."""
         logger.info("Delete webhook command invoked by %s", ctx.author)
@@ -196,12 +201,12 @@ class AdminCommands(commands.Cog):
             aiohttp.ClientSession() as session,
             session.delete(webhook) as response,
         ):
-            if response.status in (401, 404):
+            if response.status in {401, 404}:
                 await ctx.send(
                     "This webhook does not exist. You may have already deleted it.",
                 )
                 logger.warning("Webhook deletion failed: not found")
-            elif response.status in (200, 204):
+            elif response.status in {200, 204}:
                 await ctx.send("Removed webhook successfully")
                 logger.info("Webhook removed successfully")
             else:

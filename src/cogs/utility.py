@@ -16,6 +16,7 @@
 
 import asyncio
 import secrets
+import typing
 from pathlib import Path
 
 import aiohttp
@@ -53,6 +54,7 @@ class Utility(commands.Cog):
         avatar_url="The avatar URL for the webhook",
     )
     @app_commands.checks.cooldown(1, 1.5, key=lambda i: (i.guild_id, i.user.id))
+    @typing.override
     async def webhook(
         self,
         interaction: discord.Interaction,
@@ -118,6 +120,7 @@ class Utility(commands.Cog):
         delete_after="How many seconds after sending should it be deleted.",
     )
     @app_commands.guild_only()
+    @typing.override
     async def say(
         self,
         interaction: discord.Interaction,
@@ -146,6 +149,7 @@ class Utility(commands.Cog):
         name="dm_or_not",
         description="Checks is the message sent in the DM or a server",
     )
+    @typing.override
     async def dmornot(self, ctx: commands.Context) -> None:
         """Checks if the command was triggered in a DM or a server."""
         if ctx.guild:
@@ -159,6 +163,7 @@ class Utility(commands.Cog):
     )
     @app_commands.describe(prompt="Message to the AI")
     @commands.cooldown(1, 15, commands.BucketType.member)
+    @typing.override
     async def ai(self, ctx: commands.Context, *, prompt: str) -> None:
         """AI that responds to user questions using Gemma 4 31B."""
         await ctx.defer()
@@ -205,12 +210,13 @@ class Utility(commands.Cog):
         name="hide_conversation",
         description="Hides the conversation",
     )
+    @typing.override
     async def hide(self, ctx: commands.Context) -> None:
         """Hides the conversation by sending many empty lines."""
         mes = """
 
         """
-        mes = mes * 100
+        mes *= 100
         mes = "e" + mes + "e"
         await ctx.send(mes)
 

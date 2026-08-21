@@ -21,7 +21,11 @@ import pytest
 
 
 def get_python_files() -> list[str]:
-    """Get all Python files in the src directory."""
+    """Get all Python files in the src directory.
+
+    Returns:
+        list[str]: List of file paths as strings.
+    """
     src_dir = Path(__file__).resolve().parent.parent / "src"
     return [str(path) for path in src_dir.rglob("*.py")]
 

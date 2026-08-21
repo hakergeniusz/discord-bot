@@ -23,8 +23,7 @@ from discord.ext import commands
 from cogs.error_handler import ErrorHandler
 
 
-@pytest.mark.asyncio
-async def test_error_handler_initialization() -> None:
+def test_error_handler_initialization() -> None:
     """Test ErrorHandler initialization."""
     bot = MagicMock(spec=commands.Bot)
     cog = ErrorHandler(bot)

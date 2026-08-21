@@ -31,6 +31,9 @@ def admin_check() -> commands.check:
 
     Implementation:
         Add @admin_check() at start of command's code.
+
+    Returns:
+        commands.check: A decorator that can be used to protect bot commands.
     """
 
     async def predicate(ctx: commands.Context) -> bool:

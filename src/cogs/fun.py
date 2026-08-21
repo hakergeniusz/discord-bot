@@ -14,6 +14,7 @@
 
 """Module for fun and Formula 1 related commands."""
 
+import typing
 from pathlib import Path
 
 import discord
@@ -45,6 +46,7 @@ class F1Commands(commands.Cog):
     # Remember to change *roundnumber* if F1 introduces an F1 calendar
     # with more than 24 rounds.
     @app_commands.checks.cooldown(1, 1.5, key=lambda i: (i.guild_id, i.user.id))
+    @typing.override
     async def f1_race_result(
         self,
         ctx: commands.Context,
@@ -82,6 +84,7 @@ class F1Commands(commands.Cog):
     # Remember to change *roundnumber* if F1 introduces an F1 calendar
     # with more than 24 rounds.
     @app_commands.checks.cooldown(1, 1.5, key=lambda i: (i.guild_id, i.user.id))
+    @typing.override
     async def f1_qualifying_result(
         self,
         ctx: commands.Context,
@@ -108,6 +111,7 @@ class F1Commands(commands.Cog):
     @commands.hybrid_command(name="f1_calendar", description="Shows an F1 calendar")
     @app_commands.describe(season="Season of the calendar you want to know")
     @app_commands.checks.cooldown(1, 1.5, key=lambda i: (i.guild_id, i.user.id))
+    @typing.override
     async def f1_calendar(
         self,
         ctx: commands.Context,
@@ -141,6 +145,7 @@ class F1Commands(commands.Cog):
     )
     @app_commands.describe(season="Season you want standings for.")
     @app_commands.checks.cooldown(1, 1.5, key=lambda i: (i.guild_id, i.user.id))
+    @typing.override
     async def f1_standings(
         self,
         ctx: commands.Context,
@@ -175,6 +180,7 @@ class HowManyButtonButtons(discord.ui.View):
         self.bot = bot
 
     @discord.ui.button(label="Click me!", style=discord.ButtonStyle.success)
+    @typing.override
     async def howmanybutton_button(
         self,
         interaction: discord.Interaction,
@@ -198,6 +204,7 @@ class Meme(commands.Cog):
         self.bot = bot
 
     @commands.hybrid_command(name="nothing", description=".")
+    @typing.override
     async def nothing(self, ctx: commands.Context) -> None:
         """Literally nothing."""
         await ctx.send(".", ephemeral=True)
@@ -206,6 +213,7 @@ class Meme(commands.Cog):
         name="howmanytimes",
         description="Says how many times was the command typed",
     )
+    @typing.override
     async def howmanytimes(self, ctx: commands.Context) -> None:
         """Says how many times this user typed this command."""
         count: int = await change_file(
@@ -216,21 +224,25 @@ class Meme(commands.Cog):
         await ctx.send(f"You have used this command {count} {suffix}!")
 
     @commands.hybrid_command(name="complain", description="Compain to the bot owner.")
+    @typing.override
     async def complain(self, ctx: commands.Context) -> None:
         """Sends a rickroll GIF when someone tries to complain."""
         await ctx.send(RICKROLL_GIF_URL, ephemeral=True)
 
     @commands.hybrid_command(name="heart", description="Shows a heart.")
+    @typing.override
     async def heart(self, ctx: commands.Context) -> None:
         """Shows a middle finger emoji."""
         await ctx.send(":middle_finger:", ephemeral=True)
 
     @commands.hybrid_command(name="finger", description="Shows a finger.")
+    @typing.override
     async def finger(self, ctx: commands.Context) -> None:
         """Shows a heart emoji."""
         await ctx.send(":heart:", ephemeral=True)
 
     @commands.hybrid_command(name="rickroll_me", description="Rickrolls the user.")
+    @typing.override
     async def rickroll(self, ctx: commands.Context) -> None:
         """Rickrolls the user."""
         await ctx.send("Ok, if you want to be rickrolled, you will be.")
@@ -240,6 +252,7 @@ class Meme(commands.Cog):
         name="howmanybutton",
         description="How many times did you press the button?",
     )
+    @typing.override
     async def howmanybutton(self, interaction: discord.Interaction) -> None:
         """Sends a message with a button that tracks global clicks.
 
@@ -250,6 +263,7 @@ class Meme(commands.Cog):
 
     @commands.hybrid_command(name="cowsay", description="I'm a cow!")
     @app_commands.describe(text="What you want me to say?")
+    @typing.override
     async def cowsay(self, ctx: commands.Context, *, text: str | None = None) -> None:
         """I'm a cow! Sends text wrapped in cowsay."""
         if text and len(text) >= COWSAY_INPUT_LIMIT:
@@ -258,6 +272,7 @@ class Meme(commands.Cog):
         await ctx.send(cowsay(text))
 
     @commands.command(name="nvidia")
+    @typing.override
     async def nvidia(self, ctx: commands.Context) -> None:
         """Sends the Linus Torvalds NVIDIA GIF."""
         await ctx.reply(
@@ -266,6 +281,7 @@ class Meme(commands.Cog):
         )
 
     @commands.hybrid_command(name="archbtw", description="Do you use Arch Linux?")
+    @typing.override
     async def archbtw(self, ctx: commands.Context) -> None:
         """Says "I use Arch btw" meme."""
         await ctx.reply("I use Arch btw")

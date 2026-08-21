@@ -14,6 +14,8 @@
 
 """Module for miscellaneous commands such as ping and license information."""
 
+import typing
+
 import discord
 from discord.ext import commands
 
@@ -29,12 +31,14 @@ class Other(commands.Cog):
         name="ping",
         description="Pong! Outputs the latency of the bot.",
     )
+    @typing.override
     async def ping(self, ctx: commands.Context) -> None:
         """Outputs the latency of the bot."""
         latency = round(self.bot.latency * 1000)
         await ctx.reply(f"Pong! Latency is {latency}ms")
 
     @commands.hybrid_command(name="source", description="Source of the bot.")
+    @typing.override
     async def source(self, ctx: commands.Context) -> None:
         """Sends the source code link of the bot."""
         if not ctx.interaction:
@@ -56,6 +60,7 @@ class Other(commands.Cog):
         )
 
     @commands.hybrid_command(name="license", description="Bot's license information.")
+    @typing.override
     async def licence(self, ctx: commands.Context) -> None:
         """Sends the bot's license information."""
         if not ctx.interaction:

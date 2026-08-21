@@ -26,7 +26,11 @@ TEST_ADMIN_ID = 123456789
 
 @pytest.fixture
 def mock_ctx() -> AsyncMock:
-    """Fixture for mocking discord.Context."""
+    """Fixture for mocking discord.Context.
+
+    Returns:
+        AsyncMock: A mocked discord.Context object.
+    """
     ctx = AsyncMock()
     ctx.message = AsyncMock()
     ctx.author = MagicMock(spec=discord.Member)
@@ -36,7 +40,11 @@ def mock_ctx() -> AsyncMock:
 
 @pytest.fixture
 def mock_interaction() -> AsyncMock:
-    """Fixture for mocking discord.Interaction."""
+    """Fixture for mocking discord.Interaction.
+
+    Returns:
+        AsyncMock: A mocked discord.Interaction object.
+    """
     interaction = AsyncMock(spec=discord.Interaction)
     interaction.user = MagicMock(spec=discord.Member)
     interaction.user.id = 0

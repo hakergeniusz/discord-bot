@@ -22,8 +22,7 @@ import pytest
 from cogs.other import Other
 
 
-@pytest.mark.asyncio
-async def test_other_init() -> None:
+def test_other_init() -> None:
     """Test Other cog initialization."""
     bot = MagicMock(spec=discord.ext.commands.Bot)
     cog = Other(bot)

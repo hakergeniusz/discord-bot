@@ -22,8 +22,7 @@ import pytest
 from cogs.music import Music
 
 
-@pytest.mark.asyncio
-async def test_music_init() -> None:
+def test_music_init() -> None:
     """Test Music cog initialization."""
     bot = MagicMock(spec=discord.ext.commands.Bot)
     cog = Music(bot)

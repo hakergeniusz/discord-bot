@@ -24,7 +24,11 @@ from src.core.image_checker import image_checker
 
 @pytest.fixture
 def mock_session() -> AsyncMock:
-    """Fixture for mocking aiohttp.ClientSession."""
+    """Fixture for mocking aiohttp.ClientSession.
+
+    Returns:
+        AsyncMock: A mocked aiohttp.ClientSession object.
+    """
     return AsyncMock(spec=aiohttp.ClientSession)
 
 

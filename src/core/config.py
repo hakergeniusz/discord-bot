@@ -150,7 +150,7 @@ STATUS_MAP = {
 
 # Magic values
 
-## Response codes
+# Response codes
 UNAUTHORIZED_RESPONSE_CODE: int = 401
 RATE_LIMIT_RESPONSE_CODE: int = 429
 SUCCESS_RESPONSE_CODE: int = 204

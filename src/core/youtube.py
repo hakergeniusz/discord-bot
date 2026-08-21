@@ -16,6 +16,7 @@
 
 import json
 import re
+from pathlib import Path
 
 import yt_dlp
 
@@ -95,6 +96,46 @@ def format_duration(seconds: int) -> str:
     return " ".join(parts)
 
 
+def _process_video_info(
+    info: dict,
+    video_id: str,
+    video_path: str,
+    metadata_path: str,
+) -> tuple[str | None, str | None, str | None, str | None, str | None] | None:
+    """Process video info and save metadata.
+
+    Args:
+        info: Video info from yt-dlp.
+        video_id: The video ID.
+        video_path: Path to the video file.
+        metadata_path: Path to the metadata file.
+
+    Returns:
+        Tuple of video info or None if processing failed.
+    """
+    if not info:
+        return None
+
+    title = info.get("title")
+    duration = info.get("duration")
+    video_id = info.get("id")
+    thumbnail = info.get("thumbnail")
+    formatted_duration = format_duration(int(duration)) if duration else "0 seconds"
+
+    metadata = {
+        "title": title,
+        "duration": formatted_duration,
+        "thumbnail": thumbnail,
+    }
+    with Path(metadata_path).open("w", encoding="utf-8") as f:
+        json.dump(metadata, f)
+
+    if Path(video_path).exists():
+        return (str(video_path), title, formatted_duration, thumbnail, video_id)
+
+    return None
+
+
 def download_youtube_video(
     url: str,
 ) -> tuple[str | None, str | None, str | None, str | None, str | None]:
@@ -140,33 +181,41 @@ def download_youtube_video(
             pass
 
     try:
-        with yt_dlp.YoutubeDL(YDL_OPTS) as ydl:
-            if video_path.exists():
-                info = ydl.extract_info(url, download=False)
-            else:
-                info = ydl.extract_info(url, download=True)
-
-            if not info:
-                return None, None, None, None, None
-
-            video_id = info.get("id")
-            title = info.get("title")
-            duration = info.get("duration")
-            video_id = info.get("id")
-            thumbnail = info.get("thumbnail")
-            formatted_duration = format_duration(int(duration)) if duration else "0 seconds"
-
-            metadata = {
-                "title": title,
-                "duration": formatted_duration,
-                "thumbnail": thumbnail,
-            }
-            with metadata_path.open("w", encoding="utf-8") as f:
-                json.dump(metadata, f)
-
-            if video_path.exists():
-                return (str(video_path), title, formatted_duration, thumbnail, video_id)
-
-            return None, None, None, None, None
+        return _download_and_process(url, video_id, video_path, metadata_path)
     except yt_dlp.DownloadError, OSError, TypeError:
+        return None, None, None, None, None
+
+
+def _download_and_process(
+    url: str,
+    video_id: str,
+    video_path: Path,
+    metadata_path: Path,
+) -> tuple[str | None, str | None, str | None, str | None, str | None]:
+    """Download and process video info.
+
+    Args:
+        url: The YouTube URL.
+        video_id: The video ID.
+        video_path: Path to the video file.
+        metadata_path: Path to the metadata file.
+
+    Returns:
+        Tuple of video info or None if processing failed.
+    """
+    with yt_dlp.YoutubeDL(YDL_OPTS) as ydl:
+        if video_path.exists():
+            info = ydl.extract_info(url, download=False)
+        else:
+            info = ydl.extract_info(url, download=True)
+
+        result = _process_video_info(
+            info,
+            video_id,
+            str(video_path),
+            str(metadata_path),
+        )
+        if result is not None:
+            return result
+
         return None, None, None, None, None

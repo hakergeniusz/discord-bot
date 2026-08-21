@@ -16,6 +16,7 @@
 
 import asyncio
 import contextlib
+import typing
 
 import discord
 from discord import app_commands
@@ -40,6 +41,7 @@ class ErrorHandler(commands.Cog):
         self.bot.tree.on_error = self.on_app_command_error
         logger.debug("App command error handler set")
 
+    @typing.override
     async def on_app_command_error(
         self,
         interaction: discord.Interaction,
@@ -58,9 +60,10 @@ class ErrorHandler(commands.Cog):
         if isinstance(error, app_commands.CommandInvokeError):
             error = error.original
 
-        logger.exception("Slash command exception: %s", error)
+        logger.error("Slash command exception: %s", error)
 
     @commands.Cog.listener()
+    @typing.override
     async def on_command_error(
         self,
         ctx: commands.Context,
@@ -75,7 +78,7 @@ class ErrorHandler(commands.Cog):
         if isinstance(error, commands.CommandInvokeError):
             error = error.original
 
-        logger.exception("Command exception: %s", error)
+        logger.error("Command exception: %s", error)
         if isinstance(error, commands.CommandOnCooldown):
             message = f"You are on cooldown. Please try again in {error.retry_after:.2f} seconds."
             if ctx.interaction:

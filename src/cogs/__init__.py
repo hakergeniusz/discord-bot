@@ -25,7 +25,3 @@ The package is intentionally kept lightweight - it only imports the
 submodules when required, allowing the bot to start up quickly and to
 reload cogs without restarting the whole process.
 """
-
-from core.logger import get_logger
-
-logger = get_logger(__name__)

@@ -23,16 +23,14 @@ from discord.ext import commands
 from cogs.fun import F1Commands, HowManyButtonButtons, Meme
 
 
-@pytest.mark.asyncio
-async def test_f1_commands_init() -> None:
+def test_f1_commands_init() -> None:
     """Test F1Commands initialization."""
     bot = MagicMock(spec=discord.ext.commands.Bot)
     cog = F1Commands(bot)
     assert cog.bot == bot
 
 
-@pytest.mark.asyncio
-async def test_meme_init() -> None:
+def test_meme_init() -> None:
     """Test Meme cog initialization."""
     bot = MagicMock(spec=discord.ext.commands.Bot)
     cog = Meme(bot)

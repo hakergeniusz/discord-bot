@@ -39,8 +39,7 @@ async def test_status_buttons_online() -> None:
     interaction.response.send_message.assert_called_once()
 
 
-@pytest.mark.asyncio
-async def test_admin_commands_init() -> None:
+def test_admin_commands_init() -> None:
     """Test initialization of AdminCommands cog."""
     bot = MagicMock(spec=commands.Bot)
     cog = AdminCommands(bot)

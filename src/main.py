@@ -47,7 +47,11 @@ class MyBot(commands.Bot):
         await self.load_cogs()
 
     async def load_cogs(self) -> None:
-        """Walk through the cogs directory and load all Python files as extensions."""
+        """Walk through the cogs directory and load all Python files as extensions.
+
+        Raises:
+            RuntimeError: If no cogs could be loaded.
+        """
         cogs_path: Path = Path(__file__).resolve().parent / "cogs"  # noqa: ASYNC240
         count: int = 0
         for path in cogs_path.rglob("*.py"):  # noqa: ASYNC240

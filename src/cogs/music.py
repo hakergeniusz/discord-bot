@@ -17,6 +17,7 @@
 import asyncio
 import sys
 import time
+import typing
 from dataclasses import dataclass
 
 import discord
@@ -72,35 +73,48 @@ class Music(commands.Cog):
 
         song = self.queues[guild_id].pop(0)
         self.current_song[guild_id] = song
+
+        ffmpeg_options = {"executable": "ffmpeg.exe"} if sys.platform == "win32" else {}
+        music = discord.FFmpegPCMAudio(song.path, **ffmpeg_options)
+
+        def after_callback(_: Exception | None) -> None:
+            self.bot.loop.call_soon_threadsafe(
+                lambda: asyncio.create_task(self._play_next(guild_id, interaction)),
+            )
+
         try:
-            ffmpeg_options = {"executable": "ffmpeg.exe"} if sys.platform == "win32" else {}
-            music = discord.FFmpegPCMAudio(song.path, **ffmpeg_options)
-            vc_chan.play(
-                music,
-                after=lambda _: self.bot.loop.call_soon_threadsafe(
-                    lambda: asyncio.create_task(self._play_next(guild_id, interaction)),
-                ),
-            )
-            yt_url = f"https://www.youtube.com/watch?v={song.video_id}"
-            embed = discord.Embed(
-                title="Starting playing",
-                description=f"**[{song.title}]({yt_url})**",
-                color=discord.Color.blue(),
-            )
-            embed.add_field(name="Duration", value=song.duration, inline=True)
-            embed.add_field(
-                name="Requested by",
-                value=f"<@{song.requester_id}>",
-                inline=True,
-            )
-            if song.thumbnail:
-                embed.set_thumbnail(url=song.thumbnail)
-            await interaction.channel.send(embed=embed)
-            song.time_started = int(time.time())
+            vc_chan.play(music, after=after_callback)
         except discord.DiscordException, OSError:
             logger.exception("Failed to play audio")
+            return
+
+        await Music._send_now_playing_embed(interaction, song)
+
+    @staticmethod
+    async def _send_now_playing_embed(
+        interaction: discord.Interaction | commands.Context,
+        song: Song,
+    ) -> None:
+        """Send the 'now playing' embed."""
+        yt_url = f"https://www.youtube.com/watch?v={song.video_id}"
+        embed = discord.Embed(
+            title="Starting playing",
+            description=f"**[{song.title}]({yt_url})**",
+            color=discord.Color.blue(),
+        )
+        embed.add_field(name="Duration", value=song.duration, inline=True)
+        embed.add_field(
+            name="Requested by",
+            value=f"<@{song.requester_id}>",
+            inline=True,
+        )
+        if song.thumbnail:
+            embed.set_thumbnail(url=song.thumbnail)
+        await interaction.channel.send(embed=embed)
+        song.time_started = int(time.time())
 
     @commands.hybrid_group(name="music", invoke_without_command=True)
+    @typing.override
     async def music(self, ctx: commands.Context) -> None:
         """Default command used to group other ones."""
         if ctx.invoked_subcommand is None:
@@ -180,36 +194,45 @@ class Music(commands.Cog):
         else:
             await vc_chan.move_to(user_vc_chan)
 
-        try:
-            if not vc_chan or not isinstance(vc_chan, discord.VoiceClient):
-                await first_response.edit(content="Voice client not connected.")
-                return
-            ffmpeg_options = {"executable": "ffmpeg.exe"} if sys.platform == "win32" else {}
-            music = discord.FFmpegPCMAudio(path, **ffmpeg_options)
-            self.current_song[guild_id] = song
-            vc_chan.play(
-                music,
-                after=lambda _: self.bot.loop.call_soon_threadsafe(
-                    lambda: asyncio.create_task(self._play_next(guild_id, ctx)),
-                ),
+        await self._start_playback(ctx, first_response, guild_id, song, path)
+
+    async def _start_playback(
+        self,
+        ctx: commands.Context,
+        first_response: discord.Message,
+        guild_id: int,
+        song: Song,
+        path: str,
+    ) -> None:
+        """Start playing a song in a voice channel."""
+        vc_chan = ctx.guild.voice_client
+        if not vc_chan or not isinstance(vc_chan, discord.VoiceClient):
+            await first_response.edit(content="Voice client not connected.")
+            return
+
+        ffmpeg_options = {"executable": "ffmpeg.exe"} if sys.platform == "win32" else {}
+        music = discord.FFmpegPCMAudio(path, **ffmpeg_options)
+        self.current_song[guild_id] = song
+
+        def after_callback(_: Exception | None) -> None:
+            self.bot.loop.call_soon_threadsafe(
+                lambda: asyncio.create_task(self._play_next(guild_id, ctx)),
             )
+
+        try:
+            vc_chan.play(music, after=after_callback)
         except discord.DiscordException, OSError:
             logger.exception("Failed to play audio")
             self.current_song[guild_id] = None
             await first_response.edit(content="Failed to play audio.")
             return
 
-        embed = discord.Embed(
-            title="Started playing",
-            description=f"**{title}** ({duration})",
-            color=discord.Color.green(),
-        )
-        embed.set_image(url=thumbnail)
-        await first_response.edit(embed=embed, content="")
+        await Music._send_now_playing_embed(ctx, song)
 
     @commands.guild_only()
     @admin_check()
     @music.command(name="leave", description="Leaves a voice channel (Admin only).")
+    @typing.override
     async def leave(self, ctx: commands.Context) -> None:
         """Leaves the current voice channel."""
         if not ctx.guild.voice_client:
@@ -230,6 +253,7 @@ class Music(commands.Cog):
 
     @commands.guild_only()
     @music.command(name="queue", description="Shows the current music queue")
+    @typing.override
     async def queue(self, ctx: commands.Context) -> None:
         """Shows the current music queue."""
         guild_id = ctx.guild.id
@@ -259,6 +283,7 @@ class Music(commands.Cog):
     @admin_check()
     @commands.guild_only()
     @music.command(name="skip", description="Skips the currently playing song")
+    @typing.override
     async def skip(self, ctx: commands.Context) -> None:
         """Skips the currently playing song."""
         if not ctx.guild:
@@ -277,6 +302,7 @@ class Music(commands.Cog):
         aliases=["np", "current"],
         description="Shows the currently playing song",
     )
+    @typing.override
     async def nowplaying(self, ctx: commands.Context) -> None:
         """Shows the currently playing song."""
         guild_id = ctx.guild.id
