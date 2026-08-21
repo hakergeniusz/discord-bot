@@ -1,0 +1,72 @@
+# Copyright (c) 2025-2026 hakergeniusz
+#
+# Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the European
+# Commission - subsequent versions of the EUPL (the "Licence"); You may not use this work
+# except in compliance with the Licence.
+#
+# You may obtain a copy of the Licence at:
+# https://joinup.ec.europa.eu/software/page/eupl
+#
+# Unless required by applicable law or agreed to in writing, software distributed under
+# the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
+# ANY KIND, either express or implied. See the Licence for the specific language
+# governing permissions and limitations under the Licence.
+
+name: Container
+
+on:
+  push:
+    branches: ["main", "latest"]
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  build-and-push:
+    name: Build & Push image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Tag with the branch name (main / latest); also keep a commit SHA tag.
+      - name: Compute image name and tags
+        id: meta
+        run: |
+          repo_lower="${GITHUB_REPOSITORY,,}"
+          echo "name=${repo_lower}" >> "$GITHUB_OUTPUT"
+          {
+            echo "tags<<EOF"
+            echo "${GITHUB_REF_NAME}"
+            echo "sha-${GITHUB_SHA}"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Build image
+        id: build
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: ${{ steps.meta.outputs.name }}
+          tags: ${{ steps.meta.outputs.tags }}
+          containerfiles: |
+            ./Containerfile
+
+      - name: Push to GHCR
+        id: push
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: ${{ steps.build.outputs.image }}
+          tags: ${{ steps.build.outputs.tags }}
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Image digest
+        run: echo "Pushed ${{ steps.push.outputs.registry-path }}@${{ steps.push.outputs.digest }}"

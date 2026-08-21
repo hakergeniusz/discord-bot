@@ -1,0 +1,20 @@
+# Everything the image build does not need.
+.git
+.github
+.venv
+.claude
+.zed
+.vscode
+.pytest_cache
+.ruff_cache
+__pycache__/
+**/__pycache__/
+*.pyc
+.env
+config.yaml
+tmp/
+tests/
+AGENTS.md
+CLAUDE.md
+Containerfile
+.containerignore
