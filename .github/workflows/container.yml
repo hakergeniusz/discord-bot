@@ -55,6 +55,7 @@ jobs:
     env:
       # e.g. latest-amd64 — overwritten on every push, never accumulates.
       PLATFORM_TAG: ${{ github.ref_name }}-${{ matrix.platform }}
+      PLATFORM: ${{ matrix.platform }}
 
     steps:
       - uses: actions/checkout@v4
@@ -94,8 +95,9 @@ jobs:
           for tag in "${GITHUB_REF_NAME}" "sha-${GITHUB_SHA}"; do
             list="multiarch-${tag}"
             podman manifest create "localhost/${list}"
-            for plat in amd64 arm64 riscv64; do
-              podman manifest add "localhost/${list}" "docker://${repo}:${GITHUB_REF_NAME}-${plat}"
+            for plat in linux/amd64 linux/arm64 linux/riscv64; do
+              plat_tag="${plat//\//-}"
+              podman manifest add "localhost/${list}" "docker://${repo}:${GITHUB_REF_NAME}-${plat_tag}"
             done
             podman manifest push --all "localhost/${list}" "docker://${repo}:${tag}"
             podman manifest rm "localhost/${list}"
