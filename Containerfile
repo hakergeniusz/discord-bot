@@ -28,12 +28,34 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /usr/local/bin/
+# uv from PyPI rather than the astral-sh image: its wheels cover amd64, arm64
+# and riscv64, while the image only ships the first two.
+RUN pip install --no-cache-dir "uv==0.12.5"
+
+# Build dependencies for riscv64: cffi/pynacl/cryptography lack riscv64 wheels
+# and must compile from source. cryptography needs Rust (maturin has riscv64 wheel,
+# rust stable ships riscv64gc-unknown-linux-gnu target).
+# These are only needed on riscv64; on amd64/arm64 the wheels satisfy everything.
+ARG TARGETPLATFORM
+RUN if [ "$TARGETPLATFORM" = "linux/riscv64" ]; then \
+        apt-get update && \
+        apt-get install -y --no-install-recommends \
+            build-essential \
+            pkg-config \
+            libffi-dev \
+            libssl-dev \
+            python3-dev && \
+        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path && \
+        . "$HOME/.cargo/env" && \
+        rustup target add riscv64gc-unknown-linux-gnu && \
+        rm -rf /var/lib/apt/lists/*; \
+    fi
 
 ENV UV_PYTHON_PREFERENCE=only-system \
     UV_COMPILE_BYTECODE=1 \
     UV_LINK_MODE=copy \
-    PATH="/app/.venv/bin:$PATH"
+    PATH="/app/.venv/bin:/root/.cargo/bin:$PATH" \
+    PIP_DEFAULT_TIMEOUT=100
 
 WORKDIR /app
 
