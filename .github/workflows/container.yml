@@ -10,6 +10,7 @@
 # Unless required by applicable law or agreed to in writing, software distributed under
 # the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
 # ANY KIND, either express or implied. See the Licence for the specific language
+# governing permissions and limitations under the Licence.
 
 name: Container
 
@@ -27,7 +28,6 @@ concurrency:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE: discord-bot
 
 jobs:
   build:
@@ -39,7 +39,7 @@ jobs:
       matrix:
         include:
           # Native runners where available; riscv64 rides QEMU emulation.
-          # riscv64 builds from source (cffi/pynacl/cryptography); needs 180 min.
+          # riscv64 builds cffi/pynacl/cryptography from source; needs longer.
           - platform: linux/amd64
             runs-on: ubuntu-latest
             emulate: false
@@ -52,10 +52,6 @@ jobs:
             runs-on: ubuntu-latest
             emulate: true
             timeout: 180
-    env:
-      # e.g. latest-amd64 — overwritten on every push, never accumulates.
-      PLATFORM_TAG: ${{ github.ref_name }}-${{ matrix.platform }}
-      PLATFORM: ${{ matrix.platform }}
 
     steps:
       - uses: actions/checkout@v4
@@ -66,18 +62,30 @@ jobs:
         with:
           platforms: ${{ matrix.platform }}
 
+      # e.g. image=ghcr.io/hakergeniusz/discord-bot, ptag=latest-linux-amd64.
+      # GHCR needs a lowercase full path; tags cannot contain "/".
+      - name: Compute image reference
+        id: meta
+        env:
+          PLATFORM: ${{ matrix.platform }}
+        run: |
+          image="${REGISTRY}/${GITHUB_REPOSITORY,,}"
+          ptag="${GITHUB_REF_NAME}-${PLATFORM//\//-}"
+          echo "image=${image}" >> "$GITHUB_OUTPUT"
+          echo "ptag=${ptag}" >> "$GITHUB_OUTPUT"
+          echo "Building ${image}:${ptag} for ${PLATFORM}"
+
       - name: Build image
         run: |
-          dest="${REGISTRY}/${IMAGE}:${PLATFORM_TAG}"
-          echo "Building ${dest} for ${PLATFORM}"
-          # --identity-label keeps concurrent matrix builds from clobbering
-          # each other's cached layers in the runner's shared storage.
-          podman build --platform "${PLATFORM}" --timestamp 0 --identity-label -t "${dest}" .
+          podman build --platform "${PLATFORM}" --timestamp 0 \
+            -t "${{ steps.meta.outputs.image }}:${{ steps.meta.outputs.ptag }}" .
+        env:
+          PLATFORM: ${{ matrix.platform }}
 
       - name: Push per-platform image
         run: |
           podman login "${REGISTRY}" -u "${{ github.actor }}" -p "${{ secrets.GITHUB_TOKEN }}"
-          podman push "${REGISTRY}/${IMAGE}:${PLATFORM_TAG}"
+          podman push "${{ steps.meta.outputs.image }}:${{ steps.meta.outputs.ptag }}"
 
   merge-manifest:
     name: Publish multi-arch manifest
@@ -89,15 +97,14 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           podman login "${REGISTRY}" -u "${{ github.actor }}" -p "${GITHUB_TOKEN}"
-          repo="${REGISTRY}/${IMAGE}"
+          repo="${REGISTRY}/${GITHUB_REPOSITORY,,}"
 
-          # One list per final tag, both assembled from the per-platform refs.
+          # One list per final tag, assembled from the per-platform refs.
           for tag in "${GITHUB_REF_NAME}" "sha-${GITHUB_SHA}"; do
-            list="multiarch-${tag}"
+            list="multiarch-${tag//\//-}"
             podman manifest create "localhost/${list}"
-            for plat in linux/amd64 linux/arm64 linux/riscv64; do
-              plat_tag="${plat//\//-}"
-              podman manifest add "localhost/${list}" "docker://${repo}:${GITHUB_REF_NAME}-${plat_tag}"
+            for plat in linux-amd64 linux-arm64 linux-riscv64; do
+              podman manifest add "localhost/${list}" "docker://${repo}:${tag}-${plat}"
             done
             podman manifest push --all "localhost/${list}" "docker://${repo}:${tag}"
             podman manifest rm "localhost/${list}"
