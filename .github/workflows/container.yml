@@ -100,7 +100,7 @@ jobs:
           repo="${REGISTRY}/${GITHUB_REPOSITORY,,}"
 
           # One list per final tag, assembled from the per-platform refs.
-          for tag in "${GITHUB_REF_NAME}" "sha-${GITHUB_SHA}"; do
+          for tag in "${GITHUB_REF_NAME}"; do
             list="multiarch-${tag//\//-}"
             podman manifest create "localhost/${list}"
             for plat in linux-amd64 linux-arm64 linux-riscv64; do
