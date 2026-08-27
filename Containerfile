@@ -44,7 +44,8 @@ RUN if [ "$TARGETPLATFORM" = "linux/riscv64" ]; then \
             pkg-config \
             libffi-dev \
             libssl-dev \
-            python3-dev && \
+            python3-dev \
+            curl && \
         curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path && \
         . "$HOME/.cargo/env" && \
         rustup target add riscv64gc-unknown-linux-gnu && \
