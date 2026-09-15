@@ -24,9 +24,14 @@ LABEL org.opencontainers.image.title="discord-bot" \
     org.opencontainers.image.licenses="EUPL-1.2"
 
 # FFmpeg is required at runtime for music playback (yt-dlp pipes through it).
+# Deno is required for runtime JS/TS execution or tooling if used by cogs/bot features.
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends ffmpeg \
+    && apt-get install -y --no-install-recommends ffmpeg curl unzip \
     && rm -rf /var/lib/apt/lists/*
+
+# Install Deno globally to /usr/local
+ENV DENO_INSTALL=/usr/local
+RUN curl -fsSL https://deno.land/install.sh | sh
 
 # uv from PyPI rather than the astral-sh image: its wheels cover amd64, arm64
 # and riscv64, while the image only ships the first two.
@@ -55,7 +60,7 @@ RUN if [ "$TARGETPLATFORM" = "linux/riscv64" ]; then \
 ENV UV_PYTHON_PREFERENCE=only-system \
     UV_COMPILE_BYTECODE=1 \
     UV_LINK_MODE=copy \
-    PATH="/app/.venv/bin:/root/.cargo/bin:$PATH" \
+    PATH="/app/.venv/bin:/root/.cargo/bin:/usr/local/bin:$PATH" \
     PIP_DEFAULT_TIMEOUT=100
 
 WORKDIR /app
