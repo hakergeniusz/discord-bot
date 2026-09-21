@@ -97,3 +97,24 @@ async def test_change_file_existing(
     assert count == 6
     mock_write.assert_called_once_with("6")
     mock_replace.assert_called_once()
+
+
+@pytest.mark.asyncio
+@patch("src.core.howmany.Path.exists")
+@patch("src.core.howmany.Path.read_text")
+@patch("src.core.howmany.Path.write_text")
+@patch("src.core.howmany.Path.replace")
+async def test_mismatched_content(
+    mock_replace: MagicMock,  # ruff: ignore[unused-function-argument]
+    mock_write: MagicMock,
+    mock_read: MagicMock,
+    mock_exists: MagicMock,
+) -> None:
+    """Test mismatched file content (value was not increased)."""
+    mock_exists.return_value = True
+    mock_read.return_value = "1"
+
+    count = await create_file("test_path", "2")
+
+    assert count is None
+    mock_write.assert_called_once_with("2")

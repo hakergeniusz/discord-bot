@@ -74,3 +74,11 @@ async def test_image_checker_timeout(mock_session: AsyncMock) -> None:
 
     result = await image_checker(mock_session, "https://example.com/test.html")
     assert result is False
+
+
+@pytest.mark.asyncio
+async def test_image_checker_no_link(mock_session: AsyncMock) -> None:
+    """Test image checker with empty link input."""
+    empty_input = ""
+    result = await image_checker(mock_session, empty_input)
+    assert result is False

@@ -14,6 +14,7 @@
 
 """Unit tests for the cowsay module."""
 
+from core.config import COWSAY_SLICE_LIMIT
 from src.core.cowsay import cowsay
 
 
@@ -33,3 +34,10 @@ def test_cowsay_codeblock() -> None:
     """Test cowsay with codeblocks in input."""
     cowsay_codeblock = cowsay("Say ``` test")
     assert cowsay_codeblock.count("```") == 2
+
+
+def test_cowsay_slicing() -> None:
+    """Test cowsay slicing after string is too long."""
+    cowsay_long_input = "a" * 2000
+    cowsay_run = cowsay(cowsay_long_input)
+    assert cowsay_long_input[:COWSAY_SLICE_LIMIT] + "..." in cowsay_run

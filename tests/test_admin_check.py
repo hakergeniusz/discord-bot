@@ -157,3 +157,26 @@ async def test_admin_check_slash_not_admin(mock_interaction: AsyncMock) -> None:
             "You don't have required permissions to do that.",
             ephemeral=True,
         )
+
+
+@pytest.mark.asyncio
+async def test_admin_check_no_admins(mock_ctx: AsyncMock) -> None:
+    """Test admin check with no admins in config.yaml."""
+    mock_ctx.author.id = 999
+
+    with (
+        patch("src.core.admin_check.ADMINS", []),
+        patch("asyncio.sleep", return_value=None),
+        patch("discord.ext.commands.check") as mock_check,
+    ):
+        admin_check()
+        predicate = mock_check.call_args[0][0]
+
+        result = await predicate(mock_ctx)
+
+        assert result is False
+        mock_ctx.send.assert_called_once_with(
+            "Admin commands have been disabled.",
+        )
+        mock_ctx.message.delete.assert_called_once()
+        mock_ctx.send.return_value.delete.assert_called_once()
