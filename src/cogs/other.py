@@ -1,4 +1,4 @@
-# Copyright (c) 2025-2026 hakergeniusz
+# Copyright (c) 2025-present hakergeniusz
 #
 # Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the European
 # Commission - subsequent versions of the EUPL (the "Licence"); You may not use this work
@@ -66,7 +66,7 @@ class Other(commands.Cog):
         if not ctx.interaction:
             message = (
                 "📜 **Legal Information & License**\n\n"
-                "**Copyright (c) 2025-2026 hakergeniusz**\n"
+                "**Copyright (c) 2025-present hakergeniusz**\n"
                 "This program is free software: you can redistribute it and/or "
                 "modify it under the terms of the **EUPL-1.2** "
                 "as published by the European Commission.\n\n"
@@ -83,7 +83,7 @@ class Other(commands.Cog):
             title="📜 Legal Information & License",
             color=discord.Color.blue(),
             description=(
-                "**Copyright (c) 2025-2026 hakergeniusz**\n\n"
+                "**Copyright (c) 2025-present hakergeniusz**\n\n"
                 "This program is free software: you can redistribute it and/or "
                 "modify it under the terms of the **EUPL-1.2** "
                 "as published by the European Commission.\n\n"

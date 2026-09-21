@@ -77,3 +77,8 @@ max-complexity = 12
 [tool.ruff.lint.flake8-copyright]
 # Mandatory EUPL copyright + license header on every Python file (CPY001 is preview-only).
 author = "hakergeniusz"
+# Custom notice pattern: the default regex requires numeric years (YYYY-YYYY),
+# but the project uses "2025-present" so the year never needs bumping.
+# NOTE: the pattern must end BEFORE the author name - Ruff requires the
+# configured `author` to immediately follow the regex match.
+notice-rgx = "(?i)copyright \\(c\\) 2025-present"

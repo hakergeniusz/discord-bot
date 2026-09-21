@@ -50,7 +50,7 @@ config.yaml        Bot config (prefix, admin user IDs). Secrets -> .env.
 
 - **Copyright header (MANDATORY at the top of every file):** enforced automatically by ruff's `CPY001` rule — a missing/incorrect header fails `uv run ruff check`.
   ```python
-  # Copyright (c) 2025-2026 hakergeniusz
+  # Copyright (c) 2025-present hakergeniusz
   #
   # Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the European
   # Commission - subsequent versions of the EUPL (the "Licence"); You may not use this work
