@@ -45,7 +45,7 @@ async def test_create_file_success(
 @patch("src.core.howmany.Path.exists")
 async def test_create_file_failure(
     mock_exists: MagicMock,
-    mock_open: MagicMock,  # noqa: ARG001
+    mock_open: MagicMock,  # ruff: ignore[unused-function-argument]
 ) -> None:
     """Test file creation failure when file doesn't exist after writing."""
     mock_exists.return_value = False
@@ -61,7 +61,7 @@ async def test_create_file_failure(
 @patch("src.core.howmany.Path.read_text")
 @patch("src.core.howmany.Path.replace")
 async def test_change_file_new(
-    mock_replace: MagicMock,  # noqa: ARG001
+    mock_replace: MagicMock,  # ruff: ignore[unused-function-argument]
     mock_read: MagicMock,
     mock_write: MagicMock,
     mock_exists: MagicMock,

@@ -52,9 +52,9 @@ class MyBot(commands.Bot):
         Raises:
             RuntimeError: If no cogs could be loaded.
         """
-        cogs_path: Path = Path(__file__).resolve().parent / "cogs"  # noqa: ASYNC240
+        cogs_path: Path = Path(__file__).resolve().parent / "cogs"  # ruff: ignore[blocking-path-method-in-async-function]
         count: int = 0
-        for path in cogs_path.rglob("*.py"):  # noqa: ASYNC240
+        for path in cogs_path.rglob("*.py"):  # ruff: ignore[blocking-path-method-in-async-function]
             if path.name == "__init__.py":
                 continue
 

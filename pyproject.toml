@@ -50,15 +50,15 @@ extend-exclude = [
     "*.py.example",
 ]
 line-length = 100
-preview = true  # required for CPY001 (mandatory file header)
+preview = true  # required for missing-copyright-notice (mandatory file header)
 
 [tool.ruff.lint]
-select = ["ALL", "CPY001"]
+select = ["ALL", "missing-copyright-notice"]
 # Ignore specific rules if needed
 ignore = [
-    "S101", # Allow assert
-    "S108", # Allow usage of /tmp/
-    "PLR0911", # Too many return statements
+    "assert", # Allow assert
+    "hardcoded-temp-file", # Allow usage of /tmp/
+    "too-many-return-statements", # Too many return statements
 ]
 
 [tool.ruff.lint.pydocstyle]
@@ -68,7 +68,7 @@ convention = "google"
 max-complexity = 12
 
 [tool.ruff.lint.per-file-ignores]
-"tests/*" = ["PLR2004"]
+"tests/*" = ["magic-value-comparison"]
 
 [tool.ruff.lint.flake8-copyright]
 # Mandatory EUPL copyright + license header on every Python file (CPY001 is preview-only).

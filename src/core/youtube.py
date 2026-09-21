@@ -39,7 +39,7 @@ YDL_OPTS = {
     "nocheckcertificate": True,
     "ignoreerrors": False,
     "logtostderr": False,
-    "source_address": "0.0.0.0",  # noqa: S104
+    "source_address": "0.0.0.0",  # ruff: ignore[hardcoded-bind-all-interfaces]
     "postprocessors": [
         {
             "key": "FFmpegExtractAudio",
