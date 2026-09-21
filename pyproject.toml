@@ -32,6 +32,10 @@ bot = "main:main"
 
 [tool.uv]
 package = true
+# Override discord-py's PyNaCl<1.6 pin so Dependabot fix (CVE-2025-69277,
+# needs PyNaCl>=1.6.2) can be installed. Voice only uses nacl.secret /
+# nacl.utils, whose API is stable across 1.5 -> 1.6.
+override-dependencies = ["pynacl>=1.6.2"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src"]
