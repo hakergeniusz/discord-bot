@@ -50,9 +50,6 @@ def cowsay(text: str) -> str:
         text = text[:COWSAY_SLICE_LIMIT] + "..."
 
     lines = text.splitlines()
-    if not lines:
-        text = "..."
-        lines = [text]
 
     width = max(len(line) for line in lines)
 
