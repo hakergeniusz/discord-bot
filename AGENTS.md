@@ -81,7 +81,8 @@ config.yaml        Bot config (prefix, admin user IDs). Secrets -> .env.
 **Commits must follow the [Conventional Commits](https://www.conventionalcommits.org/) specification.**  
 Format: `<type>[optional scope]: <description>` — e.g. `feat: add music queue command`.
 
-Every commit message must end with a `Co-authored-by` trailer for Claude, separated from the
+Every commit message made by an autonomous AI agent, or written exclusively by AI (not every
+commit in general), must end with a `Co-authored-by` trailer for Claude, separated from the
 body by a single blank line, exactly as GitHub expects:
 
 ```text
