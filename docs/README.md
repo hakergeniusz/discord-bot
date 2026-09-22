@@ -22,7 +22,7 @@ You must have following installed on your computer for this bot to work correctl
 
 ## 💻 Preparation
 1. Download all files from this repository with `git clone -b main https://github.com/hakergeniusz/discord-bot.git`.
-> NOTE: If you want `latest` branch with new features (also broken bot), use `git clone -b latest https://github.com/hakergeniusz/discord-bot.git`.
+> NOTE: If you want `latest` branch with newer features (may be unstable), use `git clone -b latest https://github.com/hakergeniusz/discord-bot.git`.
 2. Open the folder with `cd discord-bot`.
 3. Create and fill up `.env` and `config.yaml` file.
 4. Run `uv sync` to install all required libraries.
