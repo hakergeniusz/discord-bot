@@ -118,10 +118,13 @@ class Music(commands.Cog):
     async def music(self, ctx: commands.Context) -> None:
         """Default command used to group other ones."""
         if ctx.invoked_subcommand is None:
-            await ctx.send("""
-                Available commands: play, skip, leave, queue, nowplaying.
-                > You can't use music commands in DMs anyway!
-            """)
+            if not ctx.guild:
+                await ctx.send("""
+                    Available commands: play, skip, leave, queue, nowplaying.
+                    > You can't use music commands in DMs anyway!
+                """)
+                return
+            await ctx.send("""Available commands: play, skip, leave, queue, nowplaying.""")
 
     @commands.guild_only()
     @music.command(name="play", description="Plays music on a voice channel")
