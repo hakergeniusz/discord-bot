@@ -13,3 +13,32 @@ By submitting a Pull Request to this repository, you agree that:
 - Fork the repo.
 - Create a new branch for your feature or bugfix.
 - Submit a Pull Request.
+
+## AI policy
+
+You may use LLMs, vibe-coding, and autonomous agents (Claude, Codex,
+OpenCode, local models, etc.). What matters is the result, not the author.
+
+Allowed:
+- AI-assisted or fully AI-written PRs
+- Autonomous-agent branches, incl. auto-opened PRs
+
+Requirements (same bar as human code):
+1. **It works.** `uv run ruff check .`, `uv run ruff format --check .`
+   and `uv run pytest` are green. New logic comes with tests.
+2. **No AI slop.** No dead code, placeholder `TODO`s, hallucinated APIs,
+   over-abstracted helpers, sycophantic comments, or tests that assert
+   nothing (`assert True`, empty mocks, `pass`-only cases).
+3. **Follows this repo's shape.** Thin cogs in `src/cogs/`, logic in
+   `src/core/`, hybrid commands, EUPL header on new files, `TMP_BASE`
+   for temp files, conventional-commit messages.
+4. **You are responsible for any bugs.** If the bot breaks in production, "the AI wrote it"
+   is not a defense. The submitter is responsible for understanding
+   what the PR does.
+5. **Disclose fully-AI work.** If a commit was made by an autonomous
+   agent or written exclusively by AI, add the trailer from `AGENTS.md`:
+   `Co-authored-by: Claude <noreply@anthropic.com>`. Human + AI
+   collaboration needs no trailer. For PRs, append "Made by AI" or "Made by [AI model name, agent name etc.]"
+
+Maintainer may close anything that looks unreviewed, untested, or
+bulk-generated without discussion - even if CI is green.
