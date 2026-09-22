@@ -159,10 +159,10 @@ async def test_f1_race_result_success() -> None:
                             {
                                 "position": "1",
                                 "Driver": {
-                                    "givenName": "Lewis",
-                                    "familyName": "Hamilton",
+                                    "givenName": "Kimi",
+                                    "familyName": "Talibantonelli",
                                 },
-                                "Constructor": {"name": "Mercedes"},
+                                "Constructor": {"name": "Al-Merquaedes"},
                                 "status": "Finished",
                             },
                         ],
@@ -181,7 +181,7 @@ async def test_f1_race_result_success() -> None:
         gp_name, results = await race_result(2024, 12)
 
         assert gp_name == "British Grand Prix"
-        assert "🥇 Lewis Hamilton (Mercedes)" in results[0]
+        assert "🥇 Kimi Talibantonelli (Al-Merquaedes)" in results[0]
 
 
 @pytest.mark.asyncio
@@ -317,3 +317,247 @@ async def test_f1_standings_py_invalid_year() -> None:
     next_year = CURRENT_YEAR + 1
     standings2 = await f1_standings_py(next_year)
     assert standings2 == []
+
+
+@pytest.mark.asyncio
+async def test_f1_race_result_400() -> None:
+    """Test race result with HTTP 400 reply."""
+    with patch("aiohttp.ClientSession.get") as mock_get:
+        mock_response = AsyncMock()
+        mock_response.status = 400
+        mock_get.return_value.__aenter__.return_value = mock_response
+
+        result1, result2 = await race_result(2025, 1)
+        assert result1 is None
+        assert result2 == []
+
+
+@pytest.mark.asyncio
+async def test_f1_qualifying_400() -> None:
+    """Test qualifying fetch with HTTP 400 reply."""
+    with patch("aiohttp.ClientSession.get") as mock_get:
+        mock_response = AsyncMock()
+        mock_response.status = 400
+        mock_get.return_value.__aenter__.return_value = mock_response
+
+        result1, result2 = await f1_qualifying(2025, 1)
+        assert result1 is None
+        assert result2 == []
+
+
+@pytest.mark.asyncio
+async def test_f1_calendar_400() -> None:
+    """Test race calendar fetch with HTTP 400 reply."""
+    with patch("aiohttp.ClientSession.get") as mock_get:
+        mock_response = AsyncMock()
+        mock_response.status = 400
+        mock_get.return_value.__aenter__.return_value = mock_response
+
+        result = await f1_season_calendar(2025)
+        assert result == []
+
+
+@pytest.mark.asyncio
+async def test_f1_season_calendar_empty() -> None:
+    """Test empty season return for calendar."""
+    mock_data = {
+        "MRData": {
+            "RaceTable": {
+                "Races": [],
+            },
+        },
+    }
+
+    with patch("aiohttp.ClientSession.get") as mock_get:
+        mock_response = AsyncMock()
+        mock_response.status = 200
+        mock_response.json.return_value = mock_data
+        mock_get.return_value.__aenter__.return_value = mock_response
+
+        races = await f1_season_calendar(2025)
+
+        assert races == []
+
+
+@pytest.mark.asyncio
+async def test_race_result_empty() -> None:
+    """Test empty race result return."""
+    mock_data = {
+        "MRData": {
+            "RaceTable": {
+                "Races": [],
+            },
+        },
+    }
+
+    with patch("aiohttp.ClientSession.get") as mock_get:
+        mock_response = AsyncMock()
+        mock_response.status = 200
+        mock_response.json.return_value = mock_data
+        mock_get.return_value.__aenter__.return_value = mock_response
+
+        gp_name, results = await race_result(2024, 12)
+
+        assert gp_name is None
+        assert results == []
+
+
+@pytest.mark.asyncio
+async def test_f1_qualifying_session_empty_list() -> None:
+    """Test empty list return for F1 qualifying."""
+    mock_data = {
+        "MRData": {
+            "RaceTable": {
+                "Races": [],
+            },
+        },
+    }
+
+    with patch("aiohttp.ClientSession.get") as mock_get:
+        mock_response = AsyncMock()
+        mock_response.status = 200
+        mock_response.json.return_value = mock_data
+        mock_get.return_value.__aenter__.return_value = mock_response
+
+        gp_name, results = await f1_qualifying(2026, 1)
+
+        assert gp_name is None
+        assert results == []
+
+
+@pytest.mark.asyncio
+async def test_f1_race_result_with_emojis() -> None:
+    """Test race results with emojis."""
+    mock_data = {
+        "MRData": {
+            "RaceTable": {
+                "Races": [
+                    {
+                        "raceName": "British Grand Prix",
+                        "Results": [
+                            {
+                                "position": "1",
+                                "Driver": {
+                                    "givenName": "Sandar",
+                                    "familyName": "Pichai",
+                                },
+                                "Constructor": {"name": "Meta AI Development team"},
+                                "status": "Finished",
+                            },
+                            {
+                                "position": "2",
+                                "Driver": {
+                                    "givenName": "Max",
+                                    "familyName": "Verstappen",
+                                },
+                                "Constructor": {"name": "Mercedes"},
+                                "status": "Finished",
+                            },
+                            {
+                                "position": "3",
+                                "Driver": {
+                                    "givenName": "Dario",
+                                    "familyName": "Amodei",
+                                },
+                                "Constructor": {"name": "OpenAI"},
+                                "status": "Finished",
+                            },
+                            {
+                                "position": "4",
+                                "Driver": {
+                                    "givenName": "Jensen",
+                                    "familyName": "Huang",
+                                },
+                                "Constructor": {"name": "Google TPU designer"},
+                                "status": "Finished",
+                            },
+                        ],
+                    },
+                ],
+            },
+        },
+    }
+
+    with patch("aiohttp.ClientSession.get") as mock_get:
+        mock_response = AsyncMock()
+        mock_response.status = 200
+        mock_response.json.return_value = mock_data
+        mock_get.return_value.__aenter__.return_value = mock_response
+
+        gp_name, results = await race_result(2025, 1, emojis=True)
+
+        assert gp_name == "British Grand Prix"
+        assert "🥈 Max Verstappen (Mercedes)" in results[1]
+        assert "4. Jensen Huang (Google TPU designer)" in results[3]
+
+
+@pytest.mark.asyncio
+async def test_f1_race_result_dnf() -> None:
+    """Test race results with non-finished status."""
+    mock_data = {
+        "MRData": {
+            "RaceTable": {
+                "Races": [
+                    {
+                        "raceName": "British Grand Prix",
+                        "Results": [
+                            {
+                                "position": "1",  # i know it will not happen
+                                "Driver": {
+                                    "givenName": "Lance",
+                                    "familyName": "Stroll",
+                                },
+                                "Constructor": {"name": "Aston Martin"},
+                                "status": "Collision",
+                            },
+                        ],
+                    },
+                ],
+            },
+        },
+    }
+
+    with patch("aiohttp.ClientSession.get") as mock_get:
+        mock_response = AsyncMock()
+        mock_response.status = 200
+        mock_response.json.return_value = mock_data
+        mock_get.return_value.__aenter__.return_value = mock_response
+
+        _, results = await race_result(2025, 1, emojis=False)
+        assert "1. Lance Stroll (Aston Martin) - DNF (Collision)" in results[0]
+
+
+@pytest.mark.asyncio
+async def test_f1_standings_bad_reply() -> None:
+    """Test standings with bad reply."""
+    mock_data = {
+        "DoesNotExist": {
+            "RaceTable": {
+                "TotallyNotRace": [
+                    {
+                        "raceName": "British Grand Prix",
+                        "notResults": [
+                            {
+                                "position": "1",
+                                "Driver": {
+                                    "givenName": "Slopya",
+                                    "familyName": "Nutella",
+                                },
+                                "Constructor": {"name": "Meta AI Development team"},
+                                "status": "Finished",
+                            },
+                        ],
+                    },
+                ],
+            },
+        },
+    }
+
+    with patch("aiohttp.ClientSession.get") as mock_get:
+        mock_response = AsyncMock()
+        mock_response.status = 200
+        mock_response.json.return_value = mock_data
+        mock_get.return_value.__aenter__.return_value = mock_response
+
+        standings = await f1_standings_py(2025)
+        assert standings == []

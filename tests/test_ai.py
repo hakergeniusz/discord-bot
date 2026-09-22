@@ -21,6 +21,8 @@ import pytest
 with patch("google.genai.Client"):
     from src.core.ai import process_prompt
 
+from google.genai import errors as gemini_errors
+
 
 class MockChunk:
     """Mock class for a chunk of text from the AI."""
@@ -64,3 +66,19 @@ async def test_process_prompt_empty_chunks(mock_generate: AsyncMock) -> None:
 
     result_chunks = [chunk async for chunk in process_prompt("hi")]
     assert result_chunks == ["Hello", "world!"]
+
+
+@pytest.mark.asyncio
+@patch(
+    "src.core.ai.gemini_client.models.generate_content_stream",
+    new_callable=AsyncMock,
+)
+async def test_servererror(mock_generate: AsyncMock) -> None:
+    """Test that error is yield after a ServerError from Google AI Studio."""
+    mock_generate.side_effect = gemini_errors.ServerError(
+        500,
+        {"error": {"message": "Our massive TPU cluster has decided to say 'Liberum Veto'."}},
+    )
+
+    reply = [chunk async for chunk in process_prompt("hi")]
+    assert reply == ["An unknown error has occured. Please try again in a minute."]
