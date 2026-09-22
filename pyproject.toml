@@ -6,12 +6,12 @@ license = "EUPL-1.2"
 readme = "docs/README.md"
 requires-python = ">=3.14"
 dependencies = [
-	"discord-py>=2.6.4",
-    "discord-py[voice]>=2.6.4",
-    "google-genai>=1.62.0",
-    "python-dotenv>=1.2.1",
+	"discord-py>=2.7.1",
+    "discord-py[voice]>=2.7.1",
+    "google-genai>=2.24.0",
+    "python-dotenv>=1.2.3",
     "pyyaml>=6.0.3",
-    "yt-dlp>=2026.2.4",
+    "yt-dlp>=2026.8.19",
 ]
 
 
@@ -22,9 +22,9 @@ reportFunctionMemberAccess = false
 
 [dependency-groups]
 dev = [
-    "pytest>=9.0.2",
-    "pytest-asyncio>=1.3.0",
-    "ruff>=0.15.0",
+    "pytest>=9.1.1",
+    "pytest-asyncio>=1.4.0",
+    "ruff>=0.16.8",
 ]
 
 [project.scripts]
@@ -72,7 +72,7 @@ convention = "google"
 max-complexity = 12
 
 [tool.ruff.lint.per-file-ignores]
-"tests/*" = ["magic-value-comparison"]
+"tests/*" = ["magic-value-comparison", "import-private-name"]
 
 [tool.ruff.lint.flake8-copyright]
 # Mandatory EUPL copyright + license header on every Python file (CPY001 is preview-only).
