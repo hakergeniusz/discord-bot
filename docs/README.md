@@ -54,10 +54,6 @@ Execute the following command:
 uv run bot
 ```
 
-## 💻 System Compatibility
-Bot is developed on **Arch Linux** and hosted on **Debian 13**. Bot is compatible with **Linux, Windows, and macOS**.
-> **Note:** FFmpeg must be installed and added to the system's PATH for music features.
-
 ---
 
 ## 🌟 Credits
