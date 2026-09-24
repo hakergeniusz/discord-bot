@@ -38,7 +38,7 @@ Requirements (same bar as human code):
 5. **Disclose fully-AI work.** If a commit was made by an autonomous
    agent or written exclusively by AI, add the trailer from `AGENTS.md`:
    `Co-authored-by: Claude <noreply@anthropic.com>`. Human + AI
-   collaboration needs no trailer. For PRs, append "Made by AI" or "Made by [AI model name, agent name etc.]"
+   collaboration needs no trailer. For PRs, append "Made by AI" or "Made by [AI model name, agent name etc.]".
 
 Maintainer may close anything that looks unreviewed, untested, or
 bulk-generated without discussion - even if CI is green.
