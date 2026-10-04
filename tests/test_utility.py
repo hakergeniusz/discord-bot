@@ -10,8 +10,12 @@ import discord
 import pytest
 from discord.ext import commands
 
-from cogs.utility import Utility, setup
 from core.config import AI_RESPONSE_LIMIT
+
+# core.ai builds a Gemini client at import time, which needs an API key that CI
+# does not provide. Every test below replaces process_prompt anyway.
+with patch("google.genai.Client"):
+    from cogs.utility import Utility, setup
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Callable
