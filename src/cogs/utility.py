@@ -190,6 +190,8 @@ class Utility(commands.Cog):
         await message.delete()
         file = discord.File(str(file_path))
         await ctx.send(content="Here is the file with the full response:", file=file)
+        # Windows refuses to unlink a file that is still open by discord.File.
+        file.close()
 
         if file_path.exists():
             file_path.unlink()

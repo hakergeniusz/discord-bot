@@ -315,10 +315,18 @@ async def test_ai_long_response_warns_about_limit() -> None:
     ctx.send.return_value = AsyncMock()
     chunks = ("x" * 1000, "y" * (AI_RESPONSE_LIMIT - 1000 + 5))
 
-    with patch("cogs.utility.process_prompt", new=_chunk_stream(*chunks)):
+    with (
+        patch("cogs.utility.process_prompt", new=_chunk_stream(*chunks)),
+        patch("cogs.utility.create_file", new=AsyncMock(return_value=None)),
+    ):
         await cog.ai.callback(cog, ctx, prompt="hi")
 
-    assert "Response is too long" in ctx.send.return_value.edit.call_args.kwargs["content"]
+    warned = [
+        call
+        for call in ctx.send.return_value.edit.await_args_list
+        if "Soon, file with full response will be provided." in call.kwargs["content"]
+    ]
+    assert len(warned) == 1
 
 
 @pytest.mark.asyncio
