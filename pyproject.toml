@@ -72,7 +72,12 @@ convention = "google"
 max-complexity = 12
 
 [tool.ruff.lint.per-file-ignores]
-"tests/*" = ["magic-value-comparison", "import-private-name"]
+"tests/*" = [
+    "magic-value-comparison",
+    "import-private-name",
+    "private-member-access",
+    "unused-async", # test doubles are async generators without awaits
+]
 
 [tool.ruff.lint.flake8-copyright]
 # Mandatory EUPL copyright + license header on every Python file (CPY001 is preview-only).
