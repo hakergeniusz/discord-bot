@@ -71,17 +71,16 @@ config.yaml        Bot config (prefix, admin user IDs). Secrets -> .env.
 **Commits must follow the [Conventional Commits](https://www.conventionalcommits.org/) specification.**  
 Format: `<type>[optional scope]: <description>` — e.g. `feat: add music queue command`.
 
-Every commit message made by an autonomous AI agent, or written exclusively by AI (not every
-commit in general), must end with a `Co-authored-by` trailer for Claude, separated from the
-body by a single blank line, exactly as GitHub expects:
+Follow the AI contribution requirements in `docs/CONTRIBUTING.md`: if work is carried out by
+an autonomous AI agent or written entirely by AI, include an `Assisted-by` trailer naming the
+harness or agent tool and model. Use this format:
 
 ```text
 <type>[optional scope]: <description>
 
 <optional body>
 
-Co-authored-by: Claude <noreply@anthropic.com>
+Assisted-by: [Harness/agent tool name] ([model name])
 ```
 
-- The trailer is on its own line, preceded by exactly one blank line.
-- When Claude makes a commit, it appends this trailer automatically.
+The trailer must be on its own line, separated from the commit body by a single blank line.
