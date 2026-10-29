@@ -1,6 +1,25 @@
 # 🤖 Discord Bot
 
 <img src="https://img.shields.io/badge/License-EUPL_v1.2-blue.svg?style=for-the-badge" height="40">
+<img src="https://github.com/hakergeniusz/discord-bot/actions/workflows/tests.yml/badge.svg" height="40">
+
+Yet Another Shitly Made Discord Bot — music, AI, Formula 1 and a healthy dose of nonsense.
+
+---
+
+## ✨ Features
+
+| Area | Commands |
+|---|---|
+| 🎵 **Music** | `/play`, `/queue`, `/skip`, `/nowplaying`, `/leave` — YouTube playback powered by yt-dlp + FFmpeg |
+| 🧠 **AI** | `/ai` — Google Gemini chat (free key from [AI Studio](https://aistudio.google.com)) |
+| 🏎️ **Formula 1** | `/f1_standings`, `/f1_race_result`, `/f1_qualifying`, `/f1_calendar` |
+| 🎉 **Fun** | `/cowsay`, `/archbtw`, `/complain`, `/finger`, `/heart`, `/howmanytimes`, `/howmanybutton`, `/nothing`, `/nvidia`, `/rickroll_me` |
+| 🛠️ **Utility** | `/say`, `/webhook`, `/dm_or_not`, `/hide_conversation` |
+| 👑 **Admin** | `/purge`, `/shutdown`, `/change_status`, `/create_webhook`, `/delete_webhook` — gated by the `admins` list in `config.yaml` |
+| ℹ️ **Other** | `/ping`, `/source`, `/license` |
+
+Errors are caught globally by a dedicated error handler cog, so a failing command won't crash the bot.
 
 ---
 
@@ -47,6 +66,42 @@ Execute the following command:
 ```bash
 uv run bot
 ```
+
+---
+
+## 🐳 Container
+
+Every push to `main`/`latest` builds a multi-arch image (`linux/amd64`, `linux/arm64`, `linux/riscv64`) and publishes it to GHCR. Run it with:
+
+```bash
+docker run -d --name discord-bot \
+  --env-file .env \
+  -v ./config.yaml:/app/config.yaml:ro \
+  ghcr.io/hakergeniusz/discord-bot:latest
+```
+
+The image runs the bot as an unprivileged user and reads its configuration from `/app/config.yaml` (mount yours as shown above); the `.env` values can equivalently be passed with `-e DISCORD_BOT_TOKEN=... -e GEMINI_API_KEY=...`.
+
+---
+
+## 🧪 Development
+
+```bash
+uv sync --all-extras --dev   # install runtime + dev dependencies
+uv run pytest                # run the test suite
+uv run ruff check .          # lint
+uv run ruff format --check . # formatting check
+```
+
+Type checking is done with **basedpyright** in `standard` mode (see `pyproject.toml`).
+
+---
+
+## 🤖 CI
+
+* **CI** (`.github/workflows/tests.yml`): Ruff lint + format check and the pytest suite on **Linux, Windows and macOS**.
+* **Container** (`.github/workflows/container.yml`): podman builds for `amd64`/`arm64`/`riscv64` merged into a multi-arch manifest on GHCR.
+* **Failure reporting**: when a push to `main` ends red, the workflows open (or update) an issue titled **🔴 CI failing on main** with a link to the failing run, and automatically close it once CI is green again.
 
 ---
 
