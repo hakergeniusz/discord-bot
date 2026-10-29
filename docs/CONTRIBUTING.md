@@ -6,7 +6,7 @@ Thank you for considering contributing!
 By submitting a Pull Request to this repository, you agree that:
 1. You have the right to submit this code.
 2. You grant the project maintainer (**hakergeniusz**) the right to redistribute your
-   contribution under the current license (EUPL-1.2)
+   contribution under the current license (BSD-3-Clause)
 3. You grant the project maintainer the right to change the project's license to any other
    **Open Source license** (as defined by the OSI), **Free Software license** (as defined by the
    Free Software Foundation), or source-available license in the future, without requiring

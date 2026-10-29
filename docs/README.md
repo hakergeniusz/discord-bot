@@ -1,6 +1,6 @@
 # 🤖 Discord Bot
 
-<img src="https://img.shields.io/badge/License-EUPL_v1.2-blue.svg?style=for-the-badge" height="40">
+<img src="https://img.shields.io/badge/License-BSD_3--Clause-blue.svg?style=for-the-badge" height="40">
 <img src="https://github.com/hakergeniusz/discord-bot/actions/workflows/tests.yml/badge.svg" height="40">
 
 Yet Another Shitly Made Discord Bot — music, AI, Formula 1 and a healthy dose of nonsense.
@@ -112,9 +112,9 @@ All credits for are in [CREDITS](CREDITS) file.
 
 ## 📜 License
 
-This software is licensed under the **European Union Public License (EUPL) version 1.2** or – as soon as they are approved by the European Commission – subsequent versions of the EUPL.
+This software is licensed under the **BSD 3-Clause License**.
 
 You may not use this work except in compliance with the Licence. You may obtain a copy of the Licence at:
-[https://joinup.ec.europa.eu/software/page/eupl](https://joinup.ec.europa.eu/software/page/eupl)
+[https://opensource.org/license/bsd-3-clause](https://opensource.org/license/bsd-3-clause)
 
 Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an **"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND**, either express or implied. See the [LICENSE](LICENSE) file for the specific language governing permissions and limitations under the Licence.

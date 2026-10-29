@@ -1,5 +1,5 @@
 # Copyright (c) 2025-present hakergeniusz
-# SPDX-License-Identifier: EUPL-1.2
+# SPDX-License-Identifier: BSD-3-Clause
 
 # Buildable with podman or docker.
 #
@@ -11,7 +11,7 @@ FROM docker.io/library/python:3.14-slim
 
 LABEL org.opencontainers.image.title="discord-bot" \
     org.opencontainers.image.description="Yet Another Shitly Made Discord Bot." \
-    org.opencontainers.image.licenses="EUPL-1.2"
+    org.opencontainers.image.licenses="BSD-3-Clause"
 
 # FFmpeg is required at runtime for music playback (yt-dlp pipes through it).
 # Deno is required for runtime JS/TS execution or tooling if used by cogs/bot features.

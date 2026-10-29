@@ -1,5 +1,5 @@
 # Copyright (c) 2025-present hakergeniusz
-# SPDX-License-Identifier: EUPL-1.2
+# SPDX-License-Identifier: BSD-3-Clause
 
 """Tests for the Other cog."""
 
@@ -78,7 +78,7 @@ async def test_licence_without_interaction() -> None:
     await cog.licence.callback(cog, ctx)
 
     sent = ctx.send.call_args.args[0]
-    assert "EUPL-1.2" in sent
+    assert "BSD-3-Clause" in sent
     assert "embed" not in ctx.send.call_args.kwargs
 
 

@@ -2,7 +2,7 @@
 name = "discord-bot"
 version = "2.1.0"
 description = "Yet Another Shitly Made Discord Bot."
-license = "EUPL-1.2"
+license = "BSD-3-Clause"
 readme = "docs/README.md"
 requires-python = ">=3.14"
 dependencies = [
@@ -80,7 +80,7 @@ max-complexity = 12
 ]
 
 [tool.ruff.lint.flake8-copyright]
-# Mandatory EUPL copyright + license header on every Python file (CPY001 is preview-only).
+# Mandatory BSD-3-Clause copyright + license header on every Python file (CPY001 is preview-only).
 author = "hakergeniusz"
 # Custom notice pattern: the default regex requires numeric years (YYYY-YYYY),
 # but the project uses "2025-present" so the year never needs bumping.

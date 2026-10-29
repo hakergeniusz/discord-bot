@@ -11,7 +11,7 @@ A feature-rich Discord bot built with `discord.py`. Commands are exposed as **hy
 - **AI:** `google-genai` (Gemma 4 models)
 - **Music:** `yt-dlp` + FFmpeg
 - **Tooling:** `uv` (deps), `ruff` (lint/format), `pytest` (tests, `pytest-asyncio`)
-- **License:** EUPL-1.2 — a copyright header is **mandatory on every file** (see Conventions)
+- **License:** BSD-3-Clause — a copyright header is **mandatory on every file** (see Conventions)
 
 ## Commands
 
@@ -51,7 +51,7 @@ config.yaml        Bot config (prefix, admin user IDs). Secrets -> .env.
 - **Copyright header (MANDATORY at the top of every file):** enforced automatically by ruff's `CPY001` rule — a missing/incorrect header fails `uv run ruff check`.
   ```python
   # Copyright (c) 2025-present hakergeniusz
-  # SPDX-License-Identifier: EUPL-1.2
+  # SPDX-License-Identifier: BSD-3-Clause
   ```
 - **Lint/format:** `ruff` with the `ALL` ruleset (minor ignores in `pyproject.toml`), line-length 100.
 - **Docstrings:** Google style, required for classes and public methods.

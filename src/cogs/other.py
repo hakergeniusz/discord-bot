@@ -1,5 +1,5 @@
 # Copyright (c) 2025-present hakergeniusz
-# SPDX-License-Identifier: EUPL-1.2
+# SPDX-License-Identifier: BSD-3-Clause
 
 """Module for miscellaneous commands such as ping and license information."""
 
@@ -57,13 +57,13 @@ class Other(commands.Cog):
                 "📜 **Legal Information & License**\n\n"
                 "**Copyright (c) 2025-present hakergeniusz**\n"
                 "This program is free software: you can redistribute it and/or "
-                "modify it under the terms of the **EUPL-1.2** "
+                "modify it under the terms of the **BSD-3-Clause** "
                 "as published by the European Commission.\n\n"
                 "⚠️ Disclaimer of Warranty\n"
                 "This program is distributed in the hope that it will be useful, "
                 "but **WITHOUT ANY WARRANTY**; without even the implied warranty "
                 "of **MERCHANTABILITY** or **FITNESS FOR A PARTICULAR PURPOSE**. "
-                "See the [EUPL-1.2](https://joinup.ec.europa.eu/software/page/eupl) "
+                "See the [BSD-3-Clause](https://opensource.org/license/bsd-3-clause) "
                 "for more details."
             )
             await ctx.send(message)
@@ -74,13 +74,13 @@ class Other(commands.Cog):
             description=(
                 "**Copyright (c) 2025-present hakergeniusz**\n\n"
                 "This program is free software: you can redistribute it and/or "
-                "modify it under the terms of the **EUPL-1.2** "
+                "modify it under the terms of the **BSD-3-Clause** "
                 "as published by the European Commission.\n\n"
                 "### ⚠️ Disclaimer of Warranty\n"
                 "This program is distributed in the hope that it will be useful, "
                 "but **WITHOUT ANY WARRANTY**; without even the implied warranty "
                 "of **MERCHANTABILITY** or **FITNESS FOR A PARTICULAR PURPOSE**. "
-                "See the [EUPL-1.2](https://joinup.ec.europa.eu/software/page/eupl) "
+                "See the [BSD-3-Clause](https://opensource.org/license/bsd-3-clause) "
                 "for more details."
             ),
         )

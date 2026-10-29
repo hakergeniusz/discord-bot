@@ -1,5 +1,5 @@
 # Copyright (c) 2025-present hakergeniusz
-# SPDX-License-Identifier: EUPL-1.2
+# SPDX-License-Identifier: BSD-3-Clause
 
 """Unit tests for the howmany module."""
 
