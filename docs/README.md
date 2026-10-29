@@ -101,7 +101,7 @@ Type checking is done with **basedpyright** in `standard` mode (see `pyproject.t
 
 * **CI** (`.github/workflows/tests.yml`): Ruff lint + format check and the pytest suite on **Linux, Windows and macOS**.
 * **Container** (`.github/workflows/container.yml`): podman builds for `amd64`/`arm64`/`riscv64` merged into a multi-arch manifest on GHCR.
-* **Failure reporting**: when a push to `main` ends red, the workflows open (or update) an issue titled **🔴 CI failing on main** with a link to the failing run, and automatically close it once CI is green again.
+* **Failure reporting**: when a push to `main`/`latest` ends red, the workflows open (or update) an issue titled **🔴 CI failing on `<branch>`** with a link to the failing run, and automatically close it once CI is green again.
 
 ---
 

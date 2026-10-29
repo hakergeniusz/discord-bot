@@ -103,7 +103,7 @@ jobs:
   ci-issue:
     name: File CI-failure issue
     needs: [lint, test-linux, test-windows, test-macos]
-    if: ${{ !cancelled() && failure() && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    if: ${{ !cancelled() && failure() && github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/latest') }}
     runs-on: ubuntu-latest
     permissions:
       issues: write
@@ -114,19 +114,19 @@ jobs:
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           number=$(gh issue list -R "$GITHUB_REPOSITORY" --state open \
-            --json number,title --jq '.[] | select(.title == "🔴 CI failing on main") | .number' | head -1)
+            --json number,title --jq '.[] | select(.title == "🔴 CI failing on ${GITHUB_REF_NAME}") | .number' | head -1)
           if [ -n "$number" ]; then
             gh issue comment "$number" -R "$GITHUB_REPOSITORY" \
               --body "Still failing — [run #${{ github.run_id }}](${RUN_URL}) on \`${GITHUB_SHA::7}\`."
           else
-            gh issue create -R "$GITHUB_REPOSITORY" --title "🔴 CI failing on main" \
-              --body "CI is red on \`main\`: [run #${{ github.run_id }}](${RUN_URL}) (commit \`${GITHUB_SHA::7}\`)."
+            gh issue create -R "$GITHUB_REPOSITORY" --title "🔴 CI failing on ${GITHUB_REF_NAME}" \
+              --body "CI is red on \`${GITHUB_REF_NAME}\`: [run #${{ github.run_id }}](${RUN_URL}) (commit \`${GITHUB_SHA::7}\`)."
           fi
 
   ci-issue-close:
     name: Close CI-failure issue when green
     needs: [lint, test-linux, test-windows, test-macos]
-    if: ${{ !cancelled() && success() && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    if: ${{ !cancelled() && success() && github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/latest') }}
     runs-on: ubuntu-latest
     permissions:
       issues: write
@@ -137,7 +137,7 @@ jobs:
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           number=$(gh issue list -R "$GITHUB_REPOSITORY" --state open \
-            --json number,title --jq '.[] | select(.title == "🔴 CI failing on main") | .number' | head -1)
+            --json number,title --jq '.[] | select(.title == "🔴 CI failing on ${GITHUB_REF_NAME}") | .number' | head -1)
           if [ -n "$number" ]; then
             gh issue close "$number" -R "$GITHUB_REPOSITORY" \
               --comment "CI is green again — [run #${{ github.run_id }}](${RUN_URL})."
