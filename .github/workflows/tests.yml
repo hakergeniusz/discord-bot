@@ -99,3 +99,46 @@ jobs:
         run: |
           export PYTHONPATH=$PYTHONPATH:$(pwd)/src
           uv run pytest
+
+  ci-issue:
+    name: File CI-failure issue
+    needs: [lint, test-linux, test-windows, test-macos]
+    if: ${{ !cancelled() && failure() && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Open or update the CI-failure issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          number=$(gh issue list -R "$GITHUB_REPOSITORY" --state open \
+            --json number,title --jq '.[] | select(.title == "🔴 CI failing on main") | .number' | head -1)
+          if [ -n "$number" ]; then
+            gh issue comment "$number" -R "$GITHUB_REPOSITORY" \
+              --body "Still failing — [run #${{ github.run_id }}](${RUN_URL}) on \`${GITHUB_SHA::7}\`."
+          else
+            gh issue create -R "$GITHUB_REPOSITORY" --title "🔴 CI failing on main" \
+              --body "CI is red on \`main\`: [run #${{ github.run_id }}](${RUN_URL}) (commit \`${GITHUB_SHA::7}\`)."
+          fi
+
+  ci-issue-close:
+    name: Close CI-failure issue when green
+    needs: [lint, test-linux, test-windows, test-macos]
+    if: ${{ !cancelled() && success() && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Close the CI-failure issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          number=$(gh issue list -R "$GITHUB_REPOSITORY" --state open \
+            --json number,title --jq '.[] | select(.title == "🔴 CI failing on main") | .number' | head -1)
+          if [ -n "$number" ]; then
+            gh issue close "$number" -R "$GITHUB_REPOSITORY" \
+              --comment "CI is green again — [run #${{ github.run_id }}](${RUN_URL})."
+          fi
