@@ -182,11 +182,14 @@ files = await agent(
 )
 
 phase("Review")
-reviews = await parallel(files, lambda f: agent(
-    f"Review {f} for misuse of Bar(). Reply in 3 bullets or 'OK'.",
-    schema={"type": "string"},
-    role=f"Review {f}",
-))
+reviews = await parallel(
+    files,
+    lambda f: agent(
+        f"Review {f} for misuse of Bar(). Reply in 3 bullets or 'OK'.",
+        schema={"type": "string"},
+        role=f"Review {f}",
+    ),
+)
 for r in reviews:
     log(r)
 ```
